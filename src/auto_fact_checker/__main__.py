@@ -53,9 +53,11 @@ def main(argv: list[str] | None = None) -> int:
     chk.add_argument("--set", action="append", default=[], metavar="KEY=VALUE", help="dotted config override")
     chk.add_argument("--iterations", type=int, help="iterate until accurate, at most N passes")
     sub.add_parser("spend", help="show cumulative billed API spend")
-    bench = sub.add_parser("bench", help="run a benchmark (see docs/benchmark.md)")
-    bench.add_argument("args", nargs=argparse.REMAINDER)
-    args = parser.parse_args(argv)
+    sub.add_parser("bench", help="run a benchmark; options are parsed by bench/run.py (see docs/benchmark.md)")
+    # parse_known_args: argparse.REMAINDER does not capture leading "--options", so bench options pass through here.
+    args, rest = parser.parse_known_args(argv)
+    if rest and args.cmd != "bench":
+        parser.error(f"unrecognized arguments: {' '.join(rest)}")
     setup_logging(get_settings().logs_dir)
     if args.cmd == "ui":
         from .ui import launch
@@ -63,7 +65,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.cmd == "bench":
         from .bench.run import main as bench_main
-        return bench_main(args.args)
+        return bench_main(rest)
     return {"check": cmd_check, "spend": cmd_spend}[args.cmd](args)
 
 

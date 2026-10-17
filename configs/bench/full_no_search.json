@@ -1,0 +1,5 @@
+{"_comment": "Post-hoc arm D (exploratory): the full default rigorous prompt in one gpt-6-luna API call WITHOUT web search; completes the 2x2 (prompt x search) with A, B, C.",
+ "max_cost_usd": 0.5,
+ "steps": {"check": {"kind": "api", "provider": "openai", "model": "gpt-6-luna", "effort": "low", "web_search": false,
+                     "prompt_template": "rigorous_sections.md", "blocked_domains": ["huggingface.co", "github.com", "githubusercontent.com", "kaggle.com", "paperswithcode.com", "allenai.org"]},
+           "repair": {"model": "gpt-6-luna", "effort": "low"}}}

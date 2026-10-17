@@ -1,0 +1,33 @@
+{
+ "n_common": 200,
+ "systems": {
+  "baseline_search": {
+   "n": 200,
+   "accuracy": 0.89,
+   "accuracy_ci": [
+    0.839073090026985,
+    0.926227555398747
+   ],
+   "balanced_accuracy": 0.89,
+   "macro_f1": 0.889823717948718,
+   "auroc": 0.95595,
+   "brier": 0.087471,
+   "parse_fail": 0,
+   "cost_usd": 2.3021043,
+   "leak_items": 0,
+   "mean_searches": 1.035
+  }
+ },
+ "comparisons": {},
+ "dataset": "scifact",
+ "splits": [
+  "validation",
+  "train"
+ ],
+ "seed": 0,
+ "n_sampled": 200,
+ "systems_files": [
+  "configs/bench/baseline_search.json"
+ ],
+ "invocation_cost_usd": 2.302104299999998
+}

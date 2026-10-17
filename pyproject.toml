@@ -34,6 +34,10 @@ build-backend = "uv_build"
 dev = [
     "pytest>=9.1.1",
 ]
+paper = [
+    "matplotlib>=3.11.2",
+    "typst>=0.15.0",
+]
 
 [tool.pytest.ini_options]
 # Live tests call real (paid) LLM APIs/CLIs, so they only run when explicitly requested with `-m live`.
