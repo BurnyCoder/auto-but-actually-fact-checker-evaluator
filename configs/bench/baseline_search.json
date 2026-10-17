@@ -1,0 +1,6 @@
+{"_comment": "Exp02 system C: the simple baseline prompt plus hosted web search (max 3 tool calls, dataset hosts blocked); separates the effect of search from the effect of the rigorous prompt.",
+ "sections": ["01_task"], "max_cost_usd": 0.5,
+ "steps": {"check": {"kind": "api", "provider": "openai", "model": "gpt-6-luna", "effort": "low", "web_search": true,
+                     "search_context_size": "medium", "max_searches": 3, "prompt_template": "minimal_baseline.md",
+                     "blocked_domains": ["huggingface.co", "github.com", "githubusercontent.com", "kaggle.com", "paperswithcode.com", "allenai.org"]},
+           "repair": {"model": "gpt-6-luna", "effort": "low"}}}
