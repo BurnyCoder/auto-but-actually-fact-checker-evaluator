@@ -10,23 +10,28 @@ p_true = overall accuracy_pct / 100 (SUPPORT iff p_true >= 0.5, fixed in advance
 
 import argparse
 import json
+import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from ..config import get_settings, load_preset
 from ..pipeline import run_fact_check
+from ..results import RUNS
 from ..spend import BudgetExceeded
 from . import metrics
 from .datasets import DATASETS, sample_balanced
 
-LEAK_MARKERS = ("scifact", "huggingface.co", "github.com", "allenai.org", "kaggle.com", "paperswithcode.com")
+LEAK_MARKERS = ("scifact", "huggingface.co", "github.com", "githubusercontent.com", "allenai.org", "kaggle.com",
+                "paperswithcode.com")  # the blocked benchmark hosts plus the dataset name
 _WRITE = threading.Lock()
+LOG = logging.getLogger("afc.bench")
 
 
 def run_item(item, cfg) -> dict:
     """Fact-check one item; return the cached record (prediction, cost, sources, leakage flag)."""
     run = run_fact_check(item.text, cfg)
+    RUNS.pop(run.run_id, None)  # persisted in runs/<id>/run.json; keep memory flat over hundreds of items
     final = run.iterations[-1].final if run.iterations else None
     summary = final.summary if final else None
     acc = summary.accuracy() if summary else None
@@ -53,18 +58,25 @@ def run_system(name: str, cfg, items, out: Path, max_cost: float, spent: list, w
     todo = [i for i in items if i.id not in done]
     log(f"[{name}] {len(done)} cached, {len(todo)} to run")
 
+    stop = threading.Event()  # set once the global spend cap is hit, so queued items are skipped
+
     def work(item):
         with _WRITE:
-            if spent[0] >= max_cost:
+            if stop.is_set() or spent[0] >= max_cost:
                 return
         rec = run_item(item, cfg)
         with _WRITE:
             spent[0] += rec["cost_usd"]
-            with path.open("a", encoding="utf-8") as f:
-                f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+            complete = rec["status"] == "done" and not rec["errors"]
+            if complete:  # only finished, error-free items are cached; others are retried on resume
+                with path.open("a", encoding="utf-8") as f:
+                    f.write(json.dumps(rec, ensure_ascii=False) + "\n")
         log(f"[{name}] {item.id} gold={item.label} p_true={rec['p_true']} cost=${rec['cost_usd']:.4f} "
-            f"total=${spent[0]:.4f} leak={rec['leak']}")
+            f"total=${spent[0]:.4f} leak={rec['leak']}" + ("" if complete else
+                                                         f" NOT CACHED ({rec['status']}: {rec['stop_reason']}; "
+                                                         f"errors={rec['errors']})"))
         if rec["status"] == "stopped" and "Spend cap" in (rec["stop_reason"] or ""):
+            stop.set()
             raise BudgetExceeded(rec["stop_reason"])
 
     with ThreadPoolExecutor(max_workers=workers) as pool:
@@ -94,12 +106,17 @@ def summarize(names: list[str], items, out: Path) -> dict:
         m["mean_searches"] = sum(recs[n][i]["searches"] for i in common) / max(len(common), 1)
         summary["systems"][n] = m
     base = names[0]
-    for n in names[1:]:
+    for n in (names[1:] if len(common) >= 2 else []):
         correct = {k: [pr == yy for pr, yy in zip(metrics.predictions(y, p[k]), y)] for k in (base, n)}
         d, lo, hi = metrics.paired_bootstrap(y, p[base], p[n], metrics.balanced_accuracy)
         summary["comparisons"][f"{base}_vs_{n}"] = {"delta_balanced_accuracy": d, "ci95": [lo, hi],
                                                     "mcnemar": metrics.mcnemar_exact(correct[base], correct[n])}
     return summary
+
+
+def _fmt(v) -> str:
+    """Three decimals, or n/a for metrics that are undefined on the available items."""
+    return "n/a" if v is None else f"{v:.3f}"
 
 
 def results_markdown(summary: dict) -> str:
@@ -108,10 +125,9 @@ def results_markdown(summary: dict) -> str:
             " leak items | mean searches | cost $ |", "|" + "---|" * 11]
     for n, m in summary["systems"].items():
         lo, hi = m["accuracy_ci"]
-        auroc = "n/a" if m["auroc"] is None else f"{m['auroc']:.3f}"
         rows.append(f"| {n} | {m['n']} | {m['accuracy']:.3f} [{lo:.3f}, {hi:.3f}] | {m['balanced_accuracy']:.3f} | "
-                    f"{m['macro_f1']:.3f} | {auroc} | {m['brier']:.3f} | {m['parse_fail']} | {m['leak_items']} | "
-                    f"{m['mean_searches']:.2f} | {m['cost_usd']:.4f} |")
+                    f"{m['macro_f1']:.3f} | {_fmt(m['auroc'])} | {_fmt(m['brier'])} | {m['parse_fail']} | "
+                    f"{m['leak_items']} | {m['mean_searches']:.2f} | {m['cost_usd']:.4f} |")
     rows += ["", "| comparison | Δ balanced accuracy [95% paired bootstrap CI] | McNemar b / c | exact p |",
              "|---|---|---|---|"]
     for k, c in summary["comparisons"].items():
@@ -144,13 +160,13 @@ def main(argv: list[str]) -> int:
     spent = [0.0]
     try:
         for name, path in zip(names, args.systems):
-            run_system(name, load_preset(path), items, out, args.max_cost, spent, args.workers, print)
+            run_system(name, load_preset(path), items, out, args.max_cost, spent, args.workers, LOG.info)
     except BudgetExceeded as e:
-        print(f"Global spend cap reached: {e}")
+        LOG.warning("Global spend cap reached: %s", e)
     summary = summarize(names, items, out)
     summary |= {"dataset": args.dataset, "splits": args.splits, "seed": args.seed, "n_sampled": len(items),
                 "systems_files": args.systems, "invocation_cost_usd": spent[0]}
     (out / "summary.json").write_text(json.dumps(summary, indent=1), encoding="utf-8")
     (out / "results.md").write_text(results_markdown(summary), encoding="utf-8")
-    print(results_markdown(summary))
+    LOG.info("Results\n%s", results_markdown(summary))
     return 0
