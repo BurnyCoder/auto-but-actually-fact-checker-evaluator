@@ -1,8 +1,9 @@
-"""Screenshots of the Gradio UI for README.md: the whole app, then one real run on an example text.
+"""Screenshots of the Gradio UI for README.md after one real run on an example text.
 
 Local: starts the real app in this process (`ui.launch(block=False)`), drives it with headless Playwright like a
-user would (pick an example text, pick a preset, Load preset, Run fact-check), waits for the run to finish and saves
-PNGs to docs/images/.
+user would (pick an example text, pick a preset, Load preset, Run fact-check) in a fullscreen 1920x1080 window and
+waits for the run to finish. It then saves PNGs to docs/images/: app.png is the whole page with the Claims tab open
+and its empty border trimmed; the example_*.png files show only the text-and-results column with another tab open.
 Global context: the run goes through pipeline.run_fact_check and RunContext.call like any UI run, so its prompt and
 output are logged in full to logs/ and runs/<id>/, billed to logs/spend.jsonl and capped by SPEND_LIMIT_USD. With
 the default preset it is one gpt-6-luna call with web search, about $0.03.
@@ -19,6 +20,7 @@ import argparse
 import logging
 import re
 
+from PIL import Image, ImageChops  # Pillow, installed with gradio
 from playwright.sync_api import expect, sync_playwright
 
 from auto_fact_checker import spend
@@ -36,13 +38,25 @@ def pick(page, combobox: str, option: str) -> None:
     page.get_by_role("option", name=option, exact=True).click()
 
 
-def save(page, path, tab: str | None = None, max_height: int | None = None) -> None:
-    """Whole page (tab=None), or the text-and-results column `#afc-io` with `tab` open, cut to max_height px."""
-    if tab is None:
+def trim(path, margin: int = 16) -> None:
+    """Cut the empty page background (the top-left pixel's colour) around the content, keeping `margin` px.
+    Pillow recipe: https://stackoverflow.com/questions/10615901/trim-whitespace-using-pil ;
+    https://pillow.readthedocs.io/en/stable/reference/ImageChops.html#PIL.ImageChops.difference"""
+    im = Image.open(path).convert("RGB")
+    left, top, right, bottom = ImageChops.difference(im, Image.new("RGB", im.size, im.getpixel((0, 0)))).getbbox()
+    im.crop((max(left - margin, 0), max(top - margin, 0), min(right + margin, im.width),
+             min(bottom + margin, im.height))).save(path)
+
+
+def save(page, path, tab: str, whole_page: bool = False, max_height: int | None = None) -> None:
+    """Open `tab`, then save the whole page with its empty border trimmed, or only the text-and-results column
+    `#afc-io` cut to max_height px."""
+    page.get_by_role("tab", name=tab, exact=True).click()
+    page.evaluate("window.scrollTo(0, 0)")  # bounding_box() is viewport-relative; at scroll 0 it is page-relative
+    if whole_page:
         page.screenshot(path=path, full_page=True)
+        trim(path)
     else:
-        page.get_by_role("tab", name=tab, exact=True).click()
-        page.evaluate("window.scrollTo(0, 0)")  # bounding_box() is viewport-relative; at scroll 0 it is page-relative
         box = page.locator("#afc-io").bounding_box()
         box["height"] = min(box["height"], max_height or box["height"])
         page.screenshot(path=path, full_page=True, clip=box)  # full_page so the clip may extend below the viewport
@@ -67,22 +81,20 @@ def main() -> None:
     try:
         with sync_playwright() as pw:
             browser = pw.chromium.launch(channel=args.channel)
-            page = browser.new_page(viewport={"width": 1600, "height": 1000}, color_scheme="light")
+            page = browser.new_page(viewport={"width": 1920, "height": 1080}, color_scheme="light")  # fullscreen 1080p
             page.goto(f"http://127.0.0.1:{args.port}/")
             pick(page, "Load an example text", args.example)
             expect(page.get_by_label("Text to fact-check")).not_to_have_value("")  # example.input filled the box
             pick(page, "Preset (fills every setting below)", args.preset)
             page.get_by_role("button", name="Load preset").click()
             page.wait_for_timeout(2000)  # Gradio keeps a stream open (no "networkidle"); the preset event takes <1 s
-            save(page, out / "app.png")
-            page.set_viewport_size({"width": 2400, "height": 1000})  # wider results column: 7-column Claims table
             page.get_by_role("button", name="Run fact-check").click()
             status = page.get_by_text(FINISHED).first
             status.wait_for(timeout=args.timeout * 1000)
             log.info("Run finished: %s", status.inner_text())
             if not status.inner_text().startswith("done"):
                 raise RuntimeError(f"Run did not finish cleanly: {status.inner_text()}")
-            save(page, out / "example_claims.png", tab="Claims")
+            save(page, out / "app.png", tab="Claims", whole_page=True)  # README's first image: output + settings
             save(page, out / "example_corrected.png", tab="Corrected text")
             save(page, out / "example_report.png", tab="Report", max_height=1600)
             browser.close()
