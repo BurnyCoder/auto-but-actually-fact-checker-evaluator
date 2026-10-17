@@ -36,6 +36,11 @@ def balanced_accuracy(y_true, p_true) -> float:
     return sum(recalls) / len(recalls) if recalls else 0.0
 
 
+def auroc(y_true, p_true) -> float:
+    """Area under the ROC curve of p_true (unparsed answers scored 0.5); defined only when both classes occur."""
+    return float(roc_auc_score(y_true, [0.5 if p is None else p for p in p_true])) if len(set(y_true)) == 2 else 0.5
+
+
 def binary_metrics(y_true: list[bool], p_true: list[float | None], threshold: float = 0.5) -> dict:
     """All per-system metrics; probability metrics use 0.5 for unparsed answers."""
     pred = predictions(y_true, p_true, threshold)
@@ -66,6 +71,8 @@ def paired_bootstrap(y_true, p_a, p_b, metric_fn, n_boot: int = 10_000, seed: in
     """Observed metric(B) - metric(A) and its 95% percentile CI from resampling items (same indices for both)."""
     rng = random.Random(seed)
     n = len(y_true)
+    if n == 0:
+        return float("nan"), float("nan"), float("nan")
     delta = metric_fn(y_true, p_b) - metric_fn(y_true, p_a)
     stats = []
     for _ in range(n_boot):
@@ -74,5 +81,7 @@ def paired_bootstrap(y_true, p_a, p_b, metric_fn, n_boot: int = 10_000, seed: in
         if len(set(ys)) < 2:  # balanced accuracy needs both classes in the resample
             continue
         stats.append(metric_fn(ys, [p_b[i] for i in idx]) - metric_fn(ys, [p_a[i] for i in idx]))
+    if not stats:  # too few items (or a single class) to resample: no interval
+        return delta, float("nan"), float("nan")
     stats.sort()
     return delta, stats[int(0.025 * len(stats))], stats[min(int(0.975 * len(stats)), len(stats) - 1)]

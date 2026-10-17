@@ -34,30 +34,34 @@ def _pct(v):
 Pct = Annotated[float | None, BeforeValidator(_pct)]
 
 
-def _labels(v):
-    """Labels may come as plain strings ("misleading") instead of objects."""
-    return [{"label": x} if isinstance(x, str) else x for x in (v or [])]
-
-
 def _strs(v):
-    """A single string where a list was expected becomes a one-item list."""
-    return [v] if isinstance(v, str) else (v or [])
+    """A single value where a list was expected becomes a one-item list; null becomes []."""
+    return [] if v is None else v if isinstance(v, list) else [v]
+
+
+def _text(v):
+    """Null -> "", a list -> its items joined (e.g. "degree": ["fully"]), anything else -> str."""
+    return "" if v is None else ", ".join(map(str, v)) if isinstance(v, list) else str(v)
+
+
+def _objs(key: str):
+    """Before-validator for lists of objects that models sometimes give as bare strings (or nulls)."""
+    return BeforeValidator(lambda v: [{key: x} if isinstance(x, str) else x for x in _strs(v) if x is not None])
+
+
+Text = Annotated[str, BeforeValidator(_text)]
+OptText = Annotated[str | None, BeforeValidator(lambda v: None if v is None else _text(v))]
 
 
 class _Lenient(BaseModel):
     model_config = ConfigDict(extra="ignore")  # models may add fields; ignore them
 
 
-def _types(v):
-    """Claim types may come as strings ("fact") or objects ({"type": "fact", "confidence_pct": 80})."""
-    return [{"type": x} if isinstance(x, str) else x for x in _strs(v)]
-
-
 class LabelScore(_Lenient):
     """One verdict label (e.g. 'oversimplified') with its degree, how much it applies and the confidence."""
 
-    label: str = ""
-    degree: str | None = None  # fully | partially | slightly
+    label: Text = ""
+    degree: OptText = None  # fully | partially | slightly
     score_pct: Pct = None
     confidence_pct: Pct = None
 
@@ -65,8 +69,8 @@ class LabelScore(_Lenient):
 class Assessment(_Lenient):
     """One evaluative condition (e.g. 'Bayesian perspective') with a finding, a defined 0-100 score and confidence."""
 
-    condition: str = ""
-    finding: str = ""
+    condition: Text = ""
+    finding: Text = ""
     score_pct: Pct = None
     confidence_pct: Pct = None
 
@@ -74,26 +78,30 @@ class Assessment(_Lenient):
 class ClaimType(_Lenient):
     """One claim classification (e.g. 'falsifiable') with the confidence that it applies."""
 
-    type: str = ""
+    type: Text = ""
     confidence_pct: Pct = None
 
 
 class ClaimVerdict(_Lenient):
-    claim: str = ""
-    claim_types: Annotated[list[ClaimType], BeforeValidator(_types)] = []
+    claim: Text = ""
+    claim_types: Annotated[list[ClaimType], _objs("type")] = []
     accuracy_pct: Pct = None
     confidence_pct: Pct = None
-    labels: Annotated[list[LabelScore], BeforeValidator(_labels)] = []
-    assessments: list[Assessment] = []
-    corrected_claim: str | None = None
+    labels: Annotated[list[LabelScore], _objs("label")] = []
+    assessments: Annotated[list[Assessment], _objs("condition")] = []
+    corrected_claim: OptText = None
 
 
 class FactCheckSummary(_Lenient):
-    claims: list[ClaimVerdict] = []
+    claims: Annotated[list[ClaimVerdict], _objs("claim")] = []
     overall_accuracy_pct: Pct = None
     overall_confidence_pct: Pct = None
-    corrected_text: str | None = None
-    issues: Annotated[list[str], BeforeValidator(_strs)] = []
+    corrected_text: OptText = None
+    issues: Annotated[list[Text], BeforeValidator(_strs)] = []
+
+    def meaningful(self) -> bool:
+        """A usable summary has claims or an overall score (an empty or unrelated JSON object does not)."""
+        return bool(self.claims) or self.overall_accuracy_pct is not None
 
     def accuracy(self) -> float | None:
         """Overall accuracy, falling back to the mean of the per-claim accuracies."""
@@ -108,30 +116,36 @@ class FactCheckSummary(_Lenient):
 
 
 class ExtractedClaim(_Lenient):
-    claim: str
+    claim: Text = ""
     quote: str = ""
     note: str = ""
 
 
 class ClaimList(_Lenient):
-    claims: Annotated[list[ExtractedClaim], BeforeValidator(lambda v: [{"claim": x} if isinstance(x, str) else x
-                                                                         for x in (v or [])])] = []
+    claims: Annotated[list[ExtractedClaim], _objs("claim")] = []
 
 
 T = TypeVar("T", bound=BaseModel)
 FENCE = re.compile(r"```\s*json\s*\n(.*?)```", re.IGNORECASE | re.DOTALL)  # ```json ... ``` (any case)
 
 
-def parse_block(text: str, model: type[T]) -> T | None:
-    """Parse the LAST fenced json block (falling back to the last {...} span) into `model`; None if impossible."""
-    candidates = FENCE.findall(text or "")[::-1]
-    if not candidates and "{" in (text or ""):
-        candidates = [text[text.index("{"): text.rindex("}") + 1]]  # unfenced JSON answer
+def parse_block(text: str, model: type[T], accept=None) -> T | None:
+    """Parse the LAST usable fenced json block (falling back to the {...} span) into `model`; None if impossible.
+
+    accept(obj) -> bool can reject parsed-but-useless objects so earlier blocks (or the repair step) are tried.
+    """
+    text = text or ""
+    candidates = FENCE.findall(text)[::-1]
+    if not candidates and "{" in text:
+        end = text.rfind("}")
+        candidates = [text[text.index("{"): end + 1 if end > text.index("{") else len(text)]]  # unfenced/truncated
     for raw in candidates:
         data = json_repair.loads(raw)  # fixes trailing commas, single quotes, unquoted keys, truncation
         if isinstance(data, dict):
             try:
-                return model.model_validate(data)
+                obj = model.model_validate(data)
             except ValidationError:
                 continue
+            if accept is None or accept(obj):
+                return obj
     return None

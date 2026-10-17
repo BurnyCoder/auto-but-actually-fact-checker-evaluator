@@ -79,3 +79,26 @@ def test_runner_caches_and_respects_cost_cap(fake, settings, tmp_path, monkeypat
     bench_run.main(["--dataset", "scifact", "--splits", "validation", "--systems", str(sysdir / "a.json"),
                     "--out", str(out2)] + capped)
     assert len((out2 / "a.jsonl").read_text(encoding="utf-8").splitlines()) < 4  # stopped by the cost cap
+
+
+def test_failed_items_are_not_cached_and_summary_survives_missing_system(fake, settings, tmp_path, monkeypatch):
+    monkeypatch.setattr(datasets.pd, "read_parquet", fake_parquet)
+    original = fake.__call__
+
+    def flaky(req, log):  # every call on claim c1 fails like a network error
+        res = original(req, log)
+        if "c1" in req.prompt:
+            res.error, res.text = "ConnectionError", ""
+        return res
+
+    monkeypatch.setattr(type(fake), "__call__", lambda self, req, log: flaky(req, log))
+    sysfile = tmp_path / "a.json"
+    sysfile.write_text("{}", encoding="utf-8")
+    out = tmp_path / "out"
+    args = ["--splits", "validation", "--systems", str(sysfile), str(tmp_path / "missing_b.json"), "--n", "4",
+            "--out", str(out), "--max-cost", "1"]
+    (tmp_path / "missing_b.json").write_text('{"max_cost_usd": 0.0}', encoding="utf-8")  # b never completes
+    assert bench_run.main(args) == 0
+    cached = [json.loads(line)["id"] for line in (out / "a.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert "validation-1" not in cached and len(cached) == 3  # the failed item will be retried on resume
+    assert json.loads((out / "summary.json").read_text(encoding="utf-8"))["comparisons"] == {}

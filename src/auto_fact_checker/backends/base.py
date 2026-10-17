@@ -1,7 +1,7 @@
 """Backend-independent request/result types.
 
 Local: LLMRequest describes one call (prompt + per-step settings); LLMResult is what every backend returns.
-Global context: phases build an LLMRequest from a StepConfig (context.request_for), RunContext.call() hands it to
+Global context: RunContext.request() builds an LLMRequest from a StepConfig, RunContext.call() hands it to
 backends.call_llm(), and the LLMResult is logged, costed, stored in runs/<id>/ and shown in the UI's cost table.
 """
 

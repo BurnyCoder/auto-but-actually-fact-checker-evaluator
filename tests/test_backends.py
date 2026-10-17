@@ -63,7 +63,7 @@ def test_claude_cmd_flags(tmp_path):
     cmd = claude_code.build_cmd(r, "claude.exe", agents_file=None)
     assert cmd[:2] == ["claude.exe", "-p"] and "--dangerously-skip-permissions" in cmd
     assert cmd[cmd.index("--model") + 1] == "claude-haiku-5-5" and cmd[cmd.index("--effort") + 1] == "low"
-    assert cmd[cmd.index("--disallowedTools") + 1] == "WebSearch,WebFetch,Agent"
+    assert cmd[cmd.index("--disallowedTools") + 1] == "WebSearch,WebFetch,Agent,Task"
     assert cmd[cmd.index("--max-turns") + 1] == "7" and cmd[cmd.index("--max-budget-usd") + 1] == "0.5"
     assert {"--strict-mcp-config", "--no-session-persistence", "--disable-slash-commands"} <= set(cmd)
     cmd2 = claude_code.build_cmd(req(backend="claude_code", web_search=True, allow_subagents=True), "c.exe",

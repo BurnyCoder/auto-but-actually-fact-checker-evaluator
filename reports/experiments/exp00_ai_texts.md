@@ -1,0 +1,82 @@
+# Exp00 — End-to-end runs of every preset on AI-research, AI-philosophy and AI-engineering texts
+
+**Type:** functional / qualitative validation. This is not a benchmark: the three texts are mine, and their errors
+are planted and well known.
+**Date:** 2026-10-17 · **Models:** `gpt-6-luna` (OpenAI API and Codex), `claude-haiku-5-5` (Claude Code)
+· **Billed cost:** about $0.53 for the runs below, plus about $0.02 for the UI checks.
+
+## Question
+
+Does every execution mode (presets L0–L5, iteration, perspective calls) run end to end through the real APIs and
+CLIs, and produce:
+- the requested JSON contract: 45 labels and 12 conditions per claim, each with a confidence
+- verdicts that agree with an answer key written in advance?
+
+## Setup
+
+- **Texts:** [`examples/`](../../examples). **Answer key:** written before the runs, with sources in
+  [`docs/examples.md`](../../docs/examples.md); the binary form is in
+  [`examples/answer_key.json`](../../examples/answer_key.json). A key claim is "true" if it should score ≥ 50%.
+- **Matching:** case-insensitive keyword. If a run splits a key claim into parts, the least accurate part counts.
+- **Scorer:** [`reports/scripts/score_examples.py`](../scripts/score_examples.py).
+- **Commands:** `uv run afc check examples/<text>.md --preset <preset>` with default settings. The iteration run
+  used `--iterations 2`.
+
+## Results
+
+| preset | text | calls | backends | searches | billed $ | notional $ (subscription) | Σ call durations (s) | agreement with key |
+|---|---|---|---|---|---|---|---|---|
+| L1 single call + search | research | 1 | openai_api | 2 | 0.0296 | – | 112 | 6/6 |
+| L0 single call, no search | philosophy | 1 | openai_api | 0 | 0.0070 | – | 91 | 5/5 |
+| L2 Codex agent | engineering | 1 | codex | 1 | – | 0.0180 | 80 | 5/5 |
+| L2 Claude Code agent | philosophy | 1 | claude_code | 5 | – | 0.0791 | 132 | 5/5 |
+| L4 extract → Codex agent per claim → synthesis | engineering | 9 | codex + openai_api | 10 | 0.0122 | 0.1294 | 337 | 5/5 |
+| L3 Claude lead + subagents (first prompt) | research | 1 | claude_code | 4 | – | 0.0673 | 126 | 6/6, but **0 subagents spawned** |
+| L3 (revised orchestrator prompt) | 2-claim text | 1 | claude_code | 2 | – | 0.0508 | 90 | 4 subagents spawned |
+| L5 extract → per claim × (general + 3 scientists) → syntheses | philosophy | 32 | openai_api | 30 | 0.4185 | – | 1213 | 5/5 |
+| L1 + iterate until accurate | engineering | 2 | openai_api | 4 | 0.0563 | – | 193 | 5/5 (pass 1) |
+
+On every run the JSON contract was complete: 45 scored labels and 12 scored conditions per claim, all with
+confidence, and zero parse failures. Run artefacts are in `runs/<id>/`; they are gitignored, but the logs show
+every prompt and output.
+
+UI checks were done in the in-app browser:
+- an L0 run
+- **One more iteration**: iteration 2 reached "all claims ≥ 90% accurate"
+- a **Karl Popper** perspective button: an independent call with 1 search, $0.013
+- **Stop**: "stopped by user"
+
+## Observations and learnings
+
+1. **All presets agree with the key on all 32 claim verdicts.** This shows the plumbing works and that
+   `gpt-6-luna` / `claude-haiku-5-5` catch these textbook errors. The key's claims are well known and in
+   pretraining data, so this is **not** evidence of accuracy on harder material (see Exp01–Exp04 for a
+   quantitative test).
+2. **Iteration converges in one correction.** The engineering text went from overall accuracy 18% to 95% in
+   pass 2, and the loop stopped at the 90% threshold. Caveat: the same model grades its own corrections, so this
+   measures self-consistency, not ground truth.
+3. **Synthesizing many perspectives moderates scores.** In L5, the final per-claim scores after merging three
+   scientist perspectives with the general check were less extreme than in single-call runs:
+   - Turing-test claim: 46% (L5) vs 25% (L0) and 5% (L2 Claude)
+   - Chinese Room claim: 40% vs 38% / 8%
+
+   They are still below 50%, but closer to the threshold. Averaging-like synthesis trades decisiveness for hedging.
+4. **Cost scales with calls × searches.** L5 (32 calls, 30 searches) cost 14× L1 for the same verdicts. Searches
+   at $0.01 each dominate the Luna cost.
+5. **Subagent orchestration needed a stronger prompt.** With the first orchestrator wording ("You can delegate…"),
+   the Haiku lead agent never called the subagent tool (`subagent_stats.spawned = 0`). The tool is listed as
+   `Task` in Claude Code 2.1.302's init event, while the prompt said "Agent". After making delegation mandatory
+   and naming the tool and `subagent_type`, it spawned 4 subagents (2 claim-checkers + 2 scientist perspectives).
+   Fix: commit `3909f01`.
+
+## Bugs found and fixed during these runs
+
+| issue | how it was found | fix |
+|---|---|---|
+| Anthropic API returned 400: key not scoped to a workspace | live test | send `anthropic-workspace-id` from `.env` (`ANTHROPIC_WORKSPACE_ID`) |
+| Haiku web search used up `max_uses` through "dynamic filtering" code execution and answered from memory | live test (0 searches recorded) | `allowed_callers: ["direct"]`; verified with 1 search and citations |
+| Claude Code agents still loaded the user's `~/.claude/CLAUDE.md` despite `--setting-sources project` | canary prompt answered YES | `--settings` with `claudeMdExcludes` + `autoMemoryEnabled: false` → canary NO |
+| Codex agents load `~/.codex/AGENTS.md`, and no config key disables it | canary YES; [config reference](https://learn.chatgpt.com/docs/config-file/config-reference) | api_key mode: empty `CODEX_HOME` (canary NO); subscription mode: `developer_instructions` note (limitation documented) |
+| `afc bench --systems …` rejected | first pilot attempt | `parse_known_args` passthrough plus a CLI test |
+| per-claim syntheses ran sequentially (about 3 min idle in L5) | L5 call timestamps | `parallel_map` over the syntheses |
+| labels that don't apply came back as "fully" with 0% | inspection of the first real output | contract now asks for `degree: null` when a label does not apply |

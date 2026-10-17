@@ -8,8 +8,8 @@ per scientist**. Every claim gets an accuracy score, every verdict label and eva
 
 ## Methodology
 
-**1. The prompt as building blocks.** [`prompts/original_prompt.md`](prompts/original_prompt.md) is split verbatim
-into 24 toggleable sections ([`prompts/sections/`](prompts/sections)). The added options are:
+**1. The prompt as building blocks.** [`prompts/original_prompt.md`](prompts/original_prompt.md) is split into 24
+toggleable sections. They are verbatim except for light rewording where a sentence had to be cut into separate blocks ([`prompts/sections/`](prompts/sections)). The added options are:
 - the NeurIPS-reviewer role
 - claim classification
 - 0–100 % scoring
@@ -22,7 +22,8 @@ The list-valued parts are editable checkbox groups ([`prompts/options.json`](pro
 - 63 scientists
 - claim types
 
-A golden test checks that the all-on prompt still contains every sentence and list item of the original.
+A golden test checks that the all-on prompt still contains every list item and every verbatim sentence of the
+original.
 
 **2. Every condition is scored, with confidence.** The prompt asks the model to end with a JSON summary
 ([`prompts/json_summary.md`](prompts/json_summary.md)). Each claim in that summary has:
@@ -63,6 +64,28 @@ SciFact claims, labelled SUPPORT vs CONTRADICT. The statistics are balanced accu
 McNemar test and paired-bootstrap CIs. Search results are filtered with dataset-host domain blocking and every
 source URL is checked for leakage. Design: [`docs/benchmark.md`](docs/benchmark.md). Results:
 [`reports/`](reports).
+
+## Results so far
+
+These are pre-registered SciFact runs (n = 200 balanced claims, `gpt-6-luna`, one call per claim). Full details
+are in [`reports/all_experiments.md`](reports/all_experiments.md) and the paper is
+[`reports/paper/paper.pdf`](reports/paper/paper.pdf).
+
+| system | balanced accuracy [95% CI] | cost / 200 claims |
+|---|---|---|
+| A simple call, no search | 0.755 [0.691, 0.809] | $0.06 |
+| B full rigorous prompt + web search | 0.865 [0.811, 0.906] | $2.97 |
+| C simple prompt + web search | 0.890 [0.839, 0.926] | $2.30 |
+| D full rigorous prompt, no search (post hoc) | 0.765 [0.702, 0.818] | $0.44 |
+
+- **Web search is what helps.** B beats A by +0.110 [+0.062, +0.160] (McNemar p = 2.7 × 10⁻⁵), and search alone
+  explains it (C − A = +0.135).
+- **The rigorous prompt does not change verdict accuracy** with search (B − C = −0.025 [−0.061, +0.010]) or without
+  it (D − A = +0.010).
+- **The prompt's added value is the richer qualitative output**: label and condition scores with confidences,
+  corrections and issue lists. SciFact does not measure that.
+
+The whole project, from implementation through evaluation, cost $6.52 in billed API calls.
 
 ## Quick start
 
@@ -127,7 +150,8 @@ claim × scientist calls. You can save your own.
 **Cost control**:
 - Price catalog for all models.
 - Per-run budget.
-- Persistent ledger `logs/spend.jsonl` with a global `SPEND_LIMIT_USD` cap.
+- Persistent ledger `logs/spend.jsonl` with a global `SPEND_LIMIT_USD` cap, checked before every call. It is a
+  soft cap: parallel in-flight calls can overshoot slightly.
 - Claude Code `--max-budget-usd`, and search caps (`max_tool_calls` / `max_uses`).
 
 **Benchmark harness**: resumable, cost-capped, paired statistics, leakage flags.
@@ -163,8 +187,8 @@ pydantic / pydantic-settings · Jinja2 · json-repair · psutil ·
    4. Every answer's JSON summary is parsed tolerantly. If it is missing, the **repair** step extracts it.
    5. **synthesize** merges per-scientist results per claim, then all claims into one report with a corrected
       whole text.
-4. **Stopping.** `iterate.should_stop` decides whether to run another pass (threshold, fixed point, budget). The
-   UI shows the result in tabs:
+4. **Stopping.** `iterate.should_stop` decides whether to run another pass (threshold, fixed point, missing
+   summary); budget and Stop are enforced per call by `RunContext`. The UI shows the result in tabs:
    - Report, Claims, Labels, Conditions, Corrected text, Issues
    - Iterations, Calls & cost, Live log
    - Prompt preview, Raw JSON
@@ -203,7 +227,9 @@ More detail is in [`docs/architecture.md`](docs/architecture.md). Every setting 
   (`--dangerously-skip-permissions`, `--dangerously-bypass-approvals-and-sandbox`). The measures that are not
   sandboxing:
   - each agent runs in a fresh temporary directory
-  - your global Claude/Codex config, MCP servers, plugins and computer-use are switched off
+  - Claude Code skips your settings, MCP servers, plugins and CLAUDE.md files
+  - Codex skips `config.toml` and its desktop features. Your global `~/.codex/AGENTS.md` is only excluded in
+    `AGENT_AUTH=api_key` mode; in subscription mode a developer instruction tells the agent to ignore it.
   - API keys are stripped in subscription mode
   - the checked text is wrapped in tags marked as data
   - budgets and timeouts apply
