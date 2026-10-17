@@ -27,7 +27,7 @@ def build_cmd(req: LLMRequest, exe: str, agents_file: Path | None) -> list[str]:
            "--no-session-persistence",
            "--setting-sources", "project",  # do not load the user's ~/.claude settings into fact-check agents
            "--strict-mcp-config", "--disable-slash-commands"]  # no MCP servers / skills from the user's setup
-    deny = ([] if req.web_search else ["WebSearch", "WebFetch"]) + ([] if req.allow_subagents else ["Agent"])
+    deny = ([] if req.web_search else ["WebSearch", "WebFetch"]) + ([] if req.allow_subagents else ["Agent", "Task"])  # tool renamed Task->Agent in 2.1.63
     if deny:
         cmd += ["--disallowedTools", ",".join(deny)]  # one comma-separated value (flag is variadic)
     if agents_file:
