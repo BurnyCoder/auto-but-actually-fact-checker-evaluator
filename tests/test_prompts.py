@@ -97,6 +97,14 @@ def test_text_appears_once_inside_tags_with_optional_context():
     assert "<document_context>\nFULL DOC" in prompt
 
 
+def test_agent_search_rules_are_stated_in_prompt():
+    cfg = C.FactCheckConfig()
+    cfg.steps["check"] = C.StepConfig(kind="agent", web_search=True, max_searches=4, blocked_domains=["x.org"])
+    prompt = P.build_prompt(cfg, "check", "TEXT")
+    assert "at most 4 web searches" in prompt and "Never open or cite these domains: x.org." in prompt
+    assert "web searches in total" not in P.build_prompt(C.FactCheckConfig(), "check", "TEXT")  # API: enforced by tool
+
+
 def test_persona_replaces_scientist_list():
     prompt = P.build_prompt(all_on(), "perspective", "TEXT", persona="Judea Pearl")
     assert "You are Judea Pearl." in prompt and "Karl Popper" not in prompt
