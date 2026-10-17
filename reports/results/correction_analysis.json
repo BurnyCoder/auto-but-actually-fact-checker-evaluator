@@ -177,36 +177,46 @@
   ]
  },
  "claude": {
-  "n_items": 0,
+  "n_items": 3,
   "primary_judge": "luna",
   "secondary_judge": "haiku",
   "validity_luna": {
-   "n": 0,
+   "n": 3,
    "missing": 0,
-   "accuracy": null,
+   "accuracy": 0.6666666666666666,
    "ci95": [
-    null,
-    null
+    0.2076596008020477,
+    0.9385080552796037
    ]
   },
   "validity_haiku": {
-   "n": 0,
+   "n": 3,
    "missing": 0,
-   "accuracy": null,
+   "accuracy": 1.0,
    "ci95": [
-    null,
-    null
+    0.43850296824495444,
+    1.0
    ]
   },
   "judge_agreement": {
-   "n_texts": 0,
-   "agreement": null,
-   "kappa": null
+   "n_texts": 43,
+   "agreement": 0.6046511627906976,
+   "kappa": 0.10962241169305731
   },
   "H1_original_to_output": {
-   "n": 0,
+   "n": 3,
    "first_correct": 0,
-   "second_correct": 0
+   "second_correct": 2,
+   "delta": 0.6666666666666666,
+   "ci95": [
+    0.0,
+    1.0
+   ],
+   "mcnemar": {
+    "b": 0,
+    "c": 2,
+    "pvalue": 0.5
+   }
   },
   "H2_self_label_precision": {
    "n_self_labelled": 0,
@@ -218,16 +228,26 @@
    ]
   },
   "H3_first_correction_to_output": {
-   "n": 0,
-   "first_correct": 0,
-   "second_correct": 0
+   "n": 2,
+   "first_correct": 1,
+   "second_correct": 2,
+   "delta": 0.5,
+   "ci95": [
+    0.0,
+    1.0
+   ],
+   "mcnemar": {
+    "b": 0,
+    "c": 1,
+    "pvalue": 1.0
+   }
   },
   "repair_rate_false_originals": {
-   "n": 0,
-   "rate": null,
+   "n": 2,
+   "rate": 0.5,
    "ci95": [
-    null,
-    null
+    0.09453120573423068,
+    0.9054687942657693
    ]
   },
   "harm_rate_correct_originals": {
@@ -238,88 +258,94 @@
     null
    ]
   },
-  "passes": {},
-  "stop_reasons": {},
-  "self_labelled_share": null,
+  "passes": {
+   "1": 1,
+   "20": 2
+  },
+  "stop_reasons": {
+   "": 2,
+   "no parseable JSON summary": 1
+  },
+  "self_labelled_share": 0.0,
   "by_gold": {
    "SUPPORT": {
-    "n": 0,
-    "output_correct": 0
+    "n": 1,
+    "output_correct": 1
    },
    "CONTRADICT": {
-    "n": 0,
-    "output_correct": 0
+    "n": 2,
+    "output_correct": 1
    }
   },
   "cost": {
-   "billed_usd": 0,
-   "total_usd": 0,
-   "searches": 0
+   "billed_usd": 0.03043714,
+   "total_usd": 4.700433605,
+   "searches": 174
   },
-  "leak_items": 0,
+  "leak_items": 1,
   "trajectory": [
    {
     "k": 0,
-    "n": 0,
-    "judge_correct": null,
-    "self_accuracy_of_input": null,
-    "n_self": 0
+    "n": 3,
+    "judge_correct": 0.0,
+    "self_accuracy_of_input": 0.325,
+    "n_self": 2
    },
    {
     "k": 1,
-    "n": 0,
-    "judge_correct": null,
-    "self_accuracy_of_input": null,
-    "n_self": 0
+    "n": 3,
+    "judge_correct": 0.3333333333333333,
+    "self_accuracy_of_input": 0.6,
+    "n_self": 2
    },
    {
     "k": 2,
-    "n": 0,
-    "judge_correct": null,
-    "self_accuracy_of_input": null,
-    "n_self": 0
+    "n": 3,
+    "judge_correct": 0.0,
+    "self_accuracy_of_input": 0.6499999999999999,
+    "n_self": 2
    },
    {
     "k": 3,
-    "n": 0,
-    "judge_correct": null,
-    "self_accuracy_of_input": null,
-    "n_self": 0
+    "n": 3,
+    "judge_correct": 0.3333333333333333,
+    "self_accuracy_of_input": 0.735,
+    "n_self": 2
    },
    {
     "k": 4,
-    "n": 0,
-    "judge_correct": null,
-    "self_accuracy_of_input": null,
-    "n_self": 0
+    "n": 3,
+    "judge_correct": 0.6666666666666666,
+    "self_accuracy_of_input": 0.6599999999999999,
+    "n_self": 2
    },
    {
     "k": 5,
-    "n": 0,
-    "judge_correct": null,
-    "self_accuracy_of_input": null,
-    "n_self": 0
+    "n": 3,
+    "judge_correct": 0.3333333333333333,
+    "self_accuracy_of_input": 0.55,
+    "n_self": 2
    },
    {
     "k": 6,
-    "n": 0,
-    "judge_correct": null,
-    "self_accuracy_of_input": null,
-    "n_self": 0
+    "n": 3,
+    "judge_correct": 0.3333333333333333,
+    "self_accuracy_of_input": 0.55,
+    "n_self": 2
    },
    {
     "k": 7,
-    "n": 0,
-    "judge_correct": null,
-    "self_accuracy_of_input": null,
-    "n_self": 0
+    "n": 3,
+    "judge_correct": 0.3333333333333333,
+    "self_accuracy_of_input": 0.6599999999999999,
+    "n_self": 2
    },
    {
     "k": 8,
-    "n": 0,
-    "judge_correct": null,
-    "self_accuracy_of_input": null,
-    "n_self": 0
+    "n": 3,
+    "judge_correct": 0.6666666666666666,
+    "self_accuracy_of_input": 0.675,
+    "n_self": 2
    }
   ]
  }
