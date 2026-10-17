@@ -1,0 +1,20 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Secrets: API keys live only in the local .env (never commit it)
+.env
+
+# Runtime artifacts: timestamped logs, per-run outputs, downloaded datasets, test caches
+logs/
+runs/
+data/
+.pytest_cache/
+.gradio/
