@@ -67,8 +67,9 @@ def run_system(name: str, cfg, items, out: Path, max_cost: float, spent: list, w
         rec = run_item(item, cfg)
         with _WRITE:
             spent[0] += rec["cost_usd"]
-            complete = rec["status"] == "done" and not rec["errors"]
-            if complete:  # only finished, error-free items are cached; others are retried on resume
+            refused = any("refusal" in (e or "") for e in rec["errors"])  # deterministic: scored wrong, not retried
+            complete = rec["status"] == "done" and (not rec["errors"] or refused)
+            if complete:  # finished items (incl. refusals) are cached; transient failures are retried on resume
                 with path.open("a", encoding="utf-8") as f:
                     f.write(json.dumps(rec, ensure_ascii=False) + "\n")
         log(f"[{name}] {item.id} gold={item.label} p_true={rec['p_true']} cost=${rec['cost_usd']:.4f} "

@@ -23,7 +23,7 @@
   0.755, Δ = +0.110 [95% CI +0.062, +0.160], exact McNemar p = 2.7×10⁻⁵. A pre-registered ablation attributes the
   whole gain to retrieval: the minimal prompt with the same search reached 0.890. The rigorous prompt added no
   detectable accuracy given search (Δ = −0.025 [−0.061, +0.010], p = 0.27) while producing 8.5× more output tokens.
-  In post-hoc arms, the full prompt also failed to help without search (0.765 vs 0.755), although it may improve ranking (AUROC +0.047 [+0.013, +0.082]). A Codex agent running the full prompt was indistinguishable from single calls (n = 40). Test–retest noise was ±2–3 pp. All results use one inexpensive model and one biomedical
+  In post-hoc arms, the full prompt also failed to help without search (0.765 vs 0.755), although it may improve ranking (AUROC +0.047 [+0.013, +0.082]). Codex and Claude Code agents running the full prompt were not better than single calls on 40 claims. Test–retest noise was ±2–3 pp. All results use one inexpensive model and one biomedical
   benchmark of single-sentence claims.
 ]
 
@@ -112,6 +112,7 @@ host or "scifact".
     [C minimal + search], [200], [0.890], [0.890 [0.839, 0.926]], [0.85 / 0.93], [0.956], [0.087], [2.30],
     [D full, no search#super[†]], [200], [0.765], [0.765 [0.702, 0.818]], [0.75 / 0.78], [0.891], [0.142], [0.44],
     [E Codex agent, full#super[†]], [40], [0.876], [0.875 [0.739, 0.945]], [0.87 / 0.88], [0.917], [0.113], [0 (subscr.)],
+    [F Claude Code agent (Haiku), full#super[†]], [40], [0.797], [0.775 [0.625, 0.877]], [0.65 / 0.94], [0.962], [0.161], [0 (subscr.)],
   ),
   caption: [Per-system results; recall S / C = SUPPORT / CONTRADICT recall. #super[†] post hoc. No leak flags occurred in any system; D had one transient API failure, re-run once.])
 
@@ -125,6 +126,7 @@ host or "scifact".
     [D − A], [+0.010 [−0.026, +0.047]], [6 / 8, 0.79], [post hoc],
     [B − D], [+0.100 [+0.055, +0.148]], [2 / 22, 3.6×10⁻⁵], [post hoc],
     [E − C (n = 40)], [−0.059 [−0.167, +0.034]], [3 / 1, 0.62], [post hoc],
+    [F − C (n = 40)], [−0.138 [−0.250, −0.045]], [6 / 0, 0.031], [post hoc; model differs],
   ),
   caption: [Paired comparisons on shared items. b = only the first system correct, c = only the second correct.])
 
@@ -134,7 +136,7 @@ claims 65–95%).
 
 *Search explains the gain.* C − A (+0.135) is at least as large as B − A, and B − C is indistinguishable from 0.
 The CI rules out a benefit of the rigorous prompt larger than about 1 pp given search. B produced 3,562 output
-tokens per claim on average, vs 420 for C. Post hoc, the full prompt without search (D) also matched A (Δ +0.010 [−0.026, +0.047]). Its AUROC was higher (+0.047 [+0.013, +0.082]) with less extreme scores, a hypothesis for future pre-registered work. A Codex agent running the full prompt (E, n = 40) reached 0.876, statistically indistinguishable from the API systems on the same items.
+tokens per claim on average, vs 420 for C. Post hoc, the full prompt without search (D) also matched A (Δ +0.010 [−0.026, +0.047]). Its AUROC was higher (+0.047 [+0.013, +0.082]) with less extreme scores, a hypothesis for future pre-registered work. A Codex agent running the full prompt (E, n = 40) reached 0.876, statistically indistinguishable from the API systems on the same items. A Claude Code agent with `claude-haiku-5-5` (F) ranked claims best of all systems (AUROC 0.962) but was sceptical (SUPPORT recall 0.65). Its lower balanced accuracy versus C (p = 0.031) is one of 12 post-hoc tests and confounded by the model.
 
 *Noise.* A re-run of A agreed on 96.5% of predictions, so differences above about 3 pp are unlikely to be sampling
 noise of the generator.
@@ -175,6 +177,9 @@ this.
 - *Post-hoc arms* (D, E) are exploratory. E has n = 40 and is underpowered.
 - *Agent isolation.* With subscription authentication, Codex agents still load the user's global AGENTS.md; only a
   counter-instruction is applied.
+- *Delegation and refusals.* In four smoke tests, Codex (`gpt-6-luna`) never actually spawned a sub-agent and
+  twice reported a fabricated sub-agent answer. Claude Haiku refused some biomedical claims non-deterministically
+  (bio-safety filter); one refusal is scored wrong in F.
 
 = Conclusion
 
@@ -183,7 +188,7 @@ claims with an inexpensive model, web search is what matters. The rigorous instr
 volume but no measurable accuracy. Whether its labels, condition scores and confidences are *valid* is an open,
 testable question that needs human-annotated multi-dimensional judgments, which is our next step.
 
-*Cost and reproducibility.* All experiments and development together cost \$6.55 in billed API usage
+*Cost and reproducibility.* All experiments and development together cost \$6.64 in billed API usage
 (ledger: `logs/spend.jsonl`). Commands, configurations, per-item predictions, analysis scripts and the
 pre-registration are in the repository.
 
@@ -216,6 +221,7 @@ System configurations are JSON files in `configs/bench/`:
 - C = `baseline_search.json`
 - D = `full_no_search.json`
 - E = `full_agent_codex.json`
+- F = `full_agent_claude.json`
 
 The defaults are in `src/auto_fact_checker/config.py`. Blocked hosts: huggingface.co, github.com,
 githubusercontent.com, kaggle.com, paperswithcode.com, allenai.org.

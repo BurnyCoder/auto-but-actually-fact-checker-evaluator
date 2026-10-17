@@ -16,7 +16,7 @@ by construction. Each field is also a key in preset JSON and in `afc check --set
 | `search_context_size` | low/medium/high | OpenAI search context size |
 | `max_searches` | 0–50 | search cap (see [architecture](architecture.md#how-the-backends-map-the-settings)) |
 | `blocked_domains` | comma list | excluded from search (API backends) |
-| `allow_subagents` | bool | agents may spawn subagents (subagent strategies require a Claude Code check agent) |
+| `allow_subagents` | bool | agents may spawn subagents. Subagent strategies require a Claude Code check agent. For Codex it only enables the `multi_agent` feature: in live tests with `gpt-6-luna` no sub-agent was ever spawned (Exp00) |
 | `max_subagents` | 1–30 | upper bound stated to the orchestrating agent |
 | `max_turns` | 0 = unlimited | Claude Code `--max-turns` |
 | `timeout_s` | seconds | agents: wall-clock limit, the process tree is killed; API calls: SDK request timeout |

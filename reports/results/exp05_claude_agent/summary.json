@@ -1,0 +1,33 @@
+{
+ "n_common": 40,
+ "systems": {
+  "full_agent_claude": {
+   "n": 40,
+   "accuracy": 0.775,
+   "accuracy_ci": [
+    0.6249690325768998,
+    0.8768390867645927
+   ],
+   "balanced_accuracy": 0.7966751918158568,
+   "macro_f1": 0.7748592870544091,
+   "auroc": 0.9616368286445012,
+   "brier": 0.1610075,
+   "parse_fail": 1,
+   "cost_usd": 1.27453828,
+   "leak_items": 1,
+   "mean_searches": 2.05
+  }
+ },
+ "comparisons": {},
+ "dataset": "scifact",
+ "splits": [
+  "validation",
+  "train"
+ ],
+ "seed": 0,
+ "n_sampled": 40,
+ "systems_files": [
+  "configs/bench/full_agent_claude.json"
+ ],
+ "invocation_cost_usd": 0.032197989999999996
+}

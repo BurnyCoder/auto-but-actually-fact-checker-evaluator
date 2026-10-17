@@ -168,3 +168,10 @@ def test_anthropic_pause_turn_loop():
     assert calls[0]["tools"][0]["type"] == "web_search_20260318" and calls[0]["tools"][0]["max_uses"] == 3
     assert res.text == "Done" and res.web_searches == 3 and res.sources == ["https://x.org", "https://y.org"]
     assert res.cost_usd == pytest.approx(2 * (1000 * 0.10 + 100 * 0.50) / 1e6 + 0.03)
+
+
+def test_claude_refusal_is_reported_with_reason():
+    events = [{"type": "result", "subtype": "success", "is_error": True, "stop_reason": "refusal",
+               "result": "API Error: Haiku 5.5 can't help with this.", "total_cost_usd": 0.01, "modelUsage": {}}]
+    res = claude_code.parse_events(req(backend="claude_code", model="claude-haiku-5-5"), events, billed=False)
+    assert res.error.startswith("refusal: API Error")  # bench caches refusals as final (scored wrong)
