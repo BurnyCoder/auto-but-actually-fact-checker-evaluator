@@ -125,6 +125,22 @@ class ClaimList(_Lenient):
     claims: Annotated[list[ExtractedClaim], _objs("claim")] = []
 
 
+class JudgeVerdict(_Lenient):
+    """Gold-evidence judge output (Exp07): is a text correct according to the cited abstract(s)?"""
+
+    main_claim_entailed: bool | None = None  # the central assertion is supported by the gold evidence
+    contradicts_evidence: bool | None = None  # some statement conflicts with the gold evidence
+    same_question: bool | None = None  # still a specific claim about the original question (not vague/off-topic)
+    verdict: Text = ""
+    explanation: Text = ""
+
+    def correct(self) -> bool | None:
+        """correct = entailed and not contradicted and on the same question; None when any field is missing."""
+        fields = (self.main_claim_entailed, self.contradicts_evidence, self.same_question)
+        return None if None in fields else (self.main_claim_entailed and not self.contradicts_evidence
+                                            and self.same_question)
+
+
 T = TypeVar("T", bound=BaseModel)
 FENCE = re.compile(r"```\s*json\s*\n(.*?)```", re.IGNORECASE | re.DOTALL)  # ```json ... ``` (any case)
 

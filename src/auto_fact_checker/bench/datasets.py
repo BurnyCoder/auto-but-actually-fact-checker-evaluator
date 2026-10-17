@@ -16,6 +16,8 @@ import pandas as pd
 
 SCIFACT_URL = ("https://huggingface.co/datasets/allenai/scifact/resolve/refs%2Fconvert%2Fparquet/"
                "claims/{split}/0000.parquet")
+CORPUS_URL = ("https://huggingface.co/datasets/allenai/scifact/resolve/refs%2Fconvert%2Fparquet/"
+              "corpus/train/0000.parquet")  # 5,183 abstracts: doc_id, title, abstract (list of sentences)
 
 
 @dataclass
@@ -28,8 +30,25 @@ class BenchItem:
     meta: dict = field(default_factory=dict)
 
 
-def load_scifact(splits=("validation", "train")) -> list[BenchItem]:
-    """Binary SciFact claims from the given splits (test labels are hidden, so it is never used)."""
+def _evidence(group, corpus: dict) -> list[dict]:
+    """Gold evidence of one claim: every cited abstract with the indices of its rationale sentences."""
+    docs: dict[int, set] = {}
+    for doc, sents in zip(group["evidence_doc_id"], group["evidence_sentences"]):
+        if str(doc).strip():
+            docs.setdefault(int(doc), set()).update(int(i) for i in sents)
+    return [{"title": corpus[d][0], "sentences": corpus[d][1], "evidence_idx": sorted(idx)}
+            for d, idx in docs.items() if d in corpus]
+
+
+def load_scifact(splits=("validation", "train"), with_evidence: bool = False) -> list[BenchItem]:
+    """Binary SciFact claims from the given splits (test labels are hidden, so it is never used).
+
+    with_evidence=True also attaches meta["evidence"] (gold abstract sentences + rationale indices) for judges.
+    """
+    corpus = {}
+    if with_evidence:
+        df = pd.read_parquet(CORPUS_URL)
+        corpus = {int(d): (str(t), [str(x) for x in a]) for d, t, a in zip(df["doc_id"], df["title"], df["abstract"])}
     items = []
     for split in splits:
         df = pd.read_parquet(SCIFACT_URL.format(split=split))  # one row per (claim, evidence document)
@@ -37,8 +56,9 @@ def load_scifact(splits=("validation", "train")) -> list[BenchItem]:
             labels = {x for x in group["evidence_label"] if x}
             if len(labels) == 1:  # drop NEI (no label) and conflicting claims
                 gold = labels.pop()
+                meta = {"split": split, "gold": gold} | ({"evidence": _evidence(group, corpus)} if with_evidence else {})
                 items.append(BenchItem(id=f"{split}-{cid}", text=str(group["claim"].iloc[0]),
-                                       label=gold == "SUPPORT", meta={"split": split, "gold": gold}))
+                                       label=gold == "SUPPORT", meta=meta))
     return items
 
 
