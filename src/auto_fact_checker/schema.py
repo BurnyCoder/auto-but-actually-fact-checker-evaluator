@@ -141,6 +141,41 @@ class JudgeVerdict(_Lenient):
                                             and self.same_question)
 
 
+class InjectedError(_Lenient):
+    """One error deliberately inserted into a benchmark passage (Exp08)."""
+
+    error_type: Text = ""
+    original_sentence: Text = ""
+    perturbed_sentence: Text = ""
+    false_fact: Text = ""
+    true_fact: Text = ""
+
+
+class InjectionList(_Lenient):
+    errors: Annotated[list[InjectedError], BeforeValidator(_strs)] = []
+
+
+class RefError(_Lenient):
+    id: int | None = None
+    status: Text = ""  # corrected | partially | uncorrected
+
+
+FIX_POINTS = {"corrected": 1.0, "partially": 0.5, "partial": 0.5, "uncorrected": 0.0}
+
+
+class RefVerdict(_Lenient):
+    """Reference judge output (Exp08): status per injected error, introduced errors, holistic 0-100 accuracy."""
+
+    errors: Annotated[list[RefError], BeforeValidator(_strs)] = []
+    introduced_errors: Annotated[list[Text], BeforeValidator(_strs)] = []
+    overall_accuracy_pct: Pct = None
+
+    def fix_scores(self, ids: list[int]) -> dict[int, float | None]:
+        """1 / 0.5 / 0 per expected error id (None when the judge skipped it or used an unknown status)."""
+        given = {e.id: FIX_POINTS.get(e.status.strip().lower()) for e in self.errors if e.id is not None}
+        return {i: given.get(i) for i in ids}
+
+
 T = TypeVar("T", bound=BaseModel)
 FENCE = re.compile(r"```\s*json\s*\n(.*?)```", re.IGNORECASE | re.DOTALL)  # ```json ... ``` (any case)
 
