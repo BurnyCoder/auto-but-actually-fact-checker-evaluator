@@ -1,0 +1,2 @@
+{"_comment": "Simplest: one non-agentic OpenAI API call (gpt-6-luna), no web search, whole text at once.",
+ "steps": {"check": {"kind": "api", "provider": "openai", "model": "gpt-6-luna", "web_search": false}}}
