@@ -97,6 +97,23 @@ low. Each takes one claim as input and returns a 0–100 accuracy score; the pre
 The primary judge is Claude Haiku with the gold abstract (93% valid on originals). With Luna as judge (post hoc)
 the conclusions are the same: self-label precision 61%, extra passes Δ 0.00.
 
+### Verdict vs correction, single pass vs loop (post hoc, same 100 claims)
+
+Script: [`reports/scripts/compare_verdict_correction.py`](scripts/compare_verdict_correction.py). Details:
+[exp07](experiments/exp07_correction_loop.md#post-hoc-comparisons-on-the-same-100-claims-decided-after-exp07-exploratory).
+
+| on the 100 Exp07 claims | no evidence (A / D) | web search (B / C / Codex agent pass 1) | gold abstract (judge) |
+|---|---|---|---|
+| verdict balanced accuracy | 0.774 / 0.779 | 0.903 / 0.923 / 0.921 | 0.934 |
+
+| correction (Haiku judge) | original | single agent pass | full loop |
+|---|---|---|---|
+| texts correct | 49% | **62%** (+0.13, p = 0.035) | 62% (+0.00 [−0.06, +0.06] vs single pass) |
+| cost / time per claim | – | $0.023 / 34 s | $0.059 / 100 s |
+
+The agent detects 93% of false claims but repairs only about half of them. Looping adds no accuracy over one pass,
+at 2.5× the cost.
+
 ## Qualitative runs (Exp00)
 
 Nine runs covered presets L0–L5, iteration, Claude/Codex agents and subagents. They made 49 calls in total and
@@ -113,6 +130,10 @@ agreed with the answer key on all 32 claims (details and costs: [exp00](experime
 - **Self-assessed stopping is not verification** (Exp07). The loop marks everything correct after 1–2 passes.
   About a third of those texts are wrong by gold evidence, and further passes rewrite rather than repair (hedging,
   question drift).
+- **One pass is enough; looping is not** (post hoc, Exp07). A single agent pass with web search accounts for the
+  whole correction gain. Further passes leave correctness unchanged (Δ 0.00) and cost 2.5× more.
+- **Verdicts are much easier than corrections.** With web search the agent judges claims at about 0.92 balanced
+  accuracy, close to a judge given the cited paper (0.93). But only 62% of its corrected texts are correct.
 - **Ranking and threshold can disagree.** The Claude agent had the best AUROC but a poor 50% cut-off (Exp05).
   The prompt without search raised AUROC without raising accuracy (Exp03). The threshold metric alone hides this.
 - **Delegation can be fabricated.** In 4 smoke tests Codex never spawned a sub-agent, and twice it claimed one had
