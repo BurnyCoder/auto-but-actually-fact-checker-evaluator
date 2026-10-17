@@ -1,0 +1,2 @@
+{"_comment": "One Codex agent (gpt-6-luna) with live web search checks the whole text.",
+ "steps": {"check": {"kind": "agent", "provider": "openai", "model": "gpt-6-luna", "web_search": true, "timeout_s": 1200}}}

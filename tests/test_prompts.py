@@ -66,10 +66,28 @@ def test_web_search_off_removes_search_instructions():
 def test_output_contract_and_conditional_fields():
     cfg = C.FactCheckConfig(sections=[])  # no sections at all: the JSON contract is still appended
     prompt = P.build_prompt(cfg, "check", "TEXT")
-    assert "```json" in prompt and '"accuracy_pct"' in prompt and "uncertainty_pct" not in prompt
-    with_unc = C.FactCheckConfig(sections=["23_uncertainty", "21_claim_classification"])
-    prompt2 = P.build_prompt(with_unc, "check", "TEXT")
-    assert '"uncertainty_pct"' in prompt2 and '"claim_types"' in prompt2
+    assert "```json" in prompt and '"accuracy_pct"' in prompt
+    assert all(f not in prompt for f in ('"confidence_pct"', '"claim_types"', '"labels"', '"assessments"'))
+    lego = C.FactCheckConfig(sections=["23_confidence", "21_claim_classification", "03_verdicts",
+                                       "08_bayesian_frequentist"])
+    prompt2 = P.build_prompt(lego, "check", "TEXT")
+    assert '"confidence_pct"' in prompt2 and '"claim_types"' in prompt2 and '"labels"' in prompt2
+    assert "EVERY one of these labels" in prompt2 and "category error" in prompt2  # all labels scored by default
+    assert "- Bayesian perspective: posterior probability" in prompt2 and "empiricist perspective" not in prompt2
+
+
+def test_every_original_condition_is_a_scored_block():
+    cfg = all_on()
+    contract = P.output_contract(cfg)
+    for c in C.options()["conditions"]:
+        assert f"- {c['name']}: " in contract  # every evaluative condition gets score_pct + confidence_pct
+    for label in cfg.verdict_labels:
+        assert label in contract
+    fewer = cfg.model_copy(update={"conditions": ["predictive power"], "score_all_labels": False})
+    c2 = P.output_contract(fewer)
+    assert "- predictive power: " in c2 and "- explanatory power: " not in c2 and "only the labels" in c2
+    named = cfg.model_copy(update={"score_each_scientist": True, "scientists": ["Judea Pearl"]})
+    assert "- Judea Pearl's standards: " in P.output_contract(named)
 
 
 def test_text_appears_once_inside_tags_with_optional_context():

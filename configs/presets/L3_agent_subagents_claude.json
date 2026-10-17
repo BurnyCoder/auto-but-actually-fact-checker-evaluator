@@ -1,0 +1,4 @@
+{"_comment": "One Claude Code lead agent spawns a claim-checker subagent per claim and a scientist-perspective subagent per claim x scientist.",
+ "claim_strategy": "subagent_per_claim", "scientist_strategy": "subagent_per_scientist",
+ "steps": {"check": {"kind": "agent", "provider": "anthropic", "model": "claude-haiku-5-5", "web_search": true,
+                     "allow_subagents": true, "max_subagents": 6, "timeout_s": 1800}}}

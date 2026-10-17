@@ -1,0 +1,1 @@
+Give a confidence percentage (0-100%: how confident you are that your evaluation is correct; uncertainty = 100% - confidence) for each claim and for each individual evaluation, label and condition, and briefly justify it.
