@@ -116,3 +116,18 @@ def test_failed_extraction_does_not_duplicate_the_text(fake):
     pipeline.run_fact_check("Only text.", cfg)
     check = next(r for r in fake.requests if r.label.endswith("check/claim1"))
     assert "<document_context>" not in check.prompt and check.prompt.count("Only text.") == 1
+
+
+def test_no_repair_of_failed_calls(fake, monkeypatch):
+    """A refusal/API error must not be 'repaired' into a fabricated verdict (seen live with Claude Code)."""
+    original = type(fake).__call__
+
+    def refusing(self, req, log):
+        res = original(self, req, log)
+        if "/check/" in req.label and not req.label.endswith("repair"):
+            res.text, res.error = "API Error: Haiku 5.5 can't help with this.", "refusal: API Error"
+        return res
+
+    monkeypatch.setattr(type(fake), "__call__", refusing)
+    run = pipeline.run_fact_check("Text", C.FactCheckConfig())
+    assert run.iterations[0].final.summary is None and not any(r.label.endswith("repair") for r in fake.requests)

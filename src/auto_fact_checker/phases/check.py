@@ -13,10 +13,14 @@ from ..results import CheckResult
 from ..schema import FactCheckSummary, parse_block
 
 
-def summarize_output(text: str, cfg: FactCheckConfig, ctx: RunContext, label: str) -> FactCheckSummary | None:
-    """Parse the JSON summary; if it is missing/invalid and the repair step is enabled, ask the repair step."""
+def summarize_output(text: str, cfg: FactCheckConfig, ctx: RunContext, label: str,
+                     failed: bool = False) -> FactCheckSummary | None:
+    """Parse the JSON summary; if it is missing/invalid and the repair step is enabled, ask the repair step.
+
+    failed=True (the call itself errored, e.g. a model refusal or API error) skips repair: repairing an error
+    message would fabricate a verdict (observed with a Claude Code refusal in Exp05)."""
     summary = parse_block(text, FactCheckSummary, accept=FactCheckSummary.meaningful)
-    if summary is None and text.strip() and cfg.steps["repair"].enabled:
+    if summary is None and text.strip() and cfg.steps["repair"].enabled and not failed:
         ctx.log.warning("%s: JSON summary missing or invalid, running repair step", label)
         repaired = ctx.call("repair", build_prompt(cfg, "repair", "", report=text), f"{label}/repair")
         summary = parse_block(repaired.text, FactCheckSummary, accept=FactCheckSummary.meaningful)
@@ -32,4 +36,4 @@ def check(target: str, cfg: FactCheckConfig, ctx: RunContext, label: str, *, ste
     agents = build_agents(cfg) if step == "check" and cfg.uses_subagents else None
     res = ctx.call(step, prompt, label, agents=agents)
     return CheckResult(label=label, step=step, target=target, persona=persona, report=res.text,
-                       summary=summarize_output(res.text, cfg, ctx, label))
+                       summary=summarize_output(res.text, cfg, ctx, label, failed=bool(res.error)))
