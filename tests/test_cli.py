@@ -19,6 +19,17 @@ def test_every_preset_runs_through_the_cli(fake, settings, preset):
     assert fake.requests  # at least one (fake) LLM call per preset
 
 
+def test_bench_command_passes_options(fake, settings, tmp_path, monkeypatch):
+    from auto_fact_checker.bench import datasets
+    from tests.test_bench import fake_parquet
+
+    monkeypatch.setattr(datasets.pd, "read_parquet", fake_parquet)
+    out = tmp_path / "b"
+    assert main(["bench", "--splits", "validation", "--systems", str(C.ROOT / "configs/bench/baseline.json"),
+                 "--n", "2", "--max-cost", "1", "--out", str(out)]) == 0
+    assert (out / "summary.json").exists()
+
+
 def test_spend_command(settings, capsys):
     assert main(["spend"]) == 0
     assert "Billed spend: $0.0000" in capsys.readouterr().out
