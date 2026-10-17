@@ -37,9 +37,9 @@ def total_billed(ledger: Path) -> float:
 
 
 def check_budget(ledger: Path, limit_usd: float, estimate_usd: float = 0.0) -> float:
-    """Raise BudgetExceeded if spent + estimate would exceed the limit; otherwise return the amount spent."""
+    """Raise BudgetExceeded if the limit is already used up or spent + estimate would exceed it; else return spent."""
     spent = total_billed(ledger)
-    if spent + estimate_usd > limit_usd:
+    if spent >= limit_usd or spent + estimate_usd > limit_usd:
         raise BudgetExceeded(f"Spend cap reached: ${spent:.4f} spent + ${estimate_usd:.4f} estimated "
                              f"> SPEND_LIMIT_USD=${limit_usd:.2f} (ledger: {ledger})")
     return spent
