@@ -188,7 +188,7 @@ claims with an inexpensive model, web search is what matters. The rigorous instr
 volume but no measurable accuracy. Whether its labels, condition scores and confidences are *valid* is an open,
 testable question that needs human-annotated multi-dimensional judgments, which is our next step.
 
-*Cost and reproducibility.* All experiments and development together cost \$6.64 in billed API usage
+*Cost and reproducibility.* All experiments and development together cost \$6.67 in billed API usage
 (ledger: `logs/spend.jsonl`). Commands, configurations, per-item predictions, analysis scripts and the
 pre-registration are in the repository.
 
