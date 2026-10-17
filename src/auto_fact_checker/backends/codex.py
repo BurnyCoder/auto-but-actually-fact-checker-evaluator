@@ -35,7 +35,7 @@ def build_cmd(req: LLMRequest, exe: str, workdir: Path) -> list[str]:
            "-c", f'web_search="{"live" if req.web_search else "disabled"}"',  # value parsed as TOML
            "-c", f"model_reasoning_effort={req.effort}",
            "-c", f'developer_instructions="{DEVELOPER_NOTE}"',
-           "--ignore-user-config", "--ignore-rules",  # do not inherit ~/.codex/config.toml or AGENTS.md rules
+           "--ignore-user-config", "--ignore-rules",  # skip ~/.codex/config.toml and exec-policy rules (not AGENTS.md)
            "--skip-git-repo-check", "--ephemeral",  # temp dir is no git repo; keep no session files
            "--dangerously-bypass-approvals-and-sandbox",  # agents run free (user requirement)
            "--json", "--color", "never", "-C", str(workdir)]

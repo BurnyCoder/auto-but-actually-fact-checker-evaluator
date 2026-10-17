@@ -33,7 +33,14 @@ def total_billed(ledger: Path) -> float:
         return 0.0
     with _LOCK:
         lines = ledger.read_text(encoding="utf-8").splitlines()
-    return sum((e.get("cost_usd") or 0.0) for e in map(json.loads, filter(None, lines)) if e.get("billed"))
+    total = 0.0
+    for line in filter(None, lines):
+        try:
+            e = json.loads(line)
+        except json.JSONDecodeError:  # a line another process is still writing
+            continue
+        total += (e.get("cost_usd") or 0.0) if e.get("billed") else 0.0
+    return total
 
 
 def check_budget(ledger: Path, limit_usd: float, estimate_usd: float = 0.0) -> float:
