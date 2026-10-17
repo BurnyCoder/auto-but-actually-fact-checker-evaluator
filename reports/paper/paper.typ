@@ -23,7 +23,7 @@
   0.755, Δ = +0.110 [95% CI +0.062, +0.160], exact McNemar p = 2.7×10⁻⁵. A pre-registered ablation attributes the
   whole gain to retrieval: the minimal prompt with the same search reached 0.890. The rigorous prompt added no
   detectable accuracy given search (Δ = −0.025 [−0.061, +0.010], p = 0.27) while producing 8.5× more output tokens.
-  In post-hoc arms, the full prompt also failed to help without search (0.765 vs 0.755), although it may improve ranking (AUROC +0.047 [+0.013, +0.082]). Codex and Claude Code agents running the full prompt were not better than single calls on 40 claims. Test–retest noise was ±2–3 pp. All results use one inexpensive model and one biomedical
+  In post-hoc arms, the full prompt also failed to help without search (0.765 vs 0.755), although it may improve ranking (AUROC +0.047 [+0.013, +0.082]). Codex and Claude Code agents running the full prompt were not better than single calls on 40 claims. A pre-registered evaluation of the correct-until-labelled-accurate loop shows that it raises gold-evidence correctness only from 49% to 62%, while labelling every answer correct. Test–retest noise was ±2–3 pp. All results use one inexpensive model and one biomedical
   benchmark of single-sentence claims.
 ]
 
@@ -154,6 +154,23 @@ not accuracy. Two observations:
 - One correction pass raised a text's self-assessed accuracy from 18% to 95%. Because the same model grades its
   own correction, this measures self-consistency, not truth.
 
+*Is "labelled correct" correct? (Exp07, pre-registered.)* We also tested the iterate-until-accurate loop. A Codex
+agent (`gpt-6-luna`, live web search) corrected and re-checked 100 SciFact claims until it rated every claim
+≥ 90%, with at most 20 passes. A cross-family judge (`claude-haiku-5-5`, 93% accurate on the original claims)
+compared each text with the gold abstract. Correct means the central claim is entailed, nothing is contradicted,
+and the text addresses the same question.
+- Gold-correctness rose from 49% to 62% (Δ +0.13 [+0.02, +0.24], McNemar 10 / 23, p = 0.035).
+- The loop labelled all 100 answers correct, but only 62% [52, 71] were.
+- Passes after the first correction added nothing (61% → 62%).
+- 20% of originally correct texts became incorrect: the checker rated 44 of 54 true claims below 90% and rewrote
+  them into hedged or narrower statements.
+
+With Luna as judge (post hoc) the self-label precision is 61% and extra passes add 0.00. A self-assessed stopping
+rule measures persuasion, not truth (Fig. 3).
+
+#figure(image("../figures/fig3_correction_loop.png", width: 72%),
+  caption: [Exp07: the loop's own accuracy rating vs. gold-evidence correctness of the latest proposed text after k passes (items carried forward after stopping; n = 100).])
+
 = Related work
 
 Decompose–retrieve–verify pipelines include FActScore @factscore, SAFE @safe, FacTool @factool,
@@ -185,7 +202,7 @@ this.
 
 Making a long expert prompt modular allowed a clean test of what it buys. For binary verification of scientific
 claims with an inexpensive model, web search is what matters. The rigorous instruction set adds cost and output
-volume but no measurable accuracy. Whether its labels, condition scores and confidences are *valid* is an open,
+volume but no measurable accuracy. Likewise, iterating until the model rates its own correction accurate is not verification: about a third of such "verified" texts were wrong by gold evidence. Whether its labels, condition scores and confidences are *valid* is an open,
 testable question that needs human-annotated multi-dimensional judgments, which is our next step.
 
 *Cost and reproducibility.* All experiments and development together cost \$6.67 in billed API usage
