@@ -1,0 +1,5 @@
+{"_comment": "Exp08 naive arm: Codex agent (gpt-6-luna, effort low, live web search, <=3 searches, no blocked hosts: finding the original source is legitimate fact-checking) with the minimal prompt ('Fact-check the following text.' + the minimal JSON contract incl. corrected_text). Forced 4 passes: accuracy_threshold 101 never self-stops, no fixed-point stop. max_cost_usd 10 so the notional subscription cost never stops the loop.",
+ "sections": ["01_task"], "iterate_until_accurate": true, "accuracy_threshold": 101, "max_iterations": 4, "stop_on_fixed_point": false, "max_cost_usd": 10,
+ "steps": {"check": {"kind": "agent", "provider": "openai", "model": "gpt-6-luna", "effort": "low", "web_search": true,
+                     "max_searches": 3, "prompt_template": "minimal_baseline.md", "blocked_domains": [], "timeout_s": 900},
+           "repair": {"model": "gpt-6-luna", "effort": "low"}}}
