@@ -91,5 +91,5 @@ agreed with the answer key on all 32 claims (details and costs: [exp00](experime
 ## Spend
 
 The whole project (implementation tests, live tests, example runs, UI checks and all experiments) is recorded
-call by call in `logs/spend.jsonl`. **Billed total: $6.52 of the $10 cap.** Agent runs on subscription auth are
+call by call in `logs/spend.jsonl`. **Billed total: $6.55 of the $10 cap.** Agent runs on subscription auth are
 not billed; their notional cost is logged separately.
