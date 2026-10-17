@@ -51,6 +51,8 @@ def test_validate_keeps_only_exact_small_distinct_edits():
     out = ai_errors.validate(PASSAGE, errors, 2)
     assert [x["perturbed_sentence"] for x in out] == ["AlexNet was designed in 1998.", "It lost the ImageNet challenge."]
     assert [x["id"] for x in out] == [1, 2]
+    snapped = ai_errors.validate(PASSAGE, [e("Its error rate was 15.3 %.", "Its error rate was 45.3%.")], 1)
+    assert snapped[0]["original_sentence"] == "Its error rate was 15.3%."  # near-copy snapped to the real sentence
     assert ai_errors.perturb(PASSAGE, out).startswith("AlexNet was designed in 1998. It lost")
 
 
