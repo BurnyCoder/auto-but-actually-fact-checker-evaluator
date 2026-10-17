@@ -24,6 +24,9 @@ in [`results/`](results). Every number here comes from `results/scifact_analysis
   [+0.013, +0.082]); this is exploratory.
 - **Exp04** (post hoc): a Codex agent running the full prompt reached 0.876 on 40 claims, statistically
   indistinguishable from the single API calls.
+- **Exp05** (post hoc): a Claude Code agent (Haiku) running the full prompt ranked claims best of all systems
+  (AUROC 0.962) but was sceptical: SUPPORT recall 0.65, balanced accuracy 0.797 on the same 40 claims. It differs
+  in model as well, and one bio-safety refusal was scored wrong.
 
 ## Glossary (plain language)
 
@@ -61,6 +64,7 @@ low. Each takes one claim as input and returns a 0–100 accuracy score; the pre
 | C | 1 API call | minimal | as B | same | 200 | 0.890 | 0.956 | 0.087 | $2.30 | pre-registered secondary (Exp02) |
 | D | 1 API call | full rigorous | none | same | 200 | 0.765 | 0.891 | 0.142 | $0.44 | post hoc (Exp03) |
 | E | Codex CLI agent | full rigorous | live web search (≤3 stated in prompt) | first 40 of the same items | 40 | 0.876 | 0.917 | 0.113 | $0 billed ($0.91 notional) | post hoc (Exp04) |
+| F | Claude Code agent, **claude-haiku-5-5** | full rigorous | WebSearch/WebFetch (≤3 stated in prompt) | same 40 items | 40 | 0.797 | 0.962 | 0.161 | $0 billed ($1.27 notional) | post hoc (Exp05) |
 
 | comparison | n | Δ balanced accuracy [95% CI] | McNemar b / c, p | Δ AUROC [95% CI] | reading |
 |---|---|---|---|---|---|
@@ -71,6 +75,7 @@ low. Each takes one claim as input and returns a 0–100 accuracy score; the pre
 | D − A | 200 | +0.010 [−0.026, +0.047] | 6 / 8, 0.79 | +0.047 [+0.013, +0.082] | prompt without search: no verdict gain, maybe better ranking (post hoc) |
 | B − D | 200 | +0.100 [+0.055, +0.148] | 2 / 22, 3.6 × 10⁻⁵ | +0.053 [+0.021, +0.089] | search helps under the full prompt too (post hoc) |
 | E − A / B / C | 40 | +0.051 / −0.029 / −0.059, every CI spans 0 | 2/4 · 2/1 · 3/1 | – | Codex agent indistinguishable at n = 40 (post hoc) |
+| F − A / B / C / E | 40 | −0.028 / −0.109 / −0.138 [−0.250, −0.045] / −0.079 | 6/4 · 7/2 · 6/0 (p = 0.031) · 7/3 | +0.073 / −0.017 / −0.031 / +0.045 | Claude agent: sceptical, best ranking; vs C nominal only (1 of 12 post-hoc tests; model confound) |
 
 ## Qualitative runs (Exp00)
 
@@ -85,11 +90,17 @@ agreed with the answer key on all 32 claims (details and costs: [exp00](experime
   verdict accuracy on SciFact. Its value, if any, is in the qualitative output (labels, conditions, corrections),
   which SciFact does not score.
 - **Synthesis of many perspectives moderates scores** toward the middle (Exp00, L5).
+- **Ranking and threshold can disagree.** The Claude agent had the best AUROC but a poor 50% cut-off (Exp05).
+  The prompt without search raised AUROC without raising accuracy (Exp03). The threshold metric alone hides this.
+- **Delegation can be fabricated.** In 4 smoke tests Codex never spawned a sub-agent, and twice it claimed one had
+  answered (Exp00).
+- **Refusals are a failure mode of their own.** Anthropic's bio-safety filter refused some biomedical claims,
+  non-deterministically, and the JSON repair step once turned a refusal into a fabricated verdict (fixed, Exp05).
 - **Engineering findings** (Exp00): workspace header, direct search mode, CLAUDE.md isolation, Codex AGENTS.md
   limitation, the subagent-delegation prompt. See the table in [exp00](experiments/exp00_ai_texts.md).
 
 ## Spend
 
 The whole project (implementation tests, live tests, example runs, UI checks and all experiments) is recorded
-call by call in `logs/spend.jsonl`. **Billed total: $6.55 of the $10 cap.** Agent runs on subscription auth are
+call by call in `logs/spend.jsonl`. **Billed total: $6.64 of the $10 cap.** Agent runs on subscription auth are
 not billed; their notional cost is logged separately.

@@ -78,6 +78,10 @@ are in [`reports/all_experiments.md`](reports/all_experiments.md) and the paper 
 | C simple prompt + web search | 0.890 [0.839, 0.926] | $2.30 |
 | D full rigorous prompt, no search (post hoc) | 0.765 [0.702, 0.818] | $0.44 |
 
+On 40 of the same claims (post hoc), agents running the full prompt were not better:
+- Codex: balanced accuracy 0.876
+- Claude Code with Haiku: 0.797, though with the best ranking (AUROC 0.962)
+
 - **Web search is what helps.** B beats A by +0.110 [+0.062, +0.160] (McNemar p = 2.7 × 10⁻⁵), and search alone
   explains it (C − A = +0.135).
 - **The rigorous prompt does not change verdict accuracy** with search (B − C = −0.025 [−0.061, +0.010]) or without
@@ -85,7 +89,7 @@ are in [`reports/all_experiments.md`](reports/all_experiments.md) and the paper 
 - **The prompt's added value is the richer qualitative output**: label and condition scores with confidences,
   corrections and issue lists. SciFact does not measure that.
 
-The whole project, from implementation through evaluation, cost $6.55 in billed API calls.
+The whole project, from implementation through evaluation, cost $6.64 in billed API calls.
 
 ## Quick start
 

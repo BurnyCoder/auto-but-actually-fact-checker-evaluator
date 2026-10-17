@@ -48,7 +48,9 @@ def parse_events(req: LLMRequest, events: list[dict], billed: bool) -> LLMResult
     tool_results = [json.dumps(b.get("content"), ensure_ascii=False) for e in events if e.get("type") == "user"
                     for b in (e.get("message") or {}).get("content", []) if isinstance(b, dict)
                     and b.get("type") == "tool_result"]  # WebSearch/WebFetch results carry the URLs
-    error = None if result and not result.get("is_error") else (result.get("subtype") or "no result event")
+    error = None if result and not result.get("is_error") else (  # e.g. "refusal: API Error: ... can't help ..."
+        f"{result.get('stop_reason') or result.get('subtype')}: {str(result.get('result', ''))[:300]}"
+        if result else "no result event")
     return LLMResult(text=result.get("result") or "", backend="claude_code", model=req.model, input_tokens=tin,
                      cached_input_tokens=cached, output_tokens=sum(m.get("outputTokens", 0) for m in usage.values()),
                      web_searches=sum(m.get("webSearchRequests", 0) for m in usage.values()),

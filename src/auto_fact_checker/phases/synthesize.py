@@ -38,4 +38,4 @@ def synthesize(results: list[CheckResult], target: str, cfg: FactCheckConfig, ct
     reports = [{"source": source_name(r), "text": r.report} for r in results]
     res = ctx.call("synthesize", build_prompt(cfg, "synthesize", target, reports=reports), label)
     return CheckResult(label=label, step="synthesize", target=target, report=res.text,
-                       summary=summarize_output(res.text, cfg, ctx, label))
+                       summary=summarize_output(res.text, cfg, ctx, label, failed=bool(res.error)))
