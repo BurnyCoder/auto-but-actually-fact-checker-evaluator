@@ -89,7 +89,7 @@ On 40 of the same claims (post hoc), agents running the full prompt were not bet
 - **The prompt's added value is the richer qualitative output**: label and condition scores with confidences,
   corrections and issue lists. SciFact does not measure that.
 
-The whole project, from implementation through evaluation, cost $6.64 in billed API calls.
+The whole project, from implementation through evaluation, cost $6.67 in billed API calls.
 
 ## Quick start
 
