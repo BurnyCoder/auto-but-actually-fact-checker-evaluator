@@ -54,6 +54,9 @@ LABELS = {"kind": "Call type: one API request or an agent (Codex / Claude Code)"
           "score_all_labels": "Score EVERY selected verdict label for every claim (else only applicable ones)",
           "score_each_scientist": "Add a scored condition per named scientist (long output!)",
           "perspective_scientists": "Scientists for separate calls / subagents / perspective buttons"}
+# Claims table (render.claims_rows: #, claim, accuracy, confidence, types, top labels, corrected claim). Fixed widths
+# with wrap=True keep every column visible; without them the wrapped claim text takes the whole width.
+CLAIM_WIDTHS = ["3%", "22%", "7%", "8%", "17%", "21%", "22%"]
 LIST_CHOICES = {"degrees": "degrees", "verdict_labels": "verdict_labels", "styles": "styles",
                 "claim_types": "claim_types", "scientists": "scientists", "perspective_scientists": "scientists"}
 
@@ -222,8 +225,8 @@ def build_ui() -> gr.Blocks:
                     "use an API call or an agent, the model, depth, web search, subagents and every prompt block.")
         run_id = gr.State(None)
         with gr.Row():
-            with gr.Column(scale=5):
-                example = gr.Dropdown(choices=[p.stem for p in EXAMPLES], value=None, label="Load an example text")
+            with gr.Column(scale=5, elem_id="afc-io"):  # text + results; the id lets scripts screenshot it
+                example =gr.Dropdown(choices=[p.stem for p in EXAMPLES], value=None, label="Load an example text")
                 text = gr.Textbox(lines=10, label="Text to fact-check")
                 with gr.Row():
                     run_btn = gr.Button("Run fact-check", variant="primary")
@@ -235,11 +238,12 @@ def build_ui() -> gr.Blocks:
                     with gr.Tab("Report"):
                         report = gr.Markdown()
                     with gr.Tab("Claims"):
-                        claims_df = gr.Dataframe(label="Claims (accuracy, confidence, types, strongest labels)")
+                        claims_df = gr.Dataframe(label="Claims (accuracy, confidence, types, strongest labels)",
+                                                 wrap=True, max_height=2000, column_widths=CLAIM_WIDTHS)
                     with gr.Tab("Labels"):
                         labels_df = gr.Dataframe(label="Every scored verdict label per claim")
                     with gr.Tab("Conditions"):
-                        cond_df = gr.Dataframe(label="Every scored condition per claim")
+                        cond_df = gr.Dataframe(label="Every scored condition per claim", wrap=True)
                     with gr.Tab("Corrected text"):
                         corrected = gr.Textbox(lines=10, label="Corrected whole text (input of the next iteration)")
                     with gr.Tab("Issues"):
@@ -389,7 +393,10 @@ def build_ui() -> gr.Blocks:
     return demo
 
 
-def launch(port: int = 7860, inbrowser: bool = True) -> None:
-    """Serve on localhost only: agents run without a sandbox, so the UI must not be exposed to a network."""
-    build_ui().queue(default_concurrency_limit=4).launch(server_name="127.0.0.1", server_port=port,
-                                                                inbrowser=inbrowser)
+def launch(port: int = 7860, inbrowser: bool = True, block: bool = True) -> gr.Blocks:
+    """Serve on localhost only: agents run without a sandbox, so the UI must not be exposed to a network.
+    block=False returns at once (Gradio `prevent_thread_lock`) so a script can drive the app and then `close()` it,
+    see docs/scripts/take_screenshots.py and https://www.gradio.app/docs/gradio/blocks#blocks-launch"""
+    demo = build_ui().queue(default_concurrency_limit=4)
+    demo.launch(server_name="127.0.0.1", server_port=port, inbrowser=inbrowser, prevent_thread_lock=not block)
+    return demo

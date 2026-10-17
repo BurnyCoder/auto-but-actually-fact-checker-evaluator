@@ -34,6 +34,9 @@ build-backend = "uv_build"
 dev = [
     "pytest>=9.1.1",
 ]
+docs = [
+    "playwright>=1.64.0",
+]
 paper = [
     "matplotlib>=3.11.2",
     "typst>=0.15.0",
