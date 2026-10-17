@@ -70,7 +70,7 @@ def run(client, req: LLMRequest, log: logging.Logger | logging.LoggerAdapter,
     result = LLMResult(text="".join(texts), backend="anthropic_api", model=req.model, input_tokens=tin,
                        output_tokens=tout, web_searches=searches, sources=dedupe(urls),
                        cost_usd=cost if req.model in catalog.MODELS else None)
-    if msg.stop_reason in ("max_tokens", "refusal"):
+    if msg.stop_reason in ("max_tokens", "refusal", "pause_turn"):  # pause_turn here = continuations exhausted
         result.error = f"stop_reason={msg.stop_reason}"
     return result
 

@@ -18,3 +18,4 @@ runs/
 data/
 .pytest_cache/
 .gradio/
+.claude/settings.local.json

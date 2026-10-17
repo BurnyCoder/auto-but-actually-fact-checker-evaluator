@@ -58,3 +58,19 @@ def test_settings_resolve_relative_dirs(monkeypatch):
     monkeypatch.setenv("LOGS_DIR", "some_logs")
     s = C.Settings()
     assert s.logs_dir == C.ROOT / "some_logs"  # relative paths are anchored at the repo root
+
+
+def test_typos_and_impossible_combinations_are_rejected():
+    with pytest.raises(ValidationError):
+        C.apply_overrides(C.FactCheckConfig(), ["steps.check.modle=gpt-6.1-sol"])  # typo -> error, not defaults
+    with pytest.raises(ValidationError, match="Claude Code"):
+        steps = C.default_steps()
+        steps["check"] = C.StepConfig(kind="agent", provider="openai", allow_subagents=True)  # Codex
+        C.FactCheckConfig(steps=steps, claim_strategy="subagent_per_claim")
+    with pytest.raises(ValidationError, match="nothing would run"):
+        steps = C.default_steps()
+        steps["check"] = C.StepConfig(enabled=False)
+        C.FactCheckConfig(steps=steps, scientist_strategy="separate_call_per_scientist", perspective_scientists=[])
+    with pytest.raises(ValidationError, match="anthropic model"):
+        C.StepConfig(provider="openai", model="claude-haiku-5-5")
+    C.StepConfig(provider="openai", model="my-custom-model")  # uncatalogued ids stay allowed

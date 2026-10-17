@@ -59,7 +59,7 @@ claims more accurately than a simple single LLM call?
 - **What it gives:** for δ = 10 pp and a discordant fraction ψ = 0.2, n ≈ 155 at 80% power.
 - **How n is chosen:** n is the largest balanced sample that fits the budget at the pilot's measured cost per
   item.
-- **Budget:** about $5 for Exp01, inside a hard $10 cap for the whole project.
+- **Budget:** about $5 for Exp01, inside the $10 cap for the whole project (checked before every call).
 - **Reporting:** the achieved power is stated in the report.
 
 ## Threats to validity, and mitigations

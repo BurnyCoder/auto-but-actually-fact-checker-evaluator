@@ -15,11 +15,11 @@ from ..schema import FactCheckSummary, parse_block
 
 def summarize_output(text: str, cfg: FactCheckConfig, ctx: RunContext, label: str) -> FactCheckSummary | None:
     """Parse the JSON summary; if it is missing/invalid and the repair step is enabled, ask the repair step."""
-    summary = parse_block(text, FactCheckSummary)
+    summary = parse_block(text, FactCheckSummary, accept=FactCheckSummary.meaningful)
     if summary is None and text.strip() and cfg.steps["repair"].enabled:
         ctx.log.warning("%s: JSON summary missing or invalid, running repair step", label)
         repaired = ctx.call("repair", build_prompt(cfg, "repair", "", report=text), f"{label}/repair")
-        summary = parse_block(repaired.text, FactCheckSummary)
+        summary = parse_block(repaired.text, FactCheckSummary, accept=FactCheckSummary.meaningful)
     if summary is None:
         ctx.log.error("%s: no parseable JSON summary", label)
     return summary

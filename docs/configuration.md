@@ -16,10 +16,10 @@ by construction. Each field is also a key in preset JSON and in `afc check --set
 | `search_context_size` | low/medium/high | OpenAI search context size |
 | `max_searches` | 0–50 | search cap (see [architecture](architecture.md#how-the-backends-map-the-settings)) |
 | `blocked_domains` | comma list | excluded from search (API backends) |
-| `allow_subagents` | bool | agents may spawn subagents (required for the subagent strategies) |
+| `allow_subagents` | bool | agents may spawn subagents (subagent strategies require a Claude Code check agent) |
 | `max_subagents` | 1–30 | upper bound stated to the orchestrating agent |
 | `max_turns` | 0 = unlimited | Claude Code `--max-turns` |
-| `timeout_s` | seconds | the process tree is killed after this |
+| `timeout_s` | seconds | agents: wall-clock limit, the process tree is killed; API calls: SDK request timeout |
 | `prompt_template` | file in `prompts/<step>/` | e.g. `check/rigorous_sections.md`, `minimal_baseline.md`, `neurips_review.md`; `extract/claimify.md`, `simple_list.md` |
 | `prompt_override` | Jinja text | replaces the template. Variables include `text`, `context`, `persona`, `sections_text`, `output_contract`, `reports`, `report`, the option lists, and the `web_search` / `confidence` / `classify` / `labels_on` flags |
 
@@ -61,8 +61,9 @@ The 12 conditions and the meaning of each 0–100 % score are defined in `prompt
 | variable | default | meaning |
 |---|---|---|
 | `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` | – | API keys (read with pydantic-settings, never exported) |
+| `ANTHROPIC_WORKSPACE_ID` | – | sent as `anthropic-workspace-id`; required for keys not scoped to a workspace |
 | `AGENT_AUTH` | `subscription` | `subscription` strips the keys from agent processes; `api_key` passes them (Codex receives `CODEX_API_KEY`) |
-| `SPEND_LIMIT_USD` | `10` | global cap on billed spend in `logs/spend.jsonl` |
+| `SPEND_LIMIT_USD` | `10` | global cap on billed spend in `logs/spend.jsonl`, checked before every call (soft: in-flight parallel calls can overshoot; uncatalogued models count as $0 with a warning) |
 | `CLAUDE_BIN`, `CODEX_BIN` | PATH lookup | explicit `.exe` paths (`.cmd` shims are rejected) |
 | `LOGS_DIR`, `RUNS_DIR` | `logs`, `runs` | relative to the repo root |
 

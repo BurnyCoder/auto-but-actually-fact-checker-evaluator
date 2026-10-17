@@ -59,15 +59,21 @@ def agent_env(agent_auth: str, keys: dict[str, str | None]) -> dict[str, str]:
     return env
 
 
-def _kill_tree(proc: subprocess.Popen) -> None:
-    """Terminate the CLI and every child it spawned (agents start shells, subagents, search helpers)."""
+def _descendants(pid: int) -> set[int]:
+    """PIDs of all current descendants of pid (empty once it has exited)."""
     try:
-        parent = psutil.Process(proc.pid)
-        for child in parent.children(recursive=True):
-            child.kill()
-        parent.kill()
+        return {c.pid for c in psutil.Process(pid).children(recursive=True)}
     except psutil.NoSuchProcess:
-        pass
+        return set()
+
+
+def _kill(pids) -> None:
+    """Kill every listed process that still exists (agents start shells, subagents, search helpers)."""
+    for pid in pids:
+        try:
+            psutil.Process(pid).kill()
+        except psutil.NoSuchProcess:
+            pass
 
 
 def run_jsonl(cmd: list[str], stdin_text: str, env: dict | None, cwd: Path, timeout_s: int,
@@ -86,9 +92,12 @@ def run_jsonl(cmd: list[str], stdin_text: str, env: dict | None, cwd: Path, time
         except (BrokenPipeError, OSError):
             pass
 
-    def watchdog():  # polls every 0.5 s: kill the tree on timeout or when the UI's Stop button sets `cancel`
-        deadline = time.monotonic() + timeout_s
-        while proc.poll() is None:
+    reading_done = threading.Event()
+
+    def watchdog():  # polls every 0.5 s until stdout is drained; kills the tree on timeout or UI Stop
+        deadline, seen = time.monotonic() + timeout_s, set()
+        while not reading_done.is_set():
+            seen |= _descendants(proc.pid)  # remembered, so orphans still holding the pipe can be killed
             if cancel is not None and cancel.is_set():
                 out.cancelled = True
                 break
@@ -96,9 +105,9 @@ def run_jsonl(cmd: list[str], stdin_text: str, env: dict | None, cwd: Path, time
                 out.timed_out = True
                 break
             time.sleep(0.5)
-        if proc.poll() is None:
+        if not reading_done.is_set():
             log.warning("Killing %s (%s)", cmd[0], "cancelled" if out.cancelled else "timeout")
-            _kill_tree(proc)  # closing the child's stdout ends the read loop below
+            _kill(seen | _descendants(proc.pid) | {proc.pid})  # closing every writer ends the read loop
 
     threading.Thread(target=feed, daemon=True).start()
     threading.Thread(target=watchdog, daemon=True).start()
@@ -116,6 +125,7 @@ def run_jsonl(cmd: list[str], stdin_text: str, env: dict | None, cwd: Path, time
             out.events.append(event)
             if on_event:
                 on_event(event)
+    reading_done.set()
     out.returncode = proc.wait()
     log.info("%s exited with code %s", Path(cmd[0]).stem, out.returncode)
     return out
