@@ -97,7 +97,7 @@ web search, looping on 100 claims and judged against the gold evidence:
 
 Treat the loop's "accurate" label as a claim to verify, not a verification.
 
-The whole project, from implementation through evaluation, cost $6.67 in billed API calls.
+The whole project, from implementation through evaluation, cost $6.90 in billed API calls.
 
 ## Quick start
 
