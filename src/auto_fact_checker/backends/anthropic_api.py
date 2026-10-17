@@ -28,16 +28,23 @@ def build_kwargs(req: LLMRequest) -> dict:
     kw = {"model": req.model, "max_tokens": MAX_TOKENS, "messages": [{"role": "user", "content": req.prompt}],
           "output_config": {"effort": EFFORT.get(req.effort, req.effort)}}
     if req.web_search:
-        tool = {"type": "web_search_20260318", "name": "web_search", "max_uses": req.max_searches}
+        # allowed_callers=["direct"]: plain model-issued searches with citations. The default on _20260209+ routes
+        # searches through code execution ("dynamic filtering"), which exhausted max_uses without an answer in our
+        # live test with claude-haiku-5-5 (2026-10-17).
+        tool = {"type": "web_search_20260318", "name": "web_search", "max_uses": req.max_searches,
+                "allowed_callers": ["direct"]}
         if req.blocked_domains:
             tool["blocked_domains"] = req.blocked_domains  # cannot be combined with allowed_domains
         kw["tools"] = [tool]
     return kw
 
 
-def run(client, req: LLMRequest, log: logging.Logger | logging.LoggerAdapter) -> LLMResult:
+def run(client, req: LLMRequest, log: logging.Logger | logging.LoggerAdapter,
+        workspace_id: str | None = None) -> LLMResult:
     """Execute the request with an existing client (injectable for tests), following pause_turn continuations."""
     kw = build_kwargs(req)
+    if workspace_id:
+        kw["workspace_id"] = workspace_id  # sent as the anthropic-workspace-id header
     texts, urls = [], []
     tin = tout = searches = 0
     cost = 0.0
@@ -70,9 +77,10 @@ def run(client, req: LLMRequest, log: logging.Logger | logging.LoggerAdapter) ->
 
 def call(req: LLMRequest, log: logging.Logger | logging.LoggerAdapter) -> LLMResult:
     """Create a client from .env and run the request."""
-    key = get_settings().anthropic_api_key
+    s = get_settings()
+    key = s.anthropic_api_key
     client = anthropic.Anthropic(api_key=key.get_secret_value() if key else None, timeout=req.timeout_s)
     t0 = time.monotonic()
-    result = run(client, req, log)
+    result = run(client, req, log, workspace_id=s.anthropic_workspace_id)
     result.duration_s = time.monotonic() - t0
     return result

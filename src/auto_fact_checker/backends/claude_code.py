@@ -56,13 +56,28 @@ def parse_events(req: LLMRequest, events: list[dict], billed: bool) -> LLMResult
                      sources=dedupe(urls_in("\n".join(tool_results))))
 
 
+def isolation_settings() -> dict:
+    """--settings content that keeps the user's memory files out of fact-check agents.
+
+    `--setting-sources project` does not stop ~/.claude/CLAUDE.md from loading (our live canary test answered YES),
+    but `claudeMdExcludes` applies at every settings layer incl. --settings:
+    https://code.claude.com/docs/en/memory#exclude-specific-claude-md-files (patterns match absolute paths).
+    """
+    home = Path.home() / ".claude"
+    explicit = [str(home / "CLAUDE.md"), (home / "CLAUDE.md").as_posix(), str(home / "rules"), (home / "rules").as_posix()]
+    return {"claudeMdExcludes": ["**/CLAUDE.md", "**/CLAUDE.local.md", "**/AGENTS.md", "**/.claude/rules/**",
+                                 *explicit], "autoMemoryEnabled": False}
+
+
 def _build(req: LLMRequest, exe: str, workdir: Path) -> list[str]:
-    """Write the --agents file into the agent's temp working directory when subagents are defined."""
+    """Write the --agents and --settings files into the agent's temp working directory."""
     agents_file = None
     if req.agents:
         agents_file = workdir / "agents.json"
         agents_file.write_text(json.dumps(req.agents, ensure_ascii=False, indent=1), encoding="utf-8")
-    return build_cmd(req, exe, agents_file)
+    settings_file = workdir / "afc_settings.json"
+    settings_file.write_text(json.dumps(isolation_settings(), indent=1), encoding="utf-8")
+    return build_cmd(req, exe, agents_file) + ["--settings", str(settings_file)]
 
 
 def call(req: LLMRequest, log: logging.Logger | logging.LoggerAdapter) -> LLMResult:

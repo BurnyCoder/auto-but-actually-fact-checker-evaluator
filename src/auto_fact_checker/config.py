@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=ROOT / ".env", env_file_encoding="utf-8", extra="ignore")
     openai_api_key: SecretStr | None = None  # SecretStr keeps keys out of logs/reprs
     anthropic_api_key: SecretStr | None = None
+    anthropic_workspace_id: str | None = None  # required by keys not scoped to a workspace (API returns 400)
     agent_auth: Literal["subscription", "api_key"] = "subscription"  # how Claude Code / Codex authenticate
     spend_limit_usd: float = 10.0  # global cap on cumulative billed spend (logs/spend.jsonl)
     claude_bin: str | None = None  # optional explicit path to claude.exe
