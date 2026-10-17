@@ -108,3 +108,11 @@ def test_perspective_buttons_and_synthesis(fake):
     merged = pipeline.synthesize_perspectives(run, cfg)
     assert [p.persona for p in run.perspectives[:2]] == ["Carl Sagan", "Sabine Hossenfelder"]
     assert merged.step == "synthesize" and fake.requests[-1].label == "perspectives/synthesize"
+
+
+def test_failed_extraction_does_not_duplicate_the_text(fake):
+    fake.__init__(extract=())  # extractor returns no claims -> whole text is the single target
+    cfg = C.FactCheckConfig(claim_strategy="separate_call_per_claim")
+    pipeline.run_fact_check("Only text.", cfg)
+    check = next(r for r in fake.requests if r.label.endswith("check/claim1"))
+    assert "<document_context>" not in check.prompt and check.prompt.count("Only text.") == 1
