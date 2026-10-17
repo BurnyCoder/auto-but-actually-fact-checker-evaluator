@@ -1,0 +1,25 @@
+{
+  "_comment": "Binary answer key for examples/*.md (true = the claim as written is accurate enough, i.e. should score >= 50% accuracy). Sources and nuance: docs/examples.md. 'match' is a case-insensitive keyword used to find the model's claim(s); a claim split into parts is scored by its least accurate part.",
+  "ai_research": [
+    {"match": "Attention Is All You Need", "true": true},
+    {"match": "GPT-3", "true": true},
+    {"match": "Kaplan", "true": false},
+    {"match": "Chinchilla", "true": true},
+    {"match": "human feedback", "true": false},
+    {"match": "Emergent", "true": false}
+  ],
+  "ai_philosophy": [
+    {"match": "Chinese Room", "true": false},
+    {"match": "Turing test", "true": false},
+    {"match": "stochastic parrots", "true": false},
+    {"match": "world model", "true": false},
+    {"match": "hard problem", "true": true}
+  ],
+  "ai_engineering": [
+    {"match": "bfloat16", "true": true},
+    {"match": "Retrieval-augmented", "true": false},
+    {"match": "LoRA", "true": false},
+    {"match": "FlashAttention", "true": false},
+    {"match": "4 bits", "true": false}
+  ]
+}
