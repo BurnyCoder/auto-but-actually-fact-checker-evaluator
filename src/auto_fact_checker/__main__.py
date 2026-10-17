@@ -53,7 +53,7 @@ def main(argv: list[str] | None = None) -> int:
     chk.add_argument("--set", action="append", default=[], metavar="KEY=VALUE", help="dotted config override")
     chk.add_argument("--iterations", type=int, help="iterate until accurate, at most N passes")
     sub.add_parser("spend", help="show cumulative billed API spend")
-    sub.add_parser("bench", help="run a benchmark; options are parsed by bench/run.py (see docs/benchmark.md)")
+    sub.add_parser("bench", add_help=False, help="run a benchmark; `afc bench --help` lists its options")
     # parse_known_args: argparse.REMAINDER does not capture leading "--options", so bench options pass through here.
     args, rest = parser.parse_known_args(argv)
     if rest and args.cmd != "bench":
