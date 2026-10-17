@@ -170,6 +170,25 @@ loop with claim and scientist subagents failed in the opposite direction. On 2 o
 without ever labelling its text correct, although both judges found its final texts correct; the third claim was
 refused. A self-assessed stopping rule measures persuasion, not truth (Fig. 3).
 
+*Post hoc, on the same 100 claims.*
+- *Verdicts.* The agent's first-pass verdict reaches 0.921 balanced accuracy. That compares with 0.774 / 0.779
+  without evidence (A / D), 0.903 / 0.923 with API search (B / C), and 0.934 for a judge given the cited paper.
+- *Corrections.* Only 62% of corrected texts are correct. The agent detects 93% of false claims but repairs about
+  half.
+- *One pass vs. the loop.* A single agent pass (keep the original if rated ≥ 90%, else use its correction) already
+  reaches 62% (from 49%). The full loop adds +0.00 [−0.06, +0.06] at 2.5× the cost; the two answers are identical on
+  76 of 100 claims.
+- Swapping the judge to Luna gives the same picture: 37% → 62% → 61%.
+
+#figure(
+  table(columns: 4, align: (left, right, right, right), stroke: 0.4pt,
+    [*Exp07 claims (n = 100)*], [*original*], [*single agent pass*], [*full loop*],
+    [texts correct (Haiku judge)], [49%], [62%], [62%],
+    [texts correct (Luna judge)], [37%], [62%], [61%],
+    [notional cost / time per claim], [–], [\$0.023 / 34 s], [\$0.059 / 100 s],
+  ),
+  caption: [Post hoc: correction accuracy of one agent pass vs. the iterate-until-accurate loop on the same claims.])
+
 #figure(image("../figures/fig3_correction_loop.png", width: 72%),
   caption: [Exp07: the loop's own accuracy rating vs. gold-evidence correctness of the latest proposed text after k passes (items carried forward after stopping; n = 100).])
 
