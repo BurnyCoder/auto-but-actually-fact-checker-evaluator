@@ -1,0 +1,5 @@
+{"_comment": "Exp07 primary loop: Codex agent (gpt-6-luna, live web search, <=3 searches and blocked dataset hosts stated in the prompt) with the full default prompt; iterate until every claim is self-rated >= 90% accurate, at most 20 passes, stop on a fixed point. max_cost_usd 10 so the notional subscription cost never stops the loop (billed spend stays under the global cap).",
+ "iterate_until_accurate": true, "accuracy_threshold": 90, "max_iterations": 20, "stop_on_fixed_point": true, "max_cost_usd": 10,
+ "steps": {"check": {"kind": "agent", "provider": "openai", "model": "gpt-6-luna", "effort": "low", "web_search": true,
+                     "max_searches": 3, "prompt_template": "rigorous_sections.md", "blocked_domains": ["huggingface.co", "github.com", "githubusercontent.com", "kaggle.com", "paperswithcode.com", "allenai.org"], "timeout_s": 900},
+           "repair": {"model": "gpt-6-luna", "effort": "low"}}}
