@@ -37,6 +37,16 @@ in [`results/`](results). Every number here comes from `results/scifact_analysis
   - It harmed 20% of originally correct claims; the sceptical checker rewrote 44 of 54 true claims.
   - Optional Claude Code subagent loop (n = 3, stopped early): it never labelled anything correct in 20 passes,
     while its final texts were judged correct. Neither loop's stopping signal tracks truth.
+- **Exp08** (pre-registered): our own benchmark of obviously wrong AI-research text. Setup: 20 Wikipedia/arXiv
+  passages with 0–5 injected errors (48 in total), a Codex agent with web search, forced 4 passes, naive vs
+  rigorous prompt, scored 0–100 against the original passage by a Haiku judge.
+  - **One pass** fixed 96–97% of the errors and raised the score from about 40 to 86–90 (Δ +46 to +52, p < 0.001).
+  - **Passes 2–4 did not help** in either arm (rigorous Δ +0.45 [−4.6, +4.8]). Under the rigorous prompt they
+    eroded fixes (fix rate −0.067 [−0.117, −0.022]): correct facts were hedged or dropped while the text grew 62%.
+  - **The naive prompt was at least as good** (pass 1: 90.4 vs 85.7, Δ −4.65 [−10.2, +1.8], Wilcoxon p = 0.017)
+    at 1/6 of the time.
+  - Clean controls were always rewritten.
+  - Post hoc: 21 of 22 judge-flagged "introduced errors" were true per the primary paper, or hedges.
 
 ## Glossary (plain language)
 
@@ -59,6 +69,12 @@ in [`results/`](results). Every number here comes from `results/scifact_analysis
 | confidence_pct | the model's self-reported confidence (0–100%) in each of its evaluations (uncertainty = 100 − confidence) |
 | agent | an LLM that runs in a loop with tools (web search, shell) until it finishes, here Codex CLI or Claude Code |
 | subagent | an agent started by another agent for a sub-task (e.g. one claim) |
+| injected error | a deliberate one-fact change (e.g. 2012 → 2022) inserted into a real passage so the ground truth is known |
+| reference judge | an LLM that scores a corrected text against the original, uncorrupted passage (Exp08) |
+| fix score | per injected error: 1 = corrected, 0.5 = removed or hedged without restoring the true fact, 0 = still wrong |
+| clean control | a passage with no injected errors; any change to it measures harm |
+| Wilcoxon signed-rank test | a paired test on the signs and ranks of per-item differences; it does not assume normality |
+| hedging drift | repeated rewriting that replaces specific facts with vaguer, qualified statements |
 
 ## Systems ("configurations") and results
 
@@ -114,6 +130,19 @@ Script: [`reports/scripts/compare_verdict_correction.py`](scripts/compare_verdic
 The agent detects 93% of false claims but repairs only about half of them. Looping adds no accuracy over one pass,
 at 2.5× the cost.
 
+## Error-injection benchmark (Exp08, pre-registered)
+
+The benchmark is 20 AI-research passages (Wikipedia leads and arXiv abstracts) with 48 injected errors and 4 clean
+controls. The corrector is a Codex agent (`gpt-6-luna`) with web search, forced to make 4 passes. The primary judge
+is `claude-haiku-5-5`, which scores each text against the original passage.
+
+| prompt | score: corrupted → pass 1 → pass 4 | errors fixed, pass 1 → 4 | pass 4 − pass 1 [95% CI] | words, pass 4 (original 157) | time / pass | billed |
+|---|---|---|---|---|---|---|
+| naive ("Fact-check the following text.") | 38.6 → **90.4** → 89.4 | 0.958 → 0.969 | −1.0 [−6.8, +5.3] | 191 | 18 s | $0.07 |
+| rigorous (full default prompt) | 40.0 → **85.7** → 86.2 | 0.969 → **0.896** | +0.45 [−4.6, +4.8] | 254 | 110 s | $0.09 |
+
+Details: [exp08](experiments/exp08_ai_error_bench.md).
+
 ## Qualitative runs (Exp00)
 
 Nine runs covered presets L0–L5, iteration, Claude/Codex agents and subagents. They made 49 calls in total and
@@ -132,6 +161,12 @@ agreed with the answer key on all 32 claims (details and costs: [exp00](experime
   question drift).
 - **One pass is enough; looping is not** (post hoc, Exp07). A single agent pass with web search accounts for the
   whole correction gain. Further passes leave correctness unchanged (Δ 0.00) and cost 2.5× more.
+- **Iteration erodes specifics** (Exp08). On obvious injected errors one pass fixes 96–97%. Further passes with
+  the rigorous prompt never re-introduce a false fact, but they hedge or drop restored ones (45 → 38 fully
+  corrected) while the self-rating stays at 96%.
+- **Reference-based judging needs an audit** (Exp08, post hoc). Correctors with web search add true details from
+  primary sources. They even caught the Transformer paper's own 41.0 vs 41.8 BLEU inconsistency, which a judge
+  anchored on the source passage counts as errors.
 - **Verdicts are much easier than corrections.** With web search the agent judges claims at about 0.92 balanced
   accuracy, close to a judge given the cited paper (0.93). But only 62% of its corrected texts are correct.
 - **Ranking and threshold can disagree.** The Claude agent had the best AUROC but a poor 50% cut-off (Exp05).
@@ -146,5 +181,5 @@ agreed with the answer key on all 32 claims (details and costs: [exp00](experime
 ## Spend
 
 The whole project (implementation tests, live tests, example runs, UI checks, README screenshots and all
-experiments) is recorded call by call in `logs/spend.jsonl`. **Billed total: $7.17 of the $10 cap** (2026-10-17). Agent runs on subscription auth are
+experiments) is recorded call by call in `logs/spend.jsonl`. **Billed total: $7.35 of the $10 cap** (2026-10-18). Agent runs on subscription auth are
 not billed; their notional cost is logged separately.

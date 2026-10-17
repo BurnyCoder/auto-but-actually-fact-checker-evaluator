@@ -23,7 +23,7 @@
   0.755, Δ = +0.110 [95% CI +0.062, +0.160], exact McNemar p = 2.7×10⁻⁵. A pre-registered ablation attributes the
   whole gain to retrieval: the minimal prompt with the same search reached 0.890. The rigorous prompt added no
   detectable accuracy given search (Δ = −0.025 [−0.061, +0.010], p = 0.27) while producing 8.5× more output tokens.
-  In post-hoc arms, the full prompt also failed to help without search (0.765 vs 0.755), although it may improve ranking (AUROC +0.047 [+0.013, +0.082]). Codex and Claude Code agents running the full prompt were not better than single calls on 40 claims. A pre-registered evaluation of the correct-until-labelled-accurate loop shows that it raises gold-evidence correctness only from 49% to 62%, while labelling every answer correct. Test–retest noise was ±2–3 pp. All results use one inexpensive model and one biomedical
+  In post-hoc arms, the full prompt also failed to help without search (0.765 vs 0.755), although it may improve ranking (AUROC +0.047 [+0.013, +0.082]). Codex and Claude Code agents running the full prompt were not better than single calls on 40 claims. A pre-registered evaluation of the correct-until-labelled-accurate loop shows that it raises gold-evidence correctness only from 49% to 62%, while labelling every answer correct. On our own pre-registered benchmark of 20 AI-research passages with 48 injected errors, one agent pass fixed 96–97% of the errors (mean score ≈ 40 → 86–90 of 100). Three further passes added nothing (Δ +0.45 [−4.6, +4.8]). Under the rigorous prompt they eroded fixed facts into hedges (fix rate −0.067 [−0.117, −0.022]), and a naive prompt did at least as well at one sixth of the time. Test–retest noise was ±2–3 pp. All results use one inexpensive model and one biomedical
   benchmark of single-sentence claims.
 ]
 
@@ -40,6 +40,9 @@ Our contributions:
    per-claim and per-persona calls, iteration) is configurable per pipeline step (§2).
 2. A pre-registered paired evaluation on SciFact @scifact that separates the effect of the prompt from the effect
    of web search, with a measured noise floor (§3–4).
+3. Two pre-registered tests of iterative self-correction. One judges corrections against gold evidence (SciFact);
+   the other uses a new benchmark of real AI-research passages with known injected errors, scored on a 0–100
+   spectrum pass by pass (§4).
 
 = System
 
@@ -192,6 +195,49 @@ refused. A self-assessed stopping rule measures persuasion, not truth (Fig. 3).
 #figure(image("../figures/fig3_correction_loop.png", width: 72%),
   caption: [Exp07: the loop's own accuracy rating vs. gold-evidence correctness of the latest proposed text after k passes (items carried forward after stopping; n = 100).])
 
+*Obviously wrong AI-research text (Exp08, pre-registered).* We built a benchmark
+(#link("https://github.com/BurnyCoder/auto-fact-checker/tree/main/benchmarks/ai_errors_v1")[ai_errors_v1]) in the
+spirit of synthetic perturbation @factcc.
+- *Passages:* 10 Wikipedia leads and 10 arXiv abstracts about AI research, with k ∈ {0, …, 5} injected one-fact
+  errors (48 in total, e.g. 2012 → 2022, 28.4 → 284 BLEU, CIFAR-10 → CIFAR-100) and 4 clean controls.
+- *Injection:* `gpt-6-luna` proposed the edits; code validated them; every edit was checked by hand (6 of 48
+  repaired).
+- *Arms:* a Codex agent with web search was forced through 4 correction passes with either the naive
+  ("Fact-check the following text.") or the full rigorous prompt.
+- *Judge:* `claude-haiku-5-5`, given the original passage, the injected errors and the candidate. It scored each
+  error (corrected 1, partially 0.5, uncorrected 0) and the whole text (0–100).
+- *Validity:* original passages scored 99.1, and the corrupted-input score fell with k (Spearman ρ = −0.81).
+
+#figure(
+  table(columns: 3, align: (left, right, right), stroke: 0.4pt,
+    [*n = 20 passages, 48 errors*], [*naive prompt*], [*rigorous prompt*],
+    [score: corrupted → pass 1 → pass 4], [38.6 → 90.4 → 89.4], [40.0 → 85.7 → 86.2],
+    [pass 4 − pass 1 (95% CI)], [−1.0 [−6.8, +5.3]], [+0.45 [−4.6, +4.8]],
+    [errors fixed, pass 1 → pass 4], [0.958 → 0.969], [0.969 → 0.896],
+    [words (original 157), pass 1 → pass 4], [150 → 191], [176 → 254],
+    [time / output tokens per pass], [18 s / 1.5k], [110 s / 18k],
+  ),
+  caption: [Exp08: one correction pass vs. four (primary judge `claude-haiku-5-5`, scored against the original passage).])
+
+*Results.*
+- *One pass* raised the score by +51.8 [+34.1, +68.9] (naive) and +45.8 [+28.8, +61.9] (rigorous), Wilcoxon
+  p < 0.001.
+- *Passes 2–4* did not change it in either arm or under either judge.
+- *Erosion under the rigorous prompt:* the per-passage fix rate fell by 0.067 [0.022, 0.117] (6 of 16 passages
+  worse, none better, p = 0.015). Post hoc, no fixed error reverted to the false fact. All 7 lost fixes were hedged
+  or deleted while the passage grew 62%, and the loop's self-rating stayed at 96%.
+- *Prompt:* the rigorous prompt scored lower than the naive one after pass 1 (−4.65 [−10.2, +1.8], 16 of 20
+  passages worse, Wilcoxon p = 0.017).
+- *Clean controls* were rewritten in every pass by both arms.
+- *Audit (post hoc).* We checked all 22 statements the judge flagged as "introduced errors" after pass 1 against
+  the primary papers. Only 1 was false. 12 were true details from the primary source, e.g. the Transformer
+  paper's results text reports 41.0 BLEU where its abstract says 41.8, and self-attention is
+  permutation-equivariant @settransformer. The other 9 were hedges. A judge anchored on the source passage
+  penalises correct additions, so the holistic score is a lower bound on real-world accuracy.
+
+#figure(image("../figures/fig4_ai_errors_passes.png", width: 92%),
+  caption: [Exp08: mean 0–100 score and mean per-error fix score after each forced correction pass, with 95% bootstrap bands (n = 20 passages, 48 injected errors; pass 0 = corrupted input).])
+
 = Related work
 
 Decompose–retrieve–verify pipelines include FActScore @factscore, SAFE @safe, FacTool @factool,
@@ -199,7 +245,11 @@ VeriScore @veriscore and FIRE @fire; Factcheck-Bench @factcheckbench and OpenFac
 such checkers. Claimify @claimify studies claim extraction. Our system reuses this decomposition but focuses on
 making a monolithic expert prompt modular and auditable. Our ablation finding (retrieval dominates) agrees with
 those pipelines' emphasis on evidence retrieval. To our knowledge, the lack of a gain from enumerating rigor
-criteria has not been measured in this form before. We did not run a systematic literature search to confirm
+criteria has not been measured in this form before. Iterative self-refinement @selfrefine improves many generation
+tasks, but intrinsic self-correction without external feedback often fails or degrades answers @selfcorrect.
+Exp07–08 add that, *with* web search, the gain comes from the first correction and further passes trade specific
+facts for hedges. Injecting synthetic errors to obtain known ground truth follows FactCC @factcc. We did not run a
+systematic literature search to confirm
 this.
 
 = Limitations
@@ -215,6 +265,9 @@ this.
 - *Post-hoc arms* (D, E) are exploratory. E has n = 40 and is underpowered.
 - *Agent isolation.* With subscription authentication, Codex agents still load the user's global AGENTS.md; only a
   counter-instruction is applied.
+- *Exp08 scope.* 20 passages (power only for d_z ≳ 0.65), with synthetic one-fact errors in famous, likely
+  memorised sources whose originals the agent can find online. The same model family injected and corrected the
+  errors, and the reference-based judge penalises true additions.
 - *Delegation and refusals.* In four smoke tests, Codex (`gpt-6-luna`) never actually spawned a sub-agent and
   twice reported a fabricated sub-agent answer. Claude Haiku refused some biomedical claims non-deterministically
   (bio-safety filter); one refusal is scored wrong in F.
@@ -224,9 +277,11 @@ this.
 Making a long expert prompt modular allowed a clean test of what it buys. For binary verification of scientific
 claims with an inexpensive model, web search is what matters. The rigorous instruction set adds cost and output
 volume but no measurable accuracy. Likewise, iterating until the model rates its own correction accurate is not verification: about a third of such "verified" texts were wrong by gold evidence. Whether its labels, condition scores and confidences are *valid* is an open,
-testable question that needs human-annotated multi-dimensional judgments, which is our next step.
+testable question that needs human-annotated multi-dimensional judgments, which is our next step. For correction,
+one agent pass with search is the useful unit: further passes did not improve gold correctness (Exp07) or injected
+errors (Exp08). With a long prompt they slowly replaced correct specifics with hedges.
 
-*Cost and reproducibility.* All experiments and development together cost \$6.90 in billed API usage
+*Cost and reproducibility.* All experiments and development together cost \$7.35 in billed API usage
 (ledger: `logs/spend.jsonl`). Commands, configurations, per-item predictions, analysis scripts and the
 pre-registration are in the repository.
 

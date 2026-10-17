@@ -81,3 +81,31 @@ connor:
   author: ["Connor, Roger J."]
   date: 1987
   parent: {type: periodical, title: "Biometrics", volume: 43}
+factcc:
+  type: article
+  title: "Evaluating the Factual Consistency of Abstractive Text Summarization"
+  author: ["Kryściński, Wojciech", "McCann, Bryan", "Xiong, Caiming", "Socher, Richard"]
+  date: 2020
+  parent: {type: proceedings, title: "EMNLP 2020"}
+  url: https://arxiv.org/abs/1910.12840
+selfrefine:
+  type: article
+  title: "Self-Refine: Iterative Refinement with Self-Feedback"
+  author: ["Madaan, Aman", "others"]
+  date: 2023
+  parent: {type: proceedings, title: "NeurIPS 2023"}
+  url: https://arxiv.org/abs/2303.17651
+selfcorrect:
+  type: article
+  title: "Large Language Models Cannot Self-Correct Reasoning Yet"
+  author: ["Huang, Jie", "Chen, Xinyun", "Mishra, Swaroop", "Zheng, Huaixiu Steven", "Yu, Adams Wei", "Song, Xinying", "Zhou, Denny"]
+  date: 2024
+  parent: {type: proceedings, title: "ICLR 2024"}
+  url: https://arxiv.org/abs/2310.01798
+settransformer:
+  type: article
+  title: "Set Transformer: A Framework for Attention-based Permutation-Invariant Neural Networks"
+  author: ["Lee, Juho", "Lee, Yoonho", "Kim, Jungtaek", "Kosiorek, Adam R.", "Choi, Seungjin", "Teh, Yee Whye"]
+  date: 2019
+  parent: {type: proceedings, title: "ICML 2019"}
+  url: https://arxiv.org/abs/1810.00825
