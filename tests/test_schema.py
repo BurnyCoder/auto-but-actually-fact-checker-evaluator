@@ -37,3 +37,19 @@ def test_missing_block_and_all_accurate():
 
 def test_claim_list_accepts_strings_and_unfenced():
     assert [c.claim for c in parse_block('{"claims": ["a", {"claim": "b"}]}', ClaimList).claims] == ["a", "b"]
+
+
+def test_nulls_lists_and_unclosed_braces_do_not_discard_the_summary():
+    text = ('```json\n{"claims": [{"claim": null, "accuracy_pct": 40, "assessments": null, '
+            '"labels": [{"label": "vague", "degree": ["fully"]}, null]}], "issues": [null, "x"]}\n```')
+    s = parse_block(text, FactCheckSummary)
+    c = s.claims[0]
+    assert c.claim == "" and c.assessments == [] and c.labels[0].degree == "fully" and s.issues == ["", "x"]
+    parse_block("Report { truncated with no closing brace", FactCheckSummary)  # must not raise
+
+
+def test_useless_last_block_falls_back_to_earlier_block():
+    text = '```json\n{"overall_accuracy_pct": 70}\n```\n...\n```json\n{"foo": 1}\n```'
+    s = parse_block(text, FactCheckSummary, accept=FactCheckSummary.meaningful)
+    assert s is not None and s.overall_accuracy_pct == 70
+    assert parse_block('```json\n{"foo": 1}\n```', FactCheckSummary, accept=FactCheckSummary.meaningful) is None
