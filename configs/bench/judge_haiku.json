@@ -1,0 +1,4 @@
+{"_comment": "Exp07 gold-evidence judge: one claude-haiku-5-5 API call, no web search (the judge sees only the gold abstract), no repair (an unparseable verdict is recorded as missing).",
+ "sections": ["01_task"], "max_cost_usd": 0.05,
+ "steps": {"check": {"kind": "api", "provider": "anthropic", "model": "claude-haiku-5-5", "effort": "low", "web_search": false},
+           "repair": {"enabled": false}}}
