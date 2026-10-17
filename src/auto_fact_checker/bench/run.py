@@ -51,8 +51,13 @@ def _sources(run) -> list[str]:
     return list(dict.fromkeys(urls))
 
 
-def run_system(name: str, cfg, items, out: Path, max_cost: float, spent: list, workers: int, log) -> None:
-    """Run all uncached items of one system in parallel until the benchmark cost cap is hit."""
+def run_system(name: str, cfg, items, out: Path, max_cost: float, spent: list, workers: int, log,
+               item_fn=None) -> None:
+    """Run all uncached items of one system in parallel until the benchmark cost cap is hit.
+
+    item_fn(item, cfg) -> record (default run_item); bench/correction.py passes its loop-and-judge function.
+    """
+    item_fn = item_fn or run_item
     path = out / f"{name}.jsonl"
     done = {json.loads(line)["id"] for line in path.read_text(encoding="utf-8").splitlines()} if path.exists() else set()
     todo = [i for i in items if i.id not in done]
@@ -64,7 +69,7 @@ def run_system(name: str, cfg, items, out: Path, max_cost: float, spent: list, w
         with _WRITE:
             if stop.is_set() or spent[0] >= max_cost:
                 return
-        rec = run_item(item, cfg)
+        rec = item_fn(item, cfg)
         with _WRITE:
             spent[0] += rec["cost_usd"]
             refused = any("refusal" in (e or "") for e in rec["errors"])  # deterministic: scored wrong, not retried

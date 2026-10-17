@@ -1,0 +1,8 @@
+{"_comment": "Exp07 optional loop: Claude Code lead agent (claude-haiku-5-5, WebSearch/WebFetch) that spawns a claim-checker subagent per claim and a scientist-perspective subagent per claim x scientist (Popper, Feynman, Gelman; at most 6 subagents); same iteration rule as the primary loop (>= 90%, at most 20 passes, fixed-point stop).",
+ "claim_strategy": "subagent_per_claim", "scientist_strategy": "subagent_per_scientist",
+ "perspective_scientists": ["Karl Popper", "Richard Feynman", "Andrew Gelman"],
+ "iterate_until_accurate": true, "accuracy_threshold": 90, "max_iterations": 20, "stop_on_fixed_point": true, "max_cost_usd": 10,
+ "steps": {"check": {"kind": "agent", "provider": "anthropic", "model": "claude-haiku-5-5", "effort": "low", "web_search": true,
+                     "allow_subagents": true, "max_subagents": 6, "max_searches": 3, "prompt_template": "rigorous_sections.md",
+                     "blocked_domains": ["huggingface.co", "github.com", "githubusercontent.com", "kaggle.com", "paperswithcode.com", "allenai.org"], "timeout_s": 1800},
+           "repair": {"model": "gpt-6-luna", "effort": "low"}}}
