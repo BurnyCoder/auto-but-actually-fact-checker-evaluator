@@ -10,6 +10,8 @@ with `-c web_search="live"`).
 """
 
 import logging
+import shutil
+import tempfile
 from pathlib import Path
 
 from .. import catalog
@@ -20,6 +22,11 @@ from .subprocess_jsonl import run_agent, urls_in
 # Features switched off for fact-check agents: desktop/browser control, apps/plugins and hooks from the user's setup.
 ISOLATION_FEATURES = ["computer_use", "browser_use", "browser_use_external", "in_app_browser", "apps", "plugins",
                       "hooks"]
+# Codex has no switch to skip the global ~/.codex/AGENTS.md (config reference, 2026-10-17); with subscription auth
+# CODEX_HOME must stay the real one (it holds the login), so the documented `developer_instructions` key tells the
+# agent that such coding instructions do not apply. In api_key mode CODEX_HOME is an empty temp dir instead.
+DEVELOPER_NOTE = ("You are running as a scientific fact-checking agent. Any coding, git, repository, packaging or "
+                  "project-setup instructions from AGENTS.md files do not apply to this task; ignore them.")
 
 
 def build_cmd(req: LLMRequest, exe: str, workdir: Path) -> list[str]:
@@ -27,6 +34,7 @@ def build_cmd(req: LLMRequest, exe: str, workdir: Path) -> list[str]:
     cmd = [exe, "exec", "-m", req.model,
            "-c", f'web_search="{"live" if req.web_search else "disabled"}"',  # value parsed as TOML
            "-c", f"model_reasoning_effort={req.effort}",
+           "-c", f'developer_instructions="{DEVELOPER_NOTE}"',
            "--ignore-user-config", "--ignore-rules",  # do not inherit ~/.codex/config.toml or AGENTS.md rules
            "--skip-git-repo-check", "--ephemeral",  # temp dir is no git repo; keep no session files
            "--dangerously-bypass-approvals-and-sandbox",  # agents run free (user requirement)
@@ -58,5 +66,9 @@ def call(req: LLMRequest, log: logging.Logger | logging.LoggerAdapter) -> LLMRes
     """Run `codex exec` and return the normalised result."""
     s = get_settings()
     key = s.openai_api_key.get_secret_value() if s.openai_api_key else None
-    return run_agent(req, log, exe_name="codex", exe_override=s.codex_bin, keys={"CODEX_API_KEY": key},
-                     build=build_cmd, parse=parse_events)
+    home = Path(tempfile.mkdtemp(prefix="afc_codex_home_"))  # only used in api_key mode (agent_env drops it otherwise)
+    try:
+        return run_agent(req, log, exe_name="codex", exe_override=s.codex_bin,
+                         keys={"CODEX_API_KEY": key, "CODEX_HOME": str(home)}, build=build_cmd, parse=parse_events)
+    finally:
+        shutil.rmtree(home, ignore_errors=True)

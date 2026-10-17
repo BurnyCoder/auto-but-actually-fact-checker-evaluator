@@ -20,7 +20,7 @@ After the report, end your answer with exactly one fenced ```json block (nothing
 ```
 {% if labels_on %}
 {% if score_all_labels %}
-"labels" must contain one entry for EVERY one of these labels for EVERY claim (score_pct 0 when a label does not apply): {{ verdict_labels | join('; ') }}.
+"labels" must contain one entry for EVERY one of these labels for EVERY claim (score_pct 0 and degree null when a label does not apply): {{ verdict_labels | join('; ') }}.
 {% else %}
 "labels" lists only the labels that actually apply to the claim, chosen from: {{ verdict_labels | join('; ') }}.
 {% endif %}
