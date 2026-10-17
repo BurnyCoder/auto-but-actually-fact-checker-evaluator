@@ -134,7 +134,7 @@ def figure(results: dict) -> None:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    arms = [a for a in results if results[a]["n_items"]]
+    arms = [a for a in results if results[a]["n_items"] >= 10]  # tiny arms are reported in text, not plotted
     if not arms:
         return
     FIG.mkdir(exist_ok=True)
