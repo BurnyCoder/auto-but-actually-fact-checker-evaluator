@@ -1,0 +1,241 @@
+{
+ "note": "post hoc (after Exp07); exploratory",
+ "verdict_100": {
+  "A simple call, no search": {
+   "n": 100,
+   "balanced_accuracy": 0.7737520128824477,
+   "accuracy": 0.78,
+   "auroc": 0.8397745571658616,
+   "support_recall": 0.8518518518518519,
+   "contradict_recall": 0.6956521739130435
+  },
+  "D full prompt, no search": {
+   "n": 100,
+   "balanced_accuracy": 0.7785829307568438,
+   "accuracy": 0.78,
+   "auroc": 0.9094202898550725,
+   "support_recall": 0.7962962962962963,
+   "contradict_recall": 0.7608695652173914
+  },
+  "B full prompt + API search": {
+   "n": 100,
+   "balanced_accuracy": 0.9025764895330113,
+   "accuracy": 0.9,
+   "auroc": 0.9706119162640903,
+   "support_recall": 0.8703703703703703,
+   "contradict_recall": 0.9347826086956522
+  },
+  "C simple prompt + API search": {
+   "n": 100,
+   "balanced_accuracy": 0.9227053140096618,
+   "accuracy": 0.92,
+   "auroc": 0.9764492753623188,
+   "support_recall": 0.8888888888888888,
+   "contradict_recall": 0.9565217391304348
+  },
+  "Exp07 pass 1: Codex agent, full prompt": {
+   "n": 100,
+   "balanced_accuracy": 0.9210950080515299,
+   "accuracy": 0.92,
+   "auroc": 0.9690016103059581,
+   "support_recall": 0.9074074074074074,
+   "contradict_recall": 0.9347826086956522
+  },
+  "Haiku judge given the gold abstract": {
+   "n": 100,
+   "balanced_accuracy": 0.9335748792270531,
+   "accuracy": 0.93,
+   "auroc": 0.9335748792270532,
+   "support_recall": 0.8888888888888888,
+   "contradict_recall": 0.9782608695652174
+  }
+ },
+ "verdict_first40": {
+  "A simple call, no search": {
+   "n": 40,
+   "balanced_accuracy": 0.8248081841432224,
+   "accuracy": 0.825,
+   "auroc": 0.8887468030690537,
+   "support_recall": 0.8260869565217391,
+   "contradict_recall": 0.8235294117647058
+  },
+  "D full prompt, no search": {
+   "n": 40,
+   "balanced_accuracy": 0.7736572890025575,
+   "accuracy": 0.775,
+   "auroc": 0.9335038363171355,
+   "support_recall": 0.782608695652174,
+   "contradict_recall": 0.7647058823529411
+  },
+  "B full prompt + API search": {
+   "n": 40,
+   "balanced_accuracy": 0.9053708439897699,
+   "accuracy": 0.9,
+   "auroc": 0.9782608695652174,
+   "support_recall": 0.8695652173913043,
+   "contradict_recall": 0.9411764705882353
+  },
+  "C simple prompt + API search": {
+   "n": 40,
+   "balanced_accuracy": 0.9347826086956521,
+   "accuracy": 0.925,
+   "auroc": 0.9923273657289002,
+   "support_recall": 0.8695652173913043,
+   "contradict_recall": 1.0
+  },
+  "E Codex agent, full prompt (Exp04)": {
+   "n": 40,
+   "balanced_accuracy": 0.8759590792838874,
+   "accuracy": 0.875,
+   "auroc": 0.9168797953964195,
+   "support_recall": 0.8695652173913043,
+   "contradict_recall": 0.8823529411764706
+  },
+  "F Claude Code agent, full prompt (Exp05)": {
+   "n": 40,
+   "balanced_accuracy": 0.7966751918158568,
+   "accuracy": 0.775,
+   "auroc": 0.9616368286445012,
+   "support_recall": 0.6521739130434783,
+   "contradict_recall": 0.9411764705882353
+  },
+  "Exp07 pass 1: Codex agent, full prompt": {
+   "n": 40,
+   "balanced_accuracy": 0.9271099744245523,
+   "accuracy": 0.925,
+   "auroc": 0.9705882352941176,
+   "support_recall": 0.9130434782608695,
+   "contradict_recall": 0.9411764705882353
+  }
+ },
+ "E_vs_exp07_pass1_agreement": {
+  "n": 40,
+  "same_prediction": 38
+ },
+ "correction": {
+  "haiku": {
+   "original_to_single_pass": {
+    "n": 100,
+    "first_correct": 49,
+    "second_correct": 62,
+    "delta": 0.13,
+    "ci95": [
+     0.02,
+     0.24
+    ],
+    "mcnemar": {
+     "b": 10,
+     "c": 23,
+     "pvalue": 0.03508203336969018
+    }
+   },
+   "single_pass_to_loop": {
+    "n": 100,
+    "first_correct": 62,
+    "second_correct": 62,
+    "delta": 0.0,
+    "ci95": [
+     -0.06,
+     0.06
+    ],
+    "mcnemar": {
+     "b": 5,
+     "c": 5,
+     "pvalue": 1.0
+    }
+   },
+   "original_to_loop": {
+    "n": 100,
+    "first_correct": 49,
+    "second_correct": 62,
+    "delta": 0.13,
+    "ci95": [
+     0.02,
+     0.24
+    ],
+    "mcnemar": {
+     "b": 10,
+     "c": 23,
+     "pvalue": 0.03508203336969018
+    }
+   }
+  },
+  "luna": {
+   "original_to_single_pass": {
+    "n": 100,
+    "first_correct": 37,
+    "second_correct": 62,
+    "delta": 0.25,
+    "ci95": [
+     0.13,
+     0.37
+    ],
+    "mcnemar": {
+     "b": 8,
+     "c": 33,
+     "pvalue": 0.00011222142620681552
+    }
+   },
+   "single_pass_to_loop": {
+    "n": 100,
+    "first_correct": 62,
+    "second_correct": 61,
+    "delta": -0.01,
+    "ci95": [
+     -0.06,
+     0.04
+    ],
+    "mcnemar": {
+     "b": 4,
+     "c": 3,
+     "pvalue": 1.0
+    }
+   },
+   "original_to_loop": {
+    "n": 100,
+    "first_correct": 37,
+    "second_correct": 61,
+    "delta": 0.24,
+    "ci95": [
+     0.13,
+     0.35
+    ],
+    "mcnemar": {
+     "b": 7,
+     "c": 31,
+     "pvalue": 0.00011616700794547796
+    }
+   }
+  }
+ },
+ "loop_equals_single_pass": 76,
+ "by_gold_haiku": {
+  "false claims": {
+   "n": 46,
+   "single_pass_correct": 24,
+   "loop_correct": 24
+  },
+  "true claims": {
+   "n": 54,
+   "single_pass_correct": 38,
+   "loop_correct": 38
+  }
+ },
+ "false_claims_detection_vs_repair": {
+  "false_claims": 46,
+  "flagged_by_pass1_verdict": 43,
+  "flagged_and_repaired_by_loop": 22
+ },
+ "true_claims_threshold": {
+  "n": 54,
+  "pass1_p_true_ge_0.5": 49,
+  "pass1_rated_ge_threshold_kept": 10
+ },
+ "cost_time_per_claim": {
+  "single_pass_usd_notional": 0.0233875912,
+  "loop_usd_notional": 0.0585828304,
+  "single_pass_s": 34.3185,
+  "loop_s": 100.471
+ },
+ "loop_final_self_label_true": 100
+}

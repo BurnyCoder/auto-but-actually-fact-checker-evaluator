@@ -115,6 +115,58 @@ not converge:
 - The arm's primary judge (Luna, cross-family) misjudged the true original (validity 2/3).
 - Cost: $0.03 billed (judges), $4.70 notional, 174 searches.
 
+## Post-hoc comparisons on the same 100 claims (decided after Exp07; exploratory)
+
+Script: [`reports/scripts/compare_verdict_correction.py`](../scripts/compare_verdict_correction.py), output in
+`reports/results/verdict_vs_correction_posthoc.json`. It reuses the pre-registered helpers, so "correct" means
+exactly the same as above. The first 100 Exp01 claims are somewhat easier than the full 200, so every system scores
+a few points above its headline Exp01–03 number.
+
+**1. Verdict accuracy ("is the claim true?"): evidence is what matters**
+
+| system | evidence | balanced accuracy | SUPPORT / CONTRADICT recall | AUROC |
+|---|---|---|---|---|
+| A simple call | none | 0.774 | 0.85 / 0.70 | 0.840 |
+| D full prompt | none | 0.779 | 0.80 / 0.76 | 0.909 |
+| B full prompt + API search | web | 0.903 | 0.87 / 0.93 | 0.971 |
+| C simple prompt + API search | web | 0.923 | 0.89 / 0.96 | 0.976 |
+| Exp07 pass 1: Codex agent, full prompt | web (agent) | 0.921 | 0.91 / 0.93 | 0.969 |
+| Haiku judge given the gold abstract | the cited paper | 0.934 | 0.89 / 0.98 | – (binary) |
+
+Run-to-run noise:
+- Exp04 (E) ran the same Codex configuration on the first 40 claims and got 0.876; Exp07's pass 1 got 0.927 on those
+  40.
+- The two independent runs agree on 38 of 40 predictions, so the 5-point gap is two flipped claims.
+
+**2. Correction accuracy: one agent pass gets all of the gain**
+
+Policy definitions:
+- **Single pass** = what one agent call does: keep the original if pass 1 rates it ≥ 90%, otherwise use pass 1's
+  correction.
+- **Loop** = the pre-registered answer: iterate until rated ≥ 90%, at most 20 passes.
+
+| policy | correct (Haiku judge) | correct (Luna judge) | notional cost / claim | time / claim |
+|---|---|---|---|---|
+| original claim, no correction | 49% | 37% | – | – |
+| **single agent pass** | **62%** (Δ +0.13 [+0.02, +0.24], McNemar 10 / 23, p = 0.035) | **62%** (Δ +0.25 [+0.13, +0.37], p = 0.0001) | $0.023 | 34 s |
+| full loop | 62% (Δ vs single pass **+0.00 [−0.06, +0.06]**, 5 / 5, p = 1.0) | 61% (Δ −0.01 [−0.06, +0.04], p = 1.0) | $0.059 (2.5×) | 100 s (3×) |
+
+- The loop's answer is identical to the single pass on 76 of 100 claims; on the other 24 it made 5 texts better and
+  5 worse.
+- By class (Haiku judge), the two policies are identical: false claims repaired 24 / 46 either way, true claims kept
+  correct 38 / 54 either way.
+
+**3. Detection is solved, repair is not**
+
+- **False claims:** pass 1 *detects* 43 / 46 (93%), but the loop *repairs* only 22 of those 43 correctly.
+- **True claims:** pass 1 calls 49 / 54 true at the verdict cut-off (50%). But only 10 / 54 reach the loop's
+  ≥ 90% bar; the other 44 get rewritten, and that is where the 20% harm comes from.
+- **The final label is uninformative:** the loop labels all 100 answers correct, while the single-pass verdict is
+  informative (balanced accuracy 0.921).
+
+**Caveat.** Verdict balanced accuracy and correction accuracy are different metrics (a class-balanced average of
+correct verdicts vs the share of correct output texts). They are shown on the same claims but are not one scale.
+
 ## Limitations
 
 - **The gold evidence is one abstract.** A correction that is right according to broader literature can be judged
