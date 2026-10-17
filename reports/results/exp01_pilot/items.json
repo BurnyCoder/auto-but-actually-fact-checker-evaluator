@@ -1,0 +1,56 @@
+[
+ {
+  "id": "train-1138",
+  "text": "TRAP+ osteoclasts regulate mature osteoblast maintenance.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "validation-386",
+  "text": "Errors in peripheral IV drug administration are most common during bolus administration and multiple-step medicine preparations.",
+  "label": true,
+  "meta": {
+   "split": "validation",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "validation-1163",
+  "text": "The DdrB protein from Deinococcus radiodurans is an alternative SSB.",
+  "label": true,
+  "meta": {
+   "split": "validation",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "validation-852",
+  "text": "Non-invasive ventilation use should be decreased if there is inadequate response to conventional treatment.",
+  "label": false,
+  "meta": {
+   "split": "validation",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "train-801",
+  "text": "Monoclonal antibody targeting of N-cadherin encourages castration resistance.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "validation-743",
+  "text": "Macrolides protect against myocardial infarction.",
+  "label": false,
+  "meta": {
+   "split": "validation",
+   "gold": "CONTRADICT"
+  }
+ }
+]
