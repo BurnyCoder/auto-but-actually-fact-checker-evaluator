@@ -28,6 +28,14 @@ in [`results/`](results). Every number here comes from `results/scifact_analysis
   (AUROC 0.962) but was sceptical: SUPPORT recall 0.65, balanced accuracy 0.797 on the same 40 claims. It differs
   in model as well, and one bio-safety refusal was scored wrong.
 
+- **Exp07** (pre-registered): is text the correct-until-labelled-accurate loop calls "correct" actually correct?
+  Setup: a Codex agent with web search looped on 100 SciFact claims (≤ 20 passes), judged against the gold
+  abstract by Claude Haiku (93% valid on originals).
+  - It raised gold-correctness from **49% to 62%** (Δ +0.13 [+0.02, +0.24], p = 0.035).
+  - It labelled **100%** of its answers correct while only **62%** [52, 71] were.
+  - Passes after the first correction added nothing (61% → 62%).
+  - It harmed 20% of originally correct claims; the sceptical checker rewrote 44 of 54 true claims.
+
 ## Glossary (plain language)
 
 | term | meaning |
@@ -77,6 +85,15 @@ low. Each takes one claim as input and returns a 0–100 accuracy score; the pre
 | E − A / B / C | 40 | +0.051 / −0.029 / −0.059, every CI spans 0 | 2/4 · 2/1 · 3/1 | – | Codex agent indistinguishable at n = 40 (post hoc) |
 | F − A / B / C / E | 40 | −0.028 / −0.109 / −0.138 [−0.250, −0.045] / −0.079 | 6/4 · 7/2 · 6/0 (p = 0.031) · 7/3 | +0.073 / −0.017 / −0.031 / +0.045 | Claude agent: sceptical, best ranking; vs C nominal only (1 of 12 post-hoc tests; model confound) |
 
+## Correction loop (Exp07, pre-registered)
+
+| loop | n | judge-correct: original → answer | self-labelled correct | precision of the self-label | extra passes (first correction → answer) | repair / harm | billed |
+|---|---|---|---|---|---|---|---|
+| Codex agent + web search (gpt-6-luna), ≤ 20 passes | 100 | 49% → 62% (Δ +0.13 [+0.02, +0.24], p = 0.035) | 100% | 62% [52, 71] | 61% → 62% (Δ +0.01 [−0.06, +0.08]) | 52% / 20% | $0.18 |
+
+The primary judge is Claude Haiku with the gold abstract (93% valid on originals). With Luna as judge (post hoc)
+the conclusions are the same: self-label precision 61%, extra passes Δ 0.00.
+
 ## Qualitative runs (Exp00)
 
 Nine runs covered presets L0–L5, iteration, Claude/Codex agents and subagents. They made 49 calls in total and
@@ -90,6 +107,9 @@ agreed with the answer key on all 32 claims (details and costs: [exp00](experime
   verdict accuracy on SciFact. Its value, if any, is in the qualitative output (labels, conditions, corrections),
   which SciFact does not score.
 - **Synthesis of many perspectives moderates scores** toward the middle (Exp00, L5).
+- **Self-assessed stopping is not verification** (Exp07). The loop marks everything correct after 1–2 passes.
+  About a third of those texts are wrong by gold evidence, and further passes rewrite rather than repair (hedging,
+  question drift).
 - **Ranking and threshold can disagree.** The Claude agent had the best AUROC but a poor 50% cut-off (Exp05).
   The prompt without search raised AUROC without raising accuracy (Exp03). The threshold metric alone hides this.
 - **Delegation can be fabricated.** In 4 smoke tests Codex never spawned a sub-agent, and twice it claimed one had
