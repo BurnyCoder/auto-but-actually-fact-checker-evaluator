@@ -165,8 +165,10 @@ and the text addresses the same question.
 - 20% of originally correct texts became incorrect: the checker rated 44 of 54 true claims below 90% and rewrote
   them into hedged or narrower statements.
 
-With Luna as judge (post hoc) the self-label precision is 61% and extra passes add 0.00. A self-assessed stopping
-rule measures persuasion, not truth (Fig. 3).
+With Luna as judge (post hoc) the self-label precision is 61% and extra passes add 0.00. An exploratory Claude Code
+loop with claim and scientist subagents failed in the opposite direction. On 2 of 3 claims it ran all 20 passes
+without ever labelling its text correct, although both judges found its final texts correct; the third claim was
+refused. A self-assessed stopping rule measures persuasion, not truth (Fig. 3).
 
 #figure(image("../figures/fig3_correction_loop.png", width: 72%),
   caption: [Exp07: the loop's own accuracy rating vs. gold-evidence correctness of the latest proposed text after k passes (items carried forward after stopping; n = 100).])
@@ -205,7 +207,7 @@ claims with an inexpensive model, web search is what matters. The rigorous instr
 volume but no measurable accuracy. Likewise, iterating until the model rates its own correction accurate is not verification: about a third of such "verified" texts were wrong by gold evidence. Whether its labels, condition scores and confidences are *valid* is an open,
 testable question that needs human-annotated multi-dimensional judgments, which is our next step.
 
-*Cost and reproducibility.* All experiments and development together cost \$6.67 in billed API usage
+*Cost and reproducibility.* All experiments and development together cost \$6.90 in billed API usage
 (ledger: `logs/spend.jsonl`). Commands, configurations, per-item predictions, analysis scripts and the
 pre-registration are in the repository.
 

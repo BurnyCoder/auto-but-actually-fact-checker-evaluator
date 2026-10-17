@@ -85,7 +85,35 @@ carried forward after an item stops):
 
 ## Results — Claude Code subagent loop (optional arm)
 
-PENDING (two claims, stopped by user decision after they finish; see below).
+**Status:** exploratory, n = 3.
+
+**What happened to the arm.** It was stopped by user decision after the in-flight claims finished, because it did
+not converge:
+- After 20 minutes both in-flight loops were at pass 7–8, with self-ratings drifting *down* (75 → 55).
+- At about 2.5–4 min and about 1M input tokens per pass, 40 claims × 20 passes would have taken roughly 20 hours.
+
+**Deviation.** The stop watcher counted cached records, not the two specific claims.
+- When train-815 finished, the free worker picked up a third claim, train-853. It was refused at once and cached,
+  which tripped the watcher.
+- The watcher then interrupted the second in-flight claim, train-278. Its loop had already completed all 20 passes;
+  only its judging was cut off.
+- That judging was re-done from the saved `runs/<id>/run.json` with the same functions and judges. The record is
+  marked `recovered`.
+
+| claim (gold) | passes | self-rating per pass | stop | loop answer judged correct (Luna / Haiku) | all produced texts judged correct (Luna / Haiku) | notional cost |
+|---|---|---|---|---|---|---|
+| train-278 ComYMV "2140 bp" (false) | 20 | 5, 85, then 50–75 | none (limit reached, never self-labelled) | ✓ / ✓ | 17 / 21, 6 / 21 | $2.41 |
+| train-815 RIM1 → IME1 RNA (true) | 20 | 60, 35, then 55–75 | none (limit reached, never self-labelled) | ✓ / ✓ | 16 / 21, 20 / 21 | $2.27 |
+| train-853 primates / EILV (false) | 1 | – (Haiku bio-safety refusal) | no parseable summary | ✗ / ✗ (original kept) | – | $0.02 |
+
+**Reading.**
+- The sceptical multi-agent checker **never** labelled anything correct, in 40 passes over two claims. It kept
+  rewriting texts that the judges mostly consider correct, so its self-rating was unrelated to correctness.
+- This is the mirror image of the Codex loop, which labels everything correct too early.
+- Neither loop's stopping signal tracks truth.
+- The two judges disagree sharply on these long, multi-sentence rewrites (κ = 0.11 across 43 texts).
+- The arm's primary judge (Luna, cross-family) misjudged the true original (validity 2/3).
+- Cost: $0.03 billed (judges), $4.70 notional, 174 searches.
 
 ## Limitations
 

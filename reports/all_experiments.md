@@ -35,6 +35,8 @@ in [`results/`](results). Every number here comes from `results/scifact_analysis
   - It labelled **100%** of its answers correct while only **62%** [52, 71] were.
   - Passes after the first correction added nothing (61% → 62%).
   - It harmed 20% of originally correct claims; the sceptical checker rewrote 44 of 54 true claims.
+  - Optional Claude Code subagent loop (n = 3, stopped early): it never labelled anything correct in 20 passes,
+    while its final texts were judged correct. Neither loop's stopping signal tracks truth.
 
 ## Glossary (plain language)
 
@@ -90,6 +92,7 @@ low. Each takes one claim as input and returns a 0–100 accuracy score; the pre
 | loop | n | judge-correct: original → answer | self-labelled correct | precision of the self-label | extra passes (first correction → answer) | repair / harm | billed |
 |---|---|---|---|---|---|---|---|
 | Codex agent + web search (gpt-6-luna), ≤ 20 passes | 100 | 49% → 62% (Δ +0.13 [+0.02, +0.24], p = 0.035) | 100% | 62% [52, 71] | 61% → 62% (Δ +0.01 [−0.06, +0.08]) | 52% / 20% | $0.18 |
+| Claude Code lead + subagents (Haiku), ≤ 20 passes (exploratory, stopped early) | 3 | 0/3 → 2/3 (Luna judge) | 0% (two claims ran 20 passes; one refusal) | – | – | – | $0.03 |
 
 The primary judge is Claude Haiku with the gold abstract (93% valid on originals). With Luna as judge (post hoc)
 the conclusions are the same: self-label precision 61%, extra passes Δ 0.00.
@@ -122,5 +125,5 @@ agreed with the answer key on all 32 claims (details and costs: [exp00](experime
 ## Spend
 
 The whole project (implementation tests, live tests, example runs, UI checks and all experiments) is recorded
-call by call in `logs/spend.jsonl`. **Billed total: $6.67 of the $10 cap.** Agent runs on subscription auth are
+call by call in `logs/spend.jsonl`. **Billed total: $6.90 of the $10 cap.** Agent runs on subscription auth are
 not billed; their notional cost is logged separately.
