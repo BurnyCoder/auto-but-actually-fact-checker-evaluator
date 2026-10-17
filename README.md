@@ -6,6 +6,12 @@ non-agentic API call** up to **Claude Code / Codex agents that spawn subagents**
 per scientist**. Every claim gets an accuracy score, every verdict label and evaluative condition gets a
 **0–100 % score plus a confidence %**, and the corrected text can be re-checked **iteratively** until it is accurate.
 
+![The whole Auto Fact-Checker UI: text, run buttons and result tabs on the left; preset and every setting on the right](docs/images/app.png)
+
+*The UI: the text and the result tabs are on the left, and the preset and settings are on the right. Here the
+`ai_research` example and the `L1_single_call_search` preset are loaded. A real run on this text is shown under
+[Example](#example-the-ai-research-text).*
+
 ## Methodology
 
 **1. The prompt as building blocks.** [`prompts/original_prompt.md`](prompts/original_prompt.md) is split into 24
@@ -97,7 +103,7 @@ web search, looping on 100 claims and judged against the gold evidence:
 
 Treat the loop's "accurate" label as a claim to verify, not a verification.
 
-The whole project, from implementation through evaluation, cost $6.90 in billed API calls.
+The whole project, from implementation through evaluation, cost $7.13 in billed API calls (`uv run afc spend`).
 
 ## Quick start
 
@@ -121,6 +127,48 @@ uv run afc check examples/ai_research.md --preset L1_single_call_search
 uv run afc check my.txt --preset L4_extract_then_agent_per_claim --set steps.check.model=gpt-6.1-sol --iterations 3
 uv run afc spend             # cumulative billed spend vs SPEND_LIMIT_USD
 uv run afc bench --systems configs/bench/baseline.json configs/bench/full_single_openai.json --n 20 --max-cost 1 --out reports/results/demo
+```
+
+## Example: the AI research text
+
+This is one run of the default preset `L1_single_call_search` on
+[`examples/ai_research.md`](examples/ai_research.md):
+- one `gpt-6-luna` call with web search, over the whole text, with the full prompt
+- 2 searches, $0.029
+- run `20261017_202513_959481`
+
+The **Claims** tab gives each sentence an accuracy, a confidence, claim types, its strongest verdict labels and a
+corrected claim:
+
+![Claims tab after the run: six claims with accuracy, confidence, types, top labels and corrected claims](docs/images/example_claims.png)
+
+Against the answer key in [`docs/examples.md`](docs/examples.md):
+- The two accurate claims (Transformer 2017, GPT-3 175B) got 98% and 95%.
+- Two of the planted errors scored low. "RLHF invented by OpenAI in 2022" got 15%, and "emergent abilities proven
+  to be phase transitions" got 10%.
+- The third planted error, "loss decreases exponentially", was corrected to Kaplan et al.'s power laws. It still
+  scored 70%, while the key calls it inaccurate.
+- The Chinchilla rule of thumb got 85%, with the 70B-parameter / 1.4T-token detail added.
+
+This is a single run, shown to illustrate the outputs. The measured accuracy is in [Results so far](#results-so-far).
+
+The **Corrected text** tab holds the rewritten text, which **One more iteration** checks again:
+
+![Corrected text tab: the rewritten passage with power laws, RLHF history and the contested status of emergence](docs/images/example_corrected.png)
+
+<details>
+<summary>The <b>Report</b> tab: the model's full answer (top part)</summary>
+
+![Report tab: per-claim findings with linked sources, scores and corrected claims](docs/images/example_report.png)
+
+</details>
+
+[`docs/scripts/take_screenshots.py`](docs/scripts/take_screenshots.py) makes these screenshots. It starts the UI,
+operates it with headless Playwright like a user would, and makes this one paid call. Without `--channel` it uses
+Playwright's Chromium, which needs `uv run --group docs playwright install chromium` once.
+
+```bash
+uv run --group docs python docs/scripts/take_screenshots.py --channel msedge
 ```
 
 ## Features
@@ -176,7 +224,8 @@ Python 3.13 and [uv](https://docs.astral.sh/uv/) ·
 [Anthropic Python SDK](https://github.com/anthropics/anthropic-sdk-python) ·
 [Claude Code](https://code.claude.com/docs/en/headless) and [Codex CLI](https://learn.chatgpt.com/docs/non-interactive-mode) ·
 pydantic / pydantic-settings · Jinja2 · json-repair · psutil ·
-🤗 datasets / pandas (SciFact) · scikit-learn · statsmodels · pytest.
+🤗 datasets / pandas (SciFact) · scikit-learn · statsmodels · pytest ·
+[Playwright](https://playwright.dev/python/) (README screenshots only).
 
 ## What happens when you run it
 
@@ -259,7 +308,8 @@ src/auto_fact_checker/
   config.py catalog.py spend.py logs.py prompts.py schema.py results.py context.py render.py
   pipeline.py (the wrapper)  phases/  backends/  bench/  ui.py  __main__.py
 examples/       AI research / philosophy / engineering texts with planted errors (answer key: docs/examples.md)
-docs/           architecture, configuration, benchmark design, example answer key
+docs/           architecture, configuration, benchmark design, example answer key; images/ (UI screenshots)
+                and scripts/take_screenshots.py, which makes them
 reports/        experiment reports, all_experiments.md, paper/
 tests/          offline pytest suite (fake backend) + live tests (`-m live`)
 ```
