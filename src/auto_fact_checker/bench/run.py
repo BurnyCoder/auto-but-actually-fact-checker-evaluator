@@ -78,7 +78,7 @@ def run_system(name: str, cfg, items, out: Path, max_cost: float, spent: list, w
                 with path.open("a", encoding="utf-8") as f:
                     f.write(json.dumps(rec, ensure_ascii=False) + "\n")
         log(f"[{name}] {item.id} gold={item.label} p_true={rec['p_true']} cost=${rec['cost_usd']:.4f} "
-            f"total=${spent[0]:.4f} leak={rec['leak']}" + ("" if complete else
+            f"total=${spent[0]:.4f} leak={rec.get('leak')}" + ("" if complete else
                                                          f" NOT CACHED ({rec['status']}: {rec['stop_reason']}; "
                                                          f"errors={rec['errors']})"))
         if rec["status"] == "stopped" and "Spend cap" in (rec["stop_reason"] or ""):
