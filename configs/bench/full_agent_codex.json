@@ -1,0 +1,5 @@
+{"_comment": "Post-hoc arm E (exploratory): the full default rigorous prompt run by a Codex agent (gpt-6-luna, live web search, at most 3 searches and blocked dataset hosts stated in the prompt).",
+ "max_cost_usd": 0.5,
+ "steps": {"check": {"kind": "agent", "provider": "openai", "model": "gpt-6-luna", "effort": "low", "web_search": true,
+                     "max_searches": 3, "prompt_template": "rigorous_sections.md", "blocked_domains": ["huggingface.co", "github.com", "githubusercontent.com", "kaggle.com", "paperswithcode.com", "allenai.org"], "timeout_s": 900},
+           "repair": {"model": "gpt-6-luna", "effort": "low"}}}
