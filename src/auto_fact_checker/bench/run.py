@@ -131,12 +131,13 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--out", required=True)
     ap.add_argument("--max-cost", type=float, required=True, help="USD cap for this benchmark invocation")
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--limit", type=int, help="use only the first K sampled items (subset of the same sample)")
     args = ap.parse_args(argv)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     exclude = {json.loads(line)["id"] for d in args.exclude_from for f in Path(d).glob("*.jsonl")
                for line in f.read_text(encoding="utf-8").splitlines()}
-    items = sample_balanced(DATASETS[args.dataset](tuple(args.splits)), args.n, args.seed, exclude)
+    items = sample_balanced(DATASETS[args.dataset](tuple(args.splits)), args.n, args.seed, exclude)[: args.limit]
     (out / "items.json").write_text(json.dumps([vars(i) for i in items], indent=1, ensure_ascii=False),
                                     encoding="utf-8")
     names = [Path(s).stem for s in args.systems]
