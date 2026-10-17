@@ -70,7 +70,11 @@ times.
 SciFact claims, labelled SUPPORT vs CONTRADICT. The statistics are balanced accuracy, Wilson CIs, an exact
 McNemar test and paired-bootstrap CIs. Search results are filtered with dataset-host domain blocking and every
 source URL is checked for leakage. Design: [`docs/benchmark.md`](docs/benchmark.md). Results:
-[`reports/`](reports).
+[`reports/`](reports). Two further benchmarks score *corrections* rather than verdicts:
+- Exp07 judges the correction loop's output against SciFact's gold abstracts ([`docs/correction_eval.md`](docs/correction_eval.md)).
+- Exp08 builds its own benchmark: real Wikipedia and arXiv AI-research passages with 0–5 injected, known errors.
+  Every correction pass is scored 0–100 against the original passage, comparing a naive and the rigorous prompt
+  over 4 forced passes ([`docs/ai_error_bench.md`](docs/ai_error_bench.md)).
 
 ## Results so far
 
@@ -306,6 +310,7 @@ src/auto_fact_checker/
   config.py catalog.py spend.py logs.py prompts.py schema.py results.py context.py render.py
   pipeline.py (the wrapper)  phases/  backends/  bench/  ui.py  __main__.py
 examples/       AI research / philosophy / engineering texts with planted errors (answer key: docs/examples.md)
+benchmarks/     ai_errors_v1/: frozen Exp08 dataset (Wikipedia + arXiv passages with injected errors)
 docs/           architecture, configuration, benchmark design, example answer key; images/ (UI screenshots)
                 and scripts/take_screenshots.py, which makes them
 reports/        experiment reports, all_experiments.md, paper/
@@ -323,4 +328,7 @@ uv run pytest -m live    # real calls to gpt-6-luna / claude-haiku-5-5 / claude 
 
 SciFact (Wadden et al., 2020) is CC BY-NC 2.0 and is downloaded at run time from the
 [Hugging Face parquet export](https://huggingface.co/datasets/allenai/scifact). Claim extraction follows Claimify
-(Metropolitansky & Larson, 2025, [arXiv:2502.10855](https://arxiv.org/abs/2502.10855)).
+(Metropolitansky & Larson, 2025, [arXiv:2502.10855](https://arxiv.org/abs/2502.10855)). The Exp08 passages come from
+Wikipedia lead sections ([CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); the corrupted versions are
+adaptations under the same licence) and arXiv abstracts (arXiv dedicates its metadata to
+[CC0 1.0](https://info.arxiv.org/help/license/index.html); each item links its paper, whose licence is shown there).

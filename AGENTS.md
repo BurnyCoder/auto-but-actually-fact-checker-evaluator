@@ -12,6 +12,9 @@ uv run pytest -m live           # real LLM/CLI calls (costs cents; needs .env ke
 uv run afc ui --no-browser      # Gradio UI on 127.0.0.1:7860
 uv run afc check FILE --preset NAME [--set dotted.key=value ...] [--iterations N]
 uv run afc bench --systems A.json B.json --n N --max-cost USD --out DIR [--exclude-from PILOT_DIR]
+uv run afc correct-eval --items-from ITEMS.json --system LOOP.json --judges J1.json J2.json --out DIR --max-cost USD  # Exp07
+uv run afc ai-errors build --out benchmarks/ai_errors_v1          # Exp08: fetch passages + inject errors (cents)
+uv run afc ai-errors run --system ARM.json --judges J1.json J2.json --out DIR --max-cost USD    # Exp08 forced-pass loop
 uv run afc spend                # billed spend so far vs SPEND_LIMIT_USD
 uv run --group docs python docs/scripts/take_screenshots.py --channel msedge   # README screenshots, one paid call (~$0.03)
 ```
