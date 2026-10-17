@@ -1,0 +1,1 @@
+For each claim, research it in depth scientifically {% if web_search %}by searching the web and {% endif %}using reputable scientific sources as much as possible to verify it, then write a detailed analysis.
