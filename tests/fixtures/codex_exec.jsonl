@@ -1,0 +1,7 @@
+{"type":"thread.started","thread_id":"th1"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"reasoning","text":"thinking"}}
+{"type":"item.completed","item":{"id":"item_1","type":"web_search","query":"GPT-3 175B parameters"}}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"Draft"}}
+{"type":"item.completed","item":{"id":"item_3","type":"agent_message","text":"Final report see https://arxiv.org/abs/2005.14165\n```json\n{\"claims\": [], \"overall_accuracy_pct\": 80}\n```"}}
+{"type":"turn.completed","usage":{"input_tokens":2000,"cached_input_tokens":500,"output_tokens":400,"reasoning_output_tokens":100}}
