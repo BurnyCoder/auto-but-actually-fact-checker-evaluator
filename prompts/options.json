@@ -1,0 +1,41 @@
+{
+  "_comment": "List-valued parts of the fact-checking prompt. Each list becomes a CheckboxGroup in the UI (all items selected by default) and is rendered into prompts/sections/*.md via Jinja2. Items are copied verbatim from prompts/original_prompt.md; claim_types extends the user's list from the feature request.",
+  "degrees": ["fully", "partially", "slightly"],
+  "verdict_labels": [
+    "accurate", "inaccurate", "misleading", "oversimplified", "unreliable", "vague", "undefined",
+    "not properly defined", "unverifiable", "unfalsifiable", "overconfident", "muddled", "imprecise",
+    "underspecified", "lacking exactness", "incomplete", "tautological", "trivial", "non-operationalizable",
+    "dogmatic", "ideological", "mischaracterized", "category error", "contested", "ungrounded",
+    "overgeneralizing", "doing logical fallacies and which ones", "biased",
+    "result of cognitive biases and which ones",
+    "not taking other valid perspectives (assumptions, definitions, models, measurements, conclusions, etc.) into account",
+    "mistaking subjectivity for objectivity", "missing nuance or complexity", "mistaking opinion for a fact",
+    "mistaking definition for empirical fact", "mistaking philosophical assumption for empirical fact",
+    "omitting other levels of analysis", "lacking empirical evidence", "ignoring empirical evidence",
+    "ignoring counterevidence", "too reductive", "circular", "cherry-picking", "speculative", "understated",
+    "overstated"
+  ],
+  "styles": [
+    "scientific", "pedantic", "sceptical", "direct", "logical", "technical", "academic", "rigorous",
+    "steelmanning", "in good faith"
+  ],
+  "scientists": [
+    "Karl Popper", "George E. P. Box", "Thomas Kuhn", "W. V. Quine", "Richard Feynman", "John Von Neumann",
+    "Alan Turing", "Albert Einstein", "James Clerk Maxwell", "Marie Curie", "Paul Dirac", "Wolfgang Pauli",
+    "Emmy Noether", "Charles Darwin", "Rosalind Franklin", "Enrico Fermi", "Lev Landau", "Eugene Wigner",
+    "Sidney Coleman", "Elliott Lieb", "Arthur Wightman", "Rudolf Haag", "Henry Cavendish", "Robert Millikan",
+    "Henri Becquerel", "John Ioannidis", "Brian Nosek", "Andrew Gelman", "Barbara McClintock",
+    "Santiago Ramón y Cajal", "Uri Simonsohn", "Terrence Tao", "Edward Witten", "Leonard Susskind",
+    "Chris Olah", "Judea Pearl", "Jennifer Doudna", "Michael I. Jordan", "Cynthia Rudin", "Stuart Russell",
+    "Percy Liang", "Ben Recht", "Zachary Lipton", "Moritz Hardt", "Sanjeev Arora", "Jacob Steinhardt",
+    "Ali Rahimi", "Patrick Suppes", "Hans Reichenbach", "Rudolf Carnap", "Carl Hempel", "Tim Maudlin",
+    "David Albert", "Wesley Salmon", "Professor Dave Explains", "Richard Dawkins", "Carl Sagan",
+    "Neil deGrasse Tyson", "Brian Cox", "Bill Nye", "Sabine Hossenfelder", "Sean Carroll", "Steven Novella"
+  ],
+  "claim_types": [
+    "checkable", "falsifiable", "testable", "fact", "inference", "verifiable", "nonverifiable", "subjective",
+    "opinion", "unfalsifiable", "untestable", "objective", "definition", "prediction", "normative"
+  ],
+  "default_perspective_scientists": ["Karl Popper", "Richard Feynman", "Andrew Gelman"],
+  "sections_off_by_default": ["00_neurips_role"]
+}
