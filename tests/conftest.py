@@ -45,6 +45,12 @@ class FakeBackend:
             text = "```json\n" + json.dumps({"claims": [{"claim": c} for c in self.extract]}) + "\n```"
         elif label.endswith("/repair"):
             text = summary_block(55, "repaired text")
+        elif label.startswith("judge/"):  # gold-evidence judge: corrected texts are "right", originals "wrong"
+            m = re.search(r"<text>\s*(.*?)\s*</text>", req.prompt, re.DOTALL)
+            ok = "[corrected]" in (m.group(1) if m else "")
+            text = "```json\n" + json.dumps({"main_claim_entailed": ok, "contradicts_evidence": not ok,
+                                             "same_question": True, "verdict": "SUPPORTED" if ok else "CONTRADICTED",
+                                             "explanation": "fake"}) + "\n```"
         elif any(k in label for k in self.no_json_for):
             text = "A report without any JSON block."
         else:
