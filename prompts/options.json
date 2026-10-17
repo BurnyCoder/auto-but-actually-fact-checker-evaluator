@@ -36,6 +36,21 @@
     "checkable", "falsifiable", "testable", "fact", "inference", "verifiable", "nonverifiable", "subjective",
     "opinion", "unfalsifiable", "untestable", "objective", "definition", "prediction", "normative"
   ],
+  "_conditions_comment": "Evaluative conditions of the original prompt that get their own per-claim finding, score_pct and confidence_pct in the JSON summary. Each is enabled only while its section is selected (Lego-style); score defines what 0-100% means.",
+  "conditions": [
+    {"name": "omitted nuance, context and complexity", "section": "04_nuance", "score": "how much important nuance, context and complexity the claim omits (0 = nothing important omitted)"},
+    {"name": "strengths and weaknesses", "section": "06_strengths_weaknesses", "score": "0 = only weaknesses, 100 = only strengths"},
+    {"name": "advantages and disadvantages", "section": "06_strengths_weaknesses", "score": "0 = only disadvantages, 100 = only advantages"},
+    {"name": "limitations and potentials", "section": "06_strengths_weaknesses", "score": "0 = severely limited, 100 = high potential"},
+    {"name": "ups and downs", "section": "06_strengths_weaknesses", "score": "0 = only downs, 100 = only ups"},
+    {"name": "good and bad", "section": "06_strengths_weaknesses", "score": "0 = only bad, 100 = only good"},
+    {"name": "empiricist perspective", "section": "07_empiricist_rationalist", "score": "how well the claim holds up given the empirical evidence"},
+    {"name": "rationalist perspective", "section": "07_empiricist_rationalist", "score": "how well the claim holds up under logical, a priori analysis"},
+    {"name": "Bayesian perspective", "section": "08_bayesian_frequentist", "score": "posterior probability that the claim is true given reasonable priors and the evidence"},
+    {"name": "frequentist perspective", "section": "08_bayesian_frequentist", "score": "how well the claim is supported by frequentist evidence (significance, effect sizes, replication, error rates)"},
+    {"name": "predictive power", "section": "10_predictive_power", "score": "how many precise, testable predictions the claim makes"},
+    {"name": "explanatory power", "section": "10_predictive_power", "score": "how much the claim explains, compressed into how few assumptions"}
+  ],
   "default_perspective_scientists": ["Karl Popper", "Richard Feynman", "Andrew Gelman"],
   "sections_off_by_default": ["00_neurips_role"]
 }

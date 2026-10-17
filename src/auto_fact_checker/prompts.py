@@ -33,7 +33,10 @@ def _vars(cfg: FactCheckConfig, step: str, persona: str | None) -> dict:
             "custom_instructions": cfg.custom_instructions.strip(), "max_claims": cfg.max_claims,
             "max_subagents": sc.max_subagents, "per_claim": cfg.claim_strategy == "subagent_per_claim",
             "per_scientist": cfg.scientist_strategy == "subagent_per_scientist",
-            "uncertainty": "23_uncertainty" in cfg.sections, "classify": "21_claim_classification" in cfg.sections}
+            # Output-contract switches follow the section toggles, so every condition is a removable "Lego" block:
+            "confidence": "23_confidence" in cfg.sections, "classify": "21_claim_classification" in cfg.sections,
+            "labels_on": "03_verdicts" in cfg.sections and bool(cfg.verdict_labels),
+            "score_all_labels": cfg.score_all_labels, "conditions": cfg.active_conditions()}
 
 
 def sections_text(cfg: FactCheckConfig, step: str, persona: str | None = None) -> str:
@@ -45,7 +48,8 @@ def sections_text(cfg: FactCheckConfig, step: str, persona: str | None = None) -
 
 
 def output_contract(cfg: FactCheckConfig, step: str = "check") -> str:
-    """The JSON summary instructions; fields for uncertainty / claim types appear only when those sections are on."""
+    """The JSON summary instructions; confidence, claim-type, label and condition fields appear only when their
+    sections are on (and score_all_labels decides whether every selected label is scored)."""
     return ENV.get_template("json_summary.md").render(**_vars(cfg, step, None)).strip()
 
 
