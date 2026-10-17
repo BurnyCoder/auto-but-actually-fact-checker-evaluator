@@ -1,0 +1,63 @@
+{
+ "n_common": 200,
+ "systems": {
+  "baseline": {
+   "n": 200,
+   "accuracy": 0.755,
+   "accuracy_ci": [
+    0.6909575644379659,
+    0.8094313191096282
+   ],
+   "balanced_accuracy": 0.755,
+   "macro_f1": 0.7546995068959474,
+   "auroc": 0.8442999999999999,
+   "brier": 0.164919,
+   "parse_fail": 0,
+   "cost_usd": 0.0633605,
+   "leak_items": 0,
+   "mean_searches": 0.0
+  },
+  "full_single_openai": {
+   "n": 200,
+   "accuracy": 0.865,
+   "accuracy_ci": [
+    0.8107086162924745,
+    0.9055342954521209
+   ],
+   "balanced_accuracy": 0.865,
+   "macro_f1": 0.8649696181640869,
+   "auroc": 0.9437,
+   "brier": 0.10054650000000001,
+   "parse_fail": 0,
+   "cost_usd": 2.9724541,
+   "leak_items": 0,
+   "mean_searches": 1.17
+  }
+ },
+ "comparisons": {
+  "baseline_vs_full_single_openai": {
+   "delta_balanced_accuracy": 0.10999999999999999,
+   "ci95": [
+    0.0625,
+    0.15951595159515952
+   ],
+   "mcnemar": {
+    "b": 3,
+    "c": 25,
+    "pvalue": 2.744048833847046e-05
+   }
+  }
+ },
+ "dataset": "scifact",
+ "splits": [
+  "validation",
+  "train"
+ ],
+ "seed": 0,
+ "n_sampled": 200,
+ "systems_files": [
+  "configs/bench/baseline.json",
+  "configs/bench/full_single_openai.json"
+ ],
+ "invocation_cost_usd": 3.0358145999999993
+}

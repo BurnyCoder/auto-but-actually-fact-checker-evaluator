@@ -1,0 +1,5 @@
+{"_comment": "Exp01 system A: simple single LLM call baseline. gpt-6-luna, minimal prompt ('Fact-check the following text.') plus the minimal JSON contract, no web search.",
+ "sections": ["01_task"], "max_cost_usd": 0.5,
+ "steps": {"check": {"kind": "api", "provider": "openai", "model": "gpt-6-luna", "effort": "low", "web_search": false,
+                     "prompt_template": "minimal_baseline.md", "blocked_domains": ["huggingface.co", "github.com", "githubusercontent.com", "kaggle.com", "paperswithcode.com", "allenai.org"]},
+           "repair": {"model": "gpt-6-luna", "effort": "low"}}}
