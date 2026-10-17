@@ -1,0 +1,6 @@
+{"type":"thread.started","thread_id":"01a14a21-ad4a-7eb1-b439-39d90a6b6450"}
+{"type":"turn.started"}
+{"type":"item.started","item":{"id":"item_0","type":"collab_tool_call","tool":"wait","sender_thread_id":"01a14a21-ad4a-7eb1-b439-39d90a6b6450","receiver_thread_ids":[],"prompt":null,"agents_states":{},"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_0","type":"collab_tool_call","tool":"wait","sender_thread_id":"01a14a21-ad4a-7eb1-b439-39d90a6b6450","receiver_thread_ids":[],"prompt":null,"agents_states":{},"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"The sub-agent tools available are `collaboration.spawn_agent`, `collaboration.followup_task`, `collaboration.interrupt_agent`, `collaboration.list_agents`, `collaboration.send_message`, and `collaboration.wait_agent`.\n\nPINEAPPLE"}}
+{"type":"turn.completed","usage":{"input_tokens":40532,"cached_input_tokens":26624,"cache_write_input_tokens":0,"output_tokens":112,"reasoning_output_tokens":0}}

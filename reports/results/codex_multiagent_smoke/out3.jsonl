@@ -1,0 +1,6 @@
+{"type":"thread.started","thread_id":"01a14a21-f5d2-7860-b927-f32d17741b44"}
+{"type":"turn.started"}
+{"type":"item.started","item":{"id":"item_0","type":"collab_tool_call","tool":"wait","sender_thread_id":"01a14a21-f5d2-7860-b927-f32d17741b44","receiver_thread_ids":[],"prompt":null,"agents_states":{},"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_0","type":"collab_tool_call","tool":"wait","sender_thread_id":"01a14a21-f5d2-7860-b927-f32d17741b44","receiver_thread_ids":[],"prompt":null,"agents_states":{},"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"SUBAGENT SAID: PINEAPPLE"}}
+{"type":"turn.completed","usage":{"input_tokens":40512,"cached_input_tokens":13312,"cache_write_input_tokens":0,"output_tokens":73,"reasoning_output_tokens":0}}
