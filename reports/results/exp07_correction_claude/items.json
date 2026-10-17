@@ -1,0 +1,1365 @@
+[
+ {
+  "id": "train-278",
+  "text": "Commelina yellow mottle virus' (ComYMV) genome consists of 2140 baise pairs.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT",
+   "evidence": [
+    {
+     "title": "Properties of Commelina yellow mottle virus's complete DNA sequence, genomic discontinuities and transcript suggest that it is a pararetrovirus.",
+     "sentences": [
+      "The non-enveloped bacilliform viruses are the second group of plant viruses known to possess a genome consisting of circular double-stranded DNA.",
+      "We have characterized the viral transcript and determined the complete sequence of the genome of Commelina mellow mottle virus (CoYMV), a member of this group.",
+      "Analysis of the viral transcript indicates that the virus encodes a single terminally-redundant genome-length plus 120 nucleotide transcript.",
+      "A fraction of the transcripts is polyadenylated, although the majority of the transcript is not polyadenylated.",
+      "Analysis of the genome sequence indicates that the genome is 7489 bp in size and that the transcribed strand contains three open reading frames capable of encoding proteins of 23, 15 and 216 kd.",
+      "The function of the 25 and 15 kd proteins is unknown.",
+      "Similarities between the 216 kd polypeptide and the cauliflower mosaic virus coat protein and protease/reverse transcriptase polyprotein suggest that the 216 kd polypeptide is a polyprotein that is proteolytically processed to yield the virion coat protein, a protease, and replicase (reverse transcriptase and ribonuclease H).",
+      "Each strand of the CoYMV genome is interrupted by site-specific discontinuities.",
+      "The locations of the 5'-ends of these discontinuities, and the presence and location of a region on the CoYMV transcript capable of annealing with the 3'-end of cytosolic initiator methionine tRNA are consistent with replication by reverse transcription.",
+      "We have demonstrated that a construct containing 1.3 CoYMV genomes is infective when introduced into Commelina diffusa, the host for CoYMV, using Agrobacterium-mediated infection."
+     ],
+     "evidence_idx": [
+      4
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-815",
+  "text": "Mutations in RIM1 decrease levels of IME1 RNA.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Molecular characterization of the yeast meiotic regulatory gene RIM1.",
+     "sentences": [
+      "In the yeast Saccharomyces cerevisiae, genetic studies suggest that the RIM1 gene encodes a positive regulator of meiosis.",
+      "rim1 mutations cause reduced expression of IME1, which is required for expression of many meiotic genes, and thus lead to a partial defect in meiosis and spore formation.",
+      "We report the sequence of RIM1 and functional analysis of its coding region.",
+      "The RIM1 gene product (RIM1) contains three regions similar to C2H2 zinc fingers.",
+      "Serine substitutions for cysteine in each of the putative zinc fingers abolish RIM1 function.",
+      "The carboxyl-terminus of RIM1 is enriched in acidic amino acids and is required for full RIM1 activity.",
+      "RIM1 also contains two putative cAMP-dependent protein kinase (cAPK) phosphorylation sites.",
+      "At one site, substitution of alanine for serine does not affect RIM1 activity; at the other site, this substitution impairs activity.",
+      "This analysis of RIM1 suggests that the protein may function as a transcriptional activator.",
+      "We have used the cloned RIM1 gene to create a complete rim1 deletion.",
+      "This null allele, like previously isolated rim1 mutations, causes a partial meiotic defect.",
+      "In addition to RIM1, maximum IME1 expression requires the MCK1 and IME4 gene products.",
+      "Defects associated with rim1, mck1, and ime4 mutations in expression of a meiotic reporter gene (ime2-lacZ) and in sporulation are additive.",
+      "These findings suggest that RIM1 acts independently of MCK1 and IME4 to stimulate IME1 expression."
+     ],
+     "evidence_idx": [
+      1,
+      13
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-853",
+  "text": "Nonhuman primates are incapable of producing neutralizing antibodies in reponse to the Eilat virus (EILV) produced in mosquitos.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT",
+   "evidence": [
+    {
+     "title": "A chikungunya fever vaccine utilizing an insect-specific virus platform",
+     "sentences": [
+      "Traditionally, vaccine development involves tradeoffs between immunogenicity and safety.",
+      "Live-attenuated vaccines typically offer rapid and durable immunity but have reduced safety when compared to inactivated vaccines.",
+      "In contrast, the inability of inactivated vaccines to replicate enhances safety at the expense of immunogenicity, often necessitating multiple doses and boosters.",
+      "To overcome these tradeoffs, we developed the insect-specific alphavirus, Eilat virus (EILV), as a vaccine platform.",
+      "To address the chikungunya fever (CHIKF) pandemic, we used an EILV cDNA clone to design a chimeric virus containing the chikungunya virus (CHIKV) structural proteins.",
+      "The recombinant EILV/CHIKV was structurally identical at 10 Å to wild-type CHIKV, as determined by single-particle cryo-electron microscopy, and it mimicked the early stages of CHIKV replication in vertebrate cells from attachment and entry to viral RNA delivery.",
+      "Yet the recombinant virus remained completely defective for productive replication, providing a high degree of safety.",
+      "A single dose of EILV/CHIKV produced in mosquito cells elicited rapid (within 4 d) and long-lasting (>290 d) neutralizing antibodies that provided complete protection in two different mouse models.",
+      "In nonhuman primates, EILV/CHIKV elicited rapid and robust immunity that protected against viremia and telemetrically monitored fever.",
+      "Our EILV platform represents the first structurally native application of an insect-specific virus in preclinical vaccine development and highlights the potential application of such viruses in vaccinology."
+     ],
+     "evidence_idx": [
+      7,
+      8
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-844",
+  "text": "Neutrophil extracellular trap (NET) antigens may contain the targeted autoantigens PR3 and MPO.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Netting neutrophils in autoimmune small-vessel vasculitis",
+     "sentences": [
+      "Small-vessel vasculitis (SVV) is a chronic autoinflammatory condition linked to antineutrophil cytoplasm autoantibodies (ANCAs).",
+      "Here we show that chromatin fibers, so-called neutrophil extracellular traps (NETs), are released by ANCA-stimulated neutrophils and contain the targeted autoantigens proteinase-3 (PR3) and myeloperoxidase (MPO).",
+      "Deposition of NETs in inflamed kidneys and circulating MPO-DNA complexes suggest that NET formation triggers vasculitis and promotes the autoimmune response against neutrophil components in individuals with SVV."
+     ],
+     "evidence_idx": [
+      1
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-119",
+  "text": "Antidepressants increase the severity of migraines.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT",
+   "evidence": [
+    {
+     "title": "Tricyclic antidepressants and headaches: systematic review and meta-analysis",
+     "sentences": [
+      "OBJECTIVE To evaluate the efficacy and relative adverse effects of tricyclic antidepressants in the treatment of migraine, tension-type, and mixed headaches.   \n",
+      "DESIGN Meta-analysis.   \n",
+      "DATA SOURCES Medline, Embase, the Cochrane Trials Registry, and PsycLIT.",
+      "Studies reviewed Randomised trials of adults receiving tricyclics as only treatment for a minimum of four weeks.   \n",
+      "DATA EXTRACTION Frequency of headaches (number of headache attacks for migraine and number of days with headache for tension-type headaches), intensity of headache, and headache index.   \n",
+      "RESULTS 37 studies met the inclusion criteria.",
+      "Tricyclics significantly reduced the number of days with tension-type headache and number of headache attacks from migraine than placebo (average standardised mean difference -1.29, 95% confidence interval -2.18 to -0.39 and -0.70, -0.93 to -0.48) but not compared with selective serotonin reuptake inhibitors (-0.80, -2.63 to 0.02 and -0.20, -0.60 to 0.19).",
+      "The effect of tricyclics increased with longer duration of treatment (β=-0.11, 95% confidence interval -0.63 to -0.15; P<0.0005).",
+      "Tricyclics were also more likely to reduce the intensity of headaches by at least 50% than either placebo (tension-type: relative risk 1.41, 95% confidence interval 1.02 to 1.89; migraine: 1.80, 1.24 to 2.62) or selective serotonin reuptake inhibitors (1.73, 1.34 to 2.22 and 1.72, 1.15 to 2.55).",
+      "Tricyclics were more likely to cause adverse effects than placebo (1.53, 95% confidence interval 1.11 to 2.12) and selective serotonin reuptake inhibitors (2.22, 1.52 to 3.32), including dry mouth (P<0.0005 for both), drowsiness (P<0.0005 for both), and weight gain (P<0.001 for both), but did not increase dropout rates (placebo: 1.22, 0.83 to 1.80, selective serotonin reuptake inhibitors: 1.16, 0.81 to 2.97).   \n",
+      "CONCLUSIONS Tricyclic antidepressants are effective in preventing migraine and tension-type headaches and are more effective than selective serotonin reuptake inhibitors, although with greater adverse effects.",
+      "The effectiveness of tricyclics seems to increase over time."
+     ],
+     "evidence_idx": [
+      6,
+      8,
+      10
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "validation-148",
+  "text": "Autophagy declines in aged organisms.",
+  "label": true,
+  "meta": {
+   "split": "validation",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Restoration of chaperone-mediated autophagy in aging liver improves cellular maintenance and hepatic function",
+     "sentences": [
+      "Chaperone-mediated autophagy (CMA), a selective mechanism for degradation of cytosolic proteins in lysosomes, contributes to the removal of altered proteins as part of the cellular quality-control systems.",
+      "We have previously found that CMA activity declines in aged organisms and have proposed that this failure in cellular clearance could contribute to the accumulation of altered proteins, the abnormal cellular homeostasis and, eventually, the functional loss characteristic of aged organisms.",
+      "To determine whether these negative features of aging can be prevented by maintaining efficient autophagic activity until late in life, in this work we have corrected the CMA defect in aged rodents.",
+      "We have generated a double transgenic mouse model in which the amount of the lysosomal receptor for CMA, previously shown to decrease in abundance with age, can be modulated.",
+      "We have analyzed in this model the consequences of preventing the age-dependent decrease in receptor abundance in aged rodents at the cellular and organ levels.",
+      "We show here that CMA activity is maintained until advanced ages if the decrease in the receptor abundance is prevented and that preservation of autophagic activity is associated with lower intracellular accumulation of damaged proteins, better ability to handle protein damage and improved organ function."
+     ],
+     "evidence_idx": [
+      1
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-531",
+  "text": "Human embryonic stem cells have the capacity to give rise to differentiated progeny representative of all three embryonic germ layers.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Evidence of a pluripotent human embryonic stem cell line derived from a cloned blastocyst.",
+     "sentences": [
+      "Somatic cell nuclear transfer (SCNT) technology has recently been used to generate animals with a common genetic composition.",
+      "In this study, we report the derivation of a pluripotent embryonic stem (ES) cell line (SCNT-hES-1) from a cloned human blastocyst.",
+      "The SCNT-hES-1 cells displayed typical ES cell morphology and cell surface markers and were capable of differentiating into embryoid bodies in vitro and of forming teratomas in vivo containing cell derivatives from all three embryonic germ layers in severe combined immunodeficient mice.",
+      "After continuous proliferation for more than 70 passages, SCNT-hES-1 cells maintained normal karyotypes and were genetically identical to the somatic nuclear donor cells.",
+      "Although we cannot completely exclude the possibility that the cells had a parthenogenetic origin, imprinting analyses support a SCNT origin of the derived human ES cells."
+     ],
+     "evidence_idx": [
+      2
+     ]
+    },
+    {
+     "title": "Clonally derived human embryonic stem cell lines maintain pluripotency and proliferative potential for prolonged periods of culture.",
+     "sentences": [
+      "Embryonic stem (ES) cell lines derived from human blastocysts have the developmental potential to form derivatives of all three embryonic germ layers even after prolonged culture.",
+      "Here we describe the clonal derivation of two human ES cell lines, H9.1 and H9.2.",
+      "At the time of the clonal derivation of the H9.1 and H9.2 ES cell lines, the parental ES cell line, H9, had already been continuously cultured for 6 months.",
+      "After an additional 8 months of culture, H9.1 and H9.2 ES cell lines continued to: (1) actively proliferate, (2) express high levels of telomerase, and (3) retain normal karyotypes.",
+      "Telomere lengths, while somewhat variable, were maintained between 8 and 12 kb in high-passage H9.1 and H9.2 cells.",
+      "High-passage H9.1 and H9.2 cells both formed teratomas in SCID-beige mice that included differentiated derivatives of all three embryonic germ layers.",
+      "These results demonstrate the pluripotency of single human ES cells, the maintenance of pluripotency during an extended period of culture, and the long-term self-renewing properties of cultured human ES cells.",
+      "The remarkable developmental potential, proliferative capacity, and karyotypic stability of human ES cells distinguish them from adult cells."
+     ],
+     "evidence_idx": [
+      0
+     ]
+    },
+    {
+     "title": "Establishment and in vitro differentiation of a new embryonic stem cell line from human blastocyst.",
+     "sentences": [
+      "Embryonic stem cells have the ability to remain undifferentiated and proliferate indefinitely in vitro while maintaining the potential to differentiate into derivatives of all three embryonic germ layers.",
+      "These cells have, therefore, potential for in vitro differentiation studies, gene function, and so on.",
+      "The aim of this study was to produce a human embryonic stem cell line.",
+      "An inner cell mass of a human blastocyst was separated and cultured on mouse embryonic fibroblasts in embryonic stem cell medium with related additives.",
+      "The established line was evaluated by morphology; passaging; freezing and thawing; alkaline phosphatase; Oct-4 expression; anti-surface markers including Tra-1-60 and Tra-1-81; and karyotype and spontaneous differentiation.",
+      "Differentiated cardiomyocytes and neurons were evaluated by transmission electron microscopy and immunocytochemistry.",
+      "Here, we report the derivation of a new embryonic stem cell line (Royan H1) from a human blastocyst that remains undifferentiated in morphology during continuous passaging for more than 30 passages, maintains a normal XX karyotype, is viable after freezing and thawing, and expresses alkaline phosphatase, Oct-4, Tra-1-60, and Tra-1-81.",
+      "These cells remain undifferentiated when grown on mouse embryonic fibroblast feeder layers in the presence or absence of recombinant human leukemia inhibitory factor.",
+      "Royan H1 cells can differentiate in vitro in the absence of feeder cells and can produce embryoid bodies that can further differentiate into beating cardiomyocytes as well as neurons.",
+      "These results define Royan H1 cells as a new human embryonic stem cell line."
+     ],
+     "evidence_idx": [
+      0
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "validation-501",
+  "text": "Headaches are not correlated with cognitive impairment.",
+  "label": true,
+  "meta": {
+   "split": "validation",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Headache, migraine, and structural brain lesions and function: population based Epidemiology of Vascular Ageing-MRI study",
+     "sentences": [
+      "OBJECTIVE To evaluate the association of overall and specific headaches with volume of white matter hyperintensities, brain infarcts, and cognition.   \n",
+      "DESIGN Population based, cross sectional study.   \n",
+      "SETTING Epidemiology of Vascular Ageing study, Nantes, France.   \n",
+      "PARTICIPANTS 780 participants (mean age 69, 58.5% women) with detailed headache assessment.   \n",
+      "MAIN OUTCOME MEASURES Brain scans were evaluated for volume of white matter hyperintensities (by fully automated imaging processing) and for classification of infarcts (by visual reading with a standardised assessment grid).",
+      "Cognitive function was assessed by a battery of tests including the mini-mental state examination.   \n",
+      "RESULTS 163 (20.9%) participants reported a history of severe headache and 116 had migraine, of whom 17 (14.7%) reported aura symptoms.",
+      "An association was found between any history of severe headache and increasing volume of white matter hyperintensities.",
+      "The adjusted odds ratio of being in the highest third for total volume of white matter hyperintensities was 2.0 (95% confidence interval 1.3 to 3.1, P for trend 0.002) for participants with any history of severe headache when compared with participants without severe headache being in the lowest third.",
+      "The association pattern was similar for all headache types.",
+      "Migraine with aura was the only headache type strongly associated with volume of deep white matter hyperintensities (highest third odds ratio 12.4, 1.6 to 99.4, P for trend 0.005) and with brain infarcts (3.4, 1.2 to 9.3).",
+      "The location of infarcts was predominantly outside the cerebellum and brain stem.",
+      "Evidence was lacking for cognitive impairment for any headache type with or without brain lesions.   \n",
+      "CONCLUSIONS In this population based study, any history of severe headache was associated with an increased volume of white matter hyperintensities.",
+      "Migraine with aura was the only headache type associated with brain infarcts.",
+      "Evidence that headache of any type by itself or in combination with brain lesions was associated with cognitive impairment was lacking."
+     ],
+     "evidence_idx": [
+      12
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-245",
+  "text": "Charcoal is an effective treatment for acute paraquat poisoning.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT",
+   "evidence": [
+    {
+     "title": "Effect of activated charcoal hemoperfusion on renal function in patients with paraquat poisoning.",
+     "sentences": [
+      "The present study retrospectively analyzed 19 patients diagnosed with paraquat (PQ) poisoning with the aim to investigate the effect of activated charcoal hemoperfusion on renal function and PQ elimination.",
+      "The results indicated that 7 patients died and 12 survived.",
+      "Non-oliguric renal failure occurred in all of the 7 patients who died.",
+      "Among the 12 surviving patients, 10 had normal renal function and 2 developed non-oliguric renal failure.",
+      "There was a linear correlation between plasma and urine paraquat concentration prior to and during activated charcoal hemoperfusion.",
+      "The equation parameters together with the correlation coefficient on admission were as follows: Y=0.5820+1.7348X (R2=0.678; F=35.768; P<0.0001).",
+      "The equation parameters together with the correlation coefficient were as follows during activated charcoal hemoperfusion: Y=0.6827+1.2649X (R2=0.626; F=50.308; P<0.0001).",
+      "Therefore, it was concluded that in patients with normal renal function, the elimination kinetics of PQ by the kidneys were only associated with the plasma PQ concentration.",
+      "Activated charcoal hemoperfusion had little effect on avoiding acute kidney injury in patients with severe PQ poisoning."
+     ],
+     "evidence_idx": [
+      8
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "validation-1232",
+  "text": "The minor G allele of FOXO3 is related to more severe symptoms of Crohn's Disease.",
+  "label": false,
+  "meta": {
+   "split": "validation",
+   "gold": "CONTRADICT",
+   "evidence": [
+    {
+     "title": "Human SNP Links Differential Outcomes in Inflammatory and Infectious Disease to a FOXO3-Regulated Pathway",
+     "sentences": [
+      "The clinical course and eventual outcome, or prognosis, of complex diseases varies enormously between affected individuals.",
+      "This variability critically determines the impact a disease has on a patient's life but is very poorly understood.",
+      "Here, we exploit existing genome-wide association study data to gain insight into the role of genetics in prognosis.",
+      "We identify a noncoding polymorphism in FOXO3A (rs12212067: T > G) at which the minor (G) allele, despite not being associated with disease susceptibility, is associated with a milder course of Crohn's disease and rheumatoid arthritis and with increased risk of severe malaria.",
+      "Minor allele carriage is shown to limit inflammatory responses in monocytes via a FOXO3-driven pathway, which through TGFβ1 reduces production of proinflammatory cytokines, including TNFα, and increases production of anti-inflammatory cytokines, including IL-10.",
+      "Thus, we uncover a shared genetic contribution to prognosis in distinct diseases that operates via a FOXO3-driven pathway modulating inflammatory responses."
+     ],
+     "evidence_idx": [
+      3
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-709",
+  "text": "Long chain polyunsaturated fatty acids supplementation is associated with lower rates of atopic eczema at 1 year.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Effect of n-3 long chain polyunsaturated fatty acid supplementation in pregnancy on infants’ allergies in first year of life: randomised controlled trial",
+     "sentences": [
+      "OBJECTIVE To determine whether dietary n-3 long chain polyunsaturated fatty acid (LCPUFA) supplementation of pregnant women with a fetus at high risk of allergic disease reduces immunoglobulin E associated eczema or food allergy at 1 year of age.   \n",
+      "DESIGN Follow-up of infants at high hereditary risk of allergic disease in the Docosahexaenoic Acid to Optimise Mother Infant Outcome (DOMInO) randomised controlled trial.   \n",
+      "SETTING Adelaide, South Australia.   \n",
+      "PARTICIPANTS 706 infants at high hereditary risk of developing allergic disease whose mothers were participating in the DOMInO trial.   \n",
+      "INTERVENTIONS The intervention group (n=368) was randomly allocated to receive fish oil capsules (providing 900 mg of n-3 LCPUFA daily) from 21 weeks' gestation until birth; the control group (n=338) received matched vegetable oil capsules without n-3 LCPUFA.   \n",
+      "MAIN OUTCOME MEASURE Immunoglobulin E associated allergic disease (eczema or food allergy with sensitisation) at 1 year of age.   \n",
+      "RESULTS No differences were seen in the overall percentage of infants with immunoglobulin E associated allergic disease between the n-3 LCPUFA and control groups (32/368 (9%) v 43/338 (13%); unadjusted relative risk 0.68, 95% confidence interval 0.43 to 1.05, P=0.08; adjusted relative risk 0.70, 0.45 to 1.09, P=0.12), although the percentage of infants diagnosed as having atopic eczema (that is, eczema with associated sensitisation) was lower in the n-3 LCPUFA group (26/368 (7%) v 39/338 (12%); unadjusted relative risk 0.61, 0.38 to 0.98, P=0.04; adjusted relative risk 0.64, 0.40 to 1.02, P=0.06).",
+      "Fewer infants were sensitised to egg in the n-3 LCPUFA group (34/368 (9%) v 52/338 (15%); unadjusted relative risk 0.61, 0.40 to 0.91, P=0.02; adjusted relative risk 0.62, 0.41 to 0.93, P=0.02), but no difference between groups in immunoglobulin E associated food allergy was seen.   \n",
+      "CONCLUSION n-3 LCPUFA supplementation in pregnancy did not reduce the overall incidence of immunoglobulin E associated allergies in the first year of life, although atopic eczema and egg sensitisation were lower.",
+      "Longer term follow-up is needed to determine if supplementation has an effect on respiratory allergic diseases and aeroallergen sensitisation in childhood.   \n",
+      "TRIAL REGISTRATION Australian New Zealand Clinical Trials Registry ACTRN12610000735055 (DOMInO trial: ACTRN12605000569606)."
+     ],
+     "evidence_idx": [
+      6,
+      8
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-1159",
+  "text": "The DESMOND program demonstrates no significant impact on weight loss.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Effectiveness of a diabetes education and self management programme (DESMOND) for people with newly diagnosed type 2 diabetes mellitus: three year follow-up of a cluster randomised controlled trial in primary care",
+     "sentences": [
+      "OBJECTIVE To measure whether the benefits of a single education and self management structured programme for people with newly diagnosed type 2 diabetes mellitus are sustained at three years.   \n",
+      "DESIGN Three year follow-up of a multicentre cluster randomised controlled trial in primary care, with randomisation at practice level.   \n",
+      "SETTING 207 general practices in 13 primary care sites in the United Kingdom.   \n",
+      "PARTICIPANTS 731 of the 824 participants included in the original trial were eligible for follow-up.",
+      "Biomedical data were collected on 604 (82.6%) and questionnaire data on 513 (70.1%) participants.   \n",
+      "INTERVENTION A structured group education programme for six hours delivered in the community by two trained healthcare professional educators compared with usual care.   \n",
+      "MAIN OUTCOME MEASURES The primary outcome was glycated haemoglobin (HbA(1c)) levels.",
+      "The secondary outcomes were blood pressure, weight, blood lipid levels, smoking status, physical activity, quality of life, beliefs about illness, depression, emotional impact of diabetes, and drug use at three years.   \n",
+      "RESULTS HbA(1c) levels at three years had decreased in both groups.",
+      "After adjusting for baseline and cluster the difference was not significant (difference -0.02, 95% confidence interval -0.22 to 0.17).",
+      "The groups did not differ for the other biomedical and lifestyle outcomes and drug use.",
+      "The significant benefits in the intervention group across four out of five health beliefs seen at 12 months were sustained at three years (P<0.01).",
+      "Depression scores and quality of life did not differ at three years.   \n",
+      "CONCLUSION A single programme for people with newly diagnosed type 2 diabetes mellitus showed no difference in biomedical or lifestyle outcomes at three years although there were sustained improvements in some illness beliefs.   \n",
+      "TRIAL REGISTRATION Current Controlled Trials ISRCTN17844016."
+     ],
+     "evidence_idx": [
+      13
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-590",
+  "text": "In young and middle-aged adults, current or remote uses of ADHD medications increase the risk of serious cardiovascular events.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT",
+   "evidence": [
+    {
+     "title": "ADHD medications and risk of serious cardiovascular events in young and middle-aged adults.",
+     "sentences": [
+      "CONTEXT More than 1.5 million US adults use stimulants and other medications labeled for treatment of attention-deficit/hyperactivity disorder (ADHD).",
+      "These agents can increase heart rate and blood pressure, raising concerns about their cardiovascular safety.   \n",
+      "OBJECTIVE To examine whether current use of medications prescribed primarily to treat ADHD is associated with increased risk of serious cardiovascular events in young and middle-aged adults.   \n",
+      "DESIGN, SETTING, AND PARTICIPANTS Retrospective, population-based cohort study using electronic health care records from 4 study sites (OptumInsight Epidemiology, Tennessee Medicaid, Kaiser Permanente California, and the HMO Research Network), starting in 1986 at 1 site and ending in 2005 at all sites, with additional covariate assessment using 2007 survey data.",
+      "Participants were adults aged 25 through 64 years with dispensed prescriptions for methylphenidate, amphetamine, or atomoxetine at baseline.",
+      "Each medication user (n = 150,359) was matched to 2 nonusers on study site, birth year, sex, and calendar year (443,198 total users and nonusers).   \n",
+      "MAIN OUTCOME MEASURES Serious cardiovascular events, including myocardial infarction (MI), sudden cardiac death (SCD), or stroke, with comparison between current or new users and remote users to account for potential healthy-user bias.   \n",
+      "RESULTS During 806,182 person-years of follow-up (median, 1.3 years per person), 1357 cases of MI, 296 cases of SCD, and 575 cases of stroke occurred.",
+      "There were 107,322 person-years of current use (median, 0.33 years), with a crude incidence per 1000 person-years of 1.34 (95% CI, 1.14-1.57) for MI, 0.30 (95% CI, 0.20-0.42) for SCD, and 0.56 (95% CI, 0.43-0.72) for stroke.",
+      "The multivariable-adjusted rate ratio (RR) of serious cardiovascular events for current use vs nonuse of ADHD medications was 0.83 (95% CI, 0.72-0.96).",
+      "Among new users of ADHD medications, the adjusted RR was 0.77 (95% CI, 0.63-0.94).",
+      "The adjusted RR for current use vs remote use was 1.03 (95% CI, 0.86-1.24); for new use vs remote use, the adjusted RR was 1.02 (95% CI, 0.82-1.28); the upper limit of 1.28 corresponds to an additional 0.19 events per 1000 person-years at ages 25-44 years and 0.77 events per 1000 person-years at ages 45-64 years.   \n",
+      "CONCLUSIONS Among young and middle-aged adults, current or new use of ADHD medications, compared with nonuse or remote use, was not associated with an increased risk of serious cardiovascular events.",
+      "Apparent protective associations likely represent healthy-user bias."
+     ],
+     "evidence_idx": [
+      9,
+      10,
+      12
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-926",
+  "text": "Patients with common epithelial cancers  are more likely to have an emergency event as their first hospital admission if they live in resource-deprived areas.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Social variations in access to hospital care for patients with colorectal, breast, and lung cancer between 1999 and 2006: retrospective analysis of hospital episode statistics",
+     "sentences": [
+      "OBJECTIVES To determine the extent to which type of hospital admission (emergency compared with elective) and surgical procedure varied by socioeconomic circumstances, age, sex, and year of admission for colorectal, breast, and lung cancer.   \n",
+      "DESIGN Repeated cross sectional study with data from individual patients, 1 April 1999 to 31 March 2006.   \n",
+      "SETTING Hospital episode statistics (HES) dataset.   \n",
+      "PARTICIPANTS 564 821 patients aged 50 and over admitted with a diagnosis of colorectal, breast, or lung cancer.   \n",
+      "MAIN OUTCOME MEASURES Proportion of patients admitted as emergencies, and the proportion receiving the recommended surgical treatment.   \n",
+      "RESULTS Patients from deprived areas, older people, and women were more likely to be admitted as emergencies.",
+      "For example, the adjusted odds ratio for patients with breast cancer in the least compared with most deprived fifth of deprivation was 0.63 (95% confidence interval 0.60 to 0.66) and the adjusted odds ratio for patients with lung cancer aged 80-89 compared with those aged 50-59 was 3.13 (2.93 to 3.34).",
+      "There were some improvements in disparities between age groups but not for patients living in deprived areas over time.",
+      "Patients from deprived areas were less likely to receive preferred procedures for rectal, breast, and lung cancer.",
+      "These findings did not improve with time.",
+      "For example, 67.4% (3529/5237) of patients in the most deprived fifth of deprivation had anterior resection for rectal cancer compared with 75.5% (4497/5959) of patients in the least deprived fifth (1.34, 1.22 to 1.47).",
+      "Over half (54.0%, 11 256/20 849) of patients in the most deprived fifth of deprivation had breast conserving surgery compared with 63.7% (18 445/28 960) of patients in the least deprived fifth (1.21, 1.16 to 1.26).",
+      "Men were less likely than women to undergo anterior resection and lung cancer resection and older people were less likely to receive breast conserving surgery and lung cancer resection.",
+      "For example, the adjusted odds ratio for lung cancer patients aged 80-89 compared with those aged 50-59 was 0.52 (0.46 to 0.59).",
+      "Conclusions Despite the implementation of the NHS Cancer Plan, social factors still strongly influence access to and the provision of care."
+     ],
+     "evidence_idx": [
+      6,
+      7,
+      10
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-296",
+  "text": "Cyclin A2 destruction is necessary to switch from unstable to stable kt-mt attachments in mitosis.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Cyclin A Regulates Kinetochore-Microtubules to Promote Faithful Chromosome Segregation",
+     "sentences": [
+      "The most conspicuous event in the cell cycle is the alignment of chromosomes in metaphase.",
+      "Chromosome alignment fosters faithful segregation through the formation of bi-oriented attachments of kinetochores to spindle microtubules.",
+      "Notably, numerous kinetochore-microtubule (k-MT) attachment errors are present in early mitosis (prometaphase), and the persistence of those errors is the leading cause of chromosome mis-segregation in aneuploid human tumour cells that continually mis-segregate whole chromosomes and display chromosomal instability.",
+      "How robust error correction is achieved in prometaphase to ensure error-free mitosis remains unknown.",
+      "Here we show that k-MT attachments in prometaphase cells are considerably less stable than in metaphase cells.",
+      "The switch to more stable k-MT attachments in metaphase requires the proteasome-dependent destruction of cyclin A in prometaphase.",
+      "Persistent cyclin A expression prevents k-MT stabilization even in cells with aligned chromosomes.",
+      "By contrast, k-MTs are prematurely stabilized in cyclin-A-deficient cells.",
+      "Consequently, cells lacking cyclin A display higher rates of chromosome mis-segregation.",
+      "Thus, the stability of k-MT attachments increases decisively in a coordinated fashion among all chromosomes as cells transit from prometaphase to metaphase.",
+      "Cyclin A creates a cellular environment that promotes microtubule detachment from kinetochores in prometaphase to ensure efficient error correction and faithful chromosome segregation."
+     ],
+     "evidence_idx": [
+      5,
+      6,
+      7
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-114",
+  "text": "Anthrax spores are very difficult to dispose once they are dispersed.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Secondary aerosolization of viable Bacillus anthracis spores in a contaminated US Senate Office.",
+     "sentences": [
+      "CONTEXT Bioterrorist attacks involving letters and mail-handling systems in Washington, DC, resulted in Bacillus anthracis (anthrax) spore contamination in the Hart Senate Office Building and other facilities in the US Capitol's vicinity.   \n",
+      "OBJECTIVE To provide information about the nature and extent of indoor secondary aerosolization of B anthracis spores.   \n",
+      "DESIGN Stationary and personal air samples, surface dust, and swab samples were collected under semiquiescent (minimal activities) and then simulated active office conditions to estimate secondary aerosolization of B anthracis spores.",
+      "Nominal size characteristics, airborne concentrations, and surface contamination of B anthracis particles (colony-forming units) were evaluated.   \n",
+      "RESULTS Viable B anthracis spores reaerosolized under semiquiescent conditions, with a marked increase in reaerosolization during simulated active office conditions.",
+      "Increases were observed for B anthracis collected on open sheep blood agar plates (P<.001) and personal air monitors (P =.01) during active office conditions.",
+      "More than 80% of the B anthracis particles collected on stationary monitors were within an alveolar respirable size range of 0.95 to 3.5 micro m.   CONCLUSIONS Bacillus anthracis spores used in a recent terrorist incident reaerosolized under common office activities.",
+      "These findings have important implications for appropriate respiratory protection, remediation, and reoccupancy of contaminated office environments."
+     ],
+     "evidence_idx": [
+      6
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-779",
+  "text": "Mice lacking Sirt1 in Sf1-expressing neurons have increased susceptibility to diet-induced obesity and insulin resistance.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "SIRT1 deacetylase in SF1 neurons protects against metabolic imbalance.",
+     "sentences": [
+      "Chronic feeding on high-calorie diets causes obesity and type 2 diabetes mellitus (T2DM), illnesses that affect hundreds of millions.",
+      "Thus, understanding the pathways protecting against diet-induced metabolic imbalance is of paramount medical importance.",
+      "Here, we show that mice lacking SIRT1 in steroidogenic factor 1 (SF1) neurons are hypersensitive to dietary obesity owing to maladaptive energy expenditure.",
+      "Also, mutant mice have increased susceptibility to developing dietary T2DM due to insulin resistance in skeletal muscle.",
+      "Mechanistically, these aberrations arise, in part, from impaired metabolic actions of the neuropeptide orexin-A and the hormone leptin.",
+      "Conversely, mice overexpressing SIRT1 in SF1 neurons are more resistant to diet-induced obesity and insulin resistance due to increased energy expenditure and enhanced skeletal muscle insulin sensitivity.",
+      "Our results unveil important protective roles of SIRT1 in SF1 neurons against dietary metabolic imbalance."
+     ],
+     "evidence_idx": [
+      2,
+      3,
+      5
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-1372",
+  "text": "Walking in traffic areas in London did not improve lung function in elderly adults.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Respiratory and cardiovascular responses to walking down a traffic-polluted road compared with walking in a traffic-free area in participants aged 60 years and older with chronic lung or heart disease and age-matched healthy controls: a randomised, crossover study",
+     "sentences": [
+      "BACKGROUND Long-term exposure to pollution can lead to an increase in the rate of decline of lung function, especially in older individuals and in those with chronic obstructive pulmonary disease (COPD), whereas shorter-term exposure at higher pollution levels has been implicated in causing excess deaths from ischaemic heart disease and exacerbations of COPD.",
+      "We aimed to assess the effects on respiratory and cardiovascular responses of walking down a busy street with high levels of pollution compared with walking in a traffic-free area with lower pollution levels in older adults.   \n",
+      "METHODS In this randomised, crossover study, we recruited men and women aged 60 years and older with angiographically proven stable ischaemic heart disease or stage 2 Global initiative for Obstructive Lung Disease (GOLD) COPD who had been clinically stable for 6 months, and age-matched healthy volunteers.",
+      "Individuals with ischaemic heart disease or COPD were recruited from existing databases or outpatient respiratory and cardiology clinics at the Royal Brompton & Harefield NHS Foundation Trust and age-matched healthy volunteers using advertising and existing databases.",
+      "All participants had abstained from smoking for at least 12 months and medications were taken as recommended by participants' doctors during the study.",
+      "Participants were randomly assigned by drawing numbered disks at random from a bag to do a 2 h walk either along a commercial street in London (Oxford Street) or in an urban park (Hyde Park).",
+      "Baseline measurements of participants were taken before the walk in the hospital laboratory.",
+      "During each walk session, black carbon, particulate matter (PM) concentrations, ultrafine particles, and nitrogen dioxide (NO2) concentrations were measured.   \n",
+      "FINDINGS Between October, 2012, and June, 2014, we screened 135 participants, of whom 40 healthy volunteers, 40 individuals with COPD, and 39 with ischaemic heart disease were recruited.",
+      "Concentrations of black carbon, NO2, PM10, PM2.5, and ultrafine particles were higher on Oxford Street than in Hyde Park.",
+      "Participants with COPD reported more cough (odds ratio [OR] 1·95, 95% CI 0·96-3·95; p<0·1), sputum (3·15, 1·39-7·13; p<0·05), shortness of breath (1·86, 0·97-3·57; p<0·1), and wheeze (4·00, 1·52-10·50; p<0·05) after walking down Oxford Street compared with Hyde Park.",
+      "In all participants, irrespective of their disease status, walking in Hyde Park led to an increase in lung function (forced expiratory volume in the first second [FEV1] and forced vital capacity [FVC]) and a decrease in pulse wave velocity (PWV) and augmentation index up to 26 h after the walk.",
+      "By contrast, these beneficial responses were attenuated after walking on Oxford Street.",
+      "In participants with COPD, a reduction in FEV1 and FVC, and an increase in R5-20 were associated with an increase in during-walk exposure to NO2, ultrafine particles and PM2.5, and an increase in PWV and augmentation index with NO2 and ultrafine particles.",
+      "In healthy volunteers, PWV and augmentation index were associated both with black carbon and ultrafine particles.   \n",
+      "INTERPRETATION Short-term exposure to traffic pollution prevents the beneficial cardiopulmonary effects of walking in people with COPD, ischaemic heart disease, and those free from chronic cardiopulmonary diseases.",
+      "Medication use might reduce the adverse effects of air pollution in individuals with ischaemic heart disease.",
+      "Policies should aim to control ambient levels of air pollution along busy streets in view of these negative health effects.   \n",
+      "FUNDING British Heart Foundation."
+     ],
+     "evidence_idx": [
+      10,
+      11,
+      12,
+      15
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-1170",
+  "text": "The NF-κB essential modulator gene induces intestinal inflammation by promoting receptor-interacting protein (RIP) kinase 1 kinase activity-mediated epithelial cell death.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT",
+   "evidence": [
+    {
+     "title": "NEMO Prevents RIP Kinase 1-Mediated Epithelial Cell Death and Chronic Intestinal Inflammation by NF-κB-Dependent and -Independent Functions",
+     "sentences": [
+      "Intestinal epithelial cells (IECs) regulate gut immune homeostasis, and impaired epithelial responses are implicated in the pathogenesis of inflammatory bowel diseases (IBD).",
+      "IEC-specific ablation of nuclear factor κB (NF-κB) essential modulator (NEMO) caused Paneth cell apoptosis and impaired antimicrobial factor expression in the ileum, as well as colonocyte apoptosis and microbiota-driven chronic inflammation in the colon.",
+      "Combined RelA, c-Rel, and RelB deficiency in IECs caused Paneth cell apoptosis but not colitis, suggesting that NEMO prevents colon inflammation by NF-κB-independent functions.",
+      "Inhibition of receptor-interacting protein kinase 1 (RIPK1) kinase activity or combined deficiency of Fas-associated via death domain protein (FADD) and RIPK3 prevented epithelial cell death, Paneth cell loss, and colitis development in mice with epithelial NEMO deficiency.",
+      "Therefore, NEMO prevents intestinal inflammation by inhibiting RIPK1 kinase activity-mediated IEC death, suggesting that RIPK1 inhibitors could be effective in the treatment of colitis in patients with NEMO mutations and possibly in IBD."
+     ],
+     "evidence_idx": [
+      3,
+      4
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-235",
+  "text": "Cell autonomous sex determination in somatic cells occurs in Galliformes.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Somatic sex identity is cell-autonomous in the chicken",
+     "sentences": [
+      "In the mammalian model of sex determination, embryos are considered to be sexually indifferent until the transient action of a sex-determining gene initiates gonadal differentiation.",
+      "Although this model is thought to apply to all vertebrates, this has yet to be established.",
+      "Here we have examined three lateral gynandromorph chickens (a rare, naturally occurring phenomenon in which one side of the animal appears male and the other female) to investigate the sex-determining mechanism in birds.",
+      "These studies demonstrated that gynandromorph birds are genuine male:female chimaeras, and indicated that male and female avian somatic cells may have an inherent sex identity.",
+      "To test this hypothesis, we transplanted presumptive mesoderm between embryos of reciprocal sexes to generate embryos containing male:female chimaeric gonads.",
+      "In contrast to the outcome for mammalian mixed-sex chimaeras, in chicken mixed-sex chimaeras the donor cells were excluded from the functional structures of the host gonad.",
+      "In an example where female tissue was transplanted into a male host, donor cells contributing to the developing testis retained a female identity and expressed a marker of female function.",
+      "Our study demonstrates that avian somatic cells possess an inherent sex identity and that, in birds, sexual differentiation is substantively cell autonomous."
+     ],
+     "evidence_idx": [
+      3,
+      6,
+      7
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-498",
+  "text": "Having a main partner worsens HIV outcomes.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT",
+   "evidence": [
+    {
+     "title": "Stable partnership and progression to AIDS or death in HIV infected patients receiving highly active antiretroviral therapy: Swiss HIV cohort study.",
+     "sentences": [
+      "OBJECTIVES To explore the association between a stable partnership and clinical outcome in HIV infected patients receiving highly active antiretroviral therapy (HAART).   \n",
+      "DESIGN Prospective cohort study of adults with HIV (Swiss HIV cohort study).   \n",
+      "SETTING Seven outpatient clinics throughout Switzerland.   \n",
+      "PARTICIPANTS The 3736 patients in the cohort who started HAART before 2002 (median age 36 years, 29% female, median follow up 3.6 years).   \n",
+      "MAIN OUTCOME MEASURES Time to AIDS or death (primary endpoint), death alone, increases in CD4 cell count of at least 50 and 100 above baseline, optimal viral suppression (a viral load below 400 copies/ml), and viral rebound.   \n",
+      "RESULTS During follow up 2985 (80%) participants reported a stable partnership on at least one occasion.",
+      "When starting HAART, 52% (545/1042) of participants reported a stable partnership; after five years of follow up 46% (190/412) of participants reported a stable partnership.",
+      "In an analysis stratified by previous antiretroviral therapy and clinical stage when starting HAART (US Centers for Disease Control and Prevention group A, B, or C), the adjusted hazard ratio for progression to AIDS or death was 0.79 (95% confidence interval 0.63 to 0.98) for participants with a stable partnership compared with those without.",
+      "Adjusted hazards ratios for other endpoints were 0.59 (0.44 to 0.79) for progression to death, 1.15 (1.06 to 1.24) for an increase in CD4 cells of 100 counts/microl or more, and 1.06 (0.98 to 1.14) for optimal viral suppression.   \n",
+      "CONCLUSIONS A stable partnership is associated with a slower rate of progression to AIDS or death in HIV infected patients receiving HAART."
+     ],
+     "evidence_idx": [
+      7,
+      9
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "validation-1290",
+  "text": "There is an inverse relationship between hip fractures and statin use.",
+  "label": true,
+  "meta": {
+   "split": "validation",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "HMG-CoA reductase inhibitors and the risk of hip fractures in elderly patients.",
+     "sentences": [
+      "CONTEXT Recent animal studies have found that 3-hydroxy-3-methylglutaryl coenzyme A (HMG-CoA) lipid-lowering drugs (statins) substantially increase bone formation, but whether statin use in humans results in clinically meaningful bone formation or a reduction in the risk of osteoporotic fractures is not known.   \n",
+      "OBJECTIVE To determine whether the use of statins is associated with reduced hip fracture risk.   \n",
+      "DESIGN Case-control study.   \n",
+      "SETTING AND PATIENTS A total of 6110 New Jersey residents aged 65 years or older and enrolled in Medicare and either Medicaid or the Pharmacy Assistance for the Aged and Disabled program.",
+      "Case patients (n=1222) underwent surgical repair of a hip fracture in 1994.",
+      "Control patients (n=4888) were identified at a ratio of 4:1 and frequency-matched to case patients for age and sex.   \n",
+      "MAIN OUTCOME MEASURE Adjusted odds ratio (OR) of hip fracture by statin use in the 180 days and 3 years prior to the index date (the earliest date of admission for surgery), adjusted for demographic and clinical characteristics and health care utilization.   \n",
+      "RESULTS Use of statins in either the prior 180 days (adjusted OR, 0.50; 95% confidence interval [CI], 0.33-0.76) or prior 3 years (adjusted OR, 0.57; 95% CI, 0.40-0.82) was associated with a significant reduction in the risk of hip fracture, even after controlling for variables such as race, insurance status, psychoactive medications, estrogen and thiazide use, ischemic heart disease, cancer, and diabetes mellitus.",
+      "No significant relationship was observed between use of nonstatin lipid-lowering agents and hip fracture risk.",
+      "Clear relationships were observed between the degree of reduction in hip fracture risk and the extent of statin use; there was no evidence of such relationships with nonstatin lipid-lowering agents.",
+      "After adjusting for extent of statin use in the prior 3 years, current use (on the index date) was associated with a 71% reduction in risk (adjusted OR, 0.29; 95% CI, 0.10-0.81).",
+      "The relationship between statin use and hip fracture risk persisted after controlling for variables such as the number of medications, the Charlson comorbidity index score, and hospitalization or nursing home stay in the last 180 days, as well as after excluding patients who were in a nursing home prior to their index date or who died in the year after their index date.",
+      "Use of nonstatin lipid-lowering agents was not observed to be associated with reduction in hip fracture risk in any of these alternative models or analyses.   \n",
+      "CONCLUSIONS These findings support an association between statin use by elderly patients and reduction in the risk of hip fracture.",
+      "Controlled trials are needed to exclude the possibility of unmeasured confounders.",
+      "JAMA.",
+      "2000;283:3211-3216"
+     ],
+     "evidence_idx": [
+      7,
+      9,
+      10,
+      13
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-1157",
+  "text": "The DESMOND program demonstrates no significant impact on biochemical outcomes.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Effectiveness of a diabetes education and self management programme (DESMOND) for people with newly diagnosed type 2 diabetes mellitus: three year follow-up of a cluster randomised controlled trial in primary care",
+     "sentences": [
+      "OBJECTIVE To measure whether the benefits of a single education and self management structured programme for people with newly diagnosed type 2 diabetes mellitus are sustained at three years.   \n",
+      "DESIGN Three year follow-up of a multicentre cluster randomised controlled trial in primary care, with randomisation at practice level.   \n",
+      "SETTING 207 general practices in 13 primary care sites in the United Kingdom.   \n",
+      "PARTICIPANTS 731 of the 824 participants included in the original trial were eligible for follow-up.",
+      "Biomedical data were collected on 604 (82.6%) and questionnaire data on 513 (70.1%) participants.   \n",
+      "INTERVENTION A structured group education programme for six hours delivered in the community by two trained healthcare professional educators compared with usual care.   \n",
+      "MAIN OUTCOME MEASURES The primary outcome was glycated haemoglobin (HbA(1c)) levels.",
+      "The secondary outcomes were blood pressure, weight, blood lipid levels, smoking status, physical activity, quality of life, beliefs about illness, depression, emotional impact of diabetes, and drug use at three years.   \n",
+      "RESULTS HbA(1c) levels at three years had decreased in both groups.",
+      "After adjusting for baseline and cluster the difference was not significant (difference -0.02, 95% confidence interval -0.22 to 0.17).",
+      "The groups did not differ for the other biomedical and lifestyle outcomes and drug use.",
+      "The significant benefits in the intervention group across four out of five health beliefs seen at 12 months were sustained at three years (P<0.01).",
+      "Depression scores and quality of life did not differ at three years.   \n",
+      "CONCLUSION A single programme for people with newly diagnosed type 2 diabetes mellitus showed no difference in biomedical or lifestyle outcomes at three years although there were sustained improvements in some illness beliefs.   \n",
+      "TRIAL REGISTRATION Current Controlled Trials ISRCTN17844016."
+     ],
+     "evidence_idx": [
+      9,
+      10,
+      13
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-1120",
+  "text": "Sympathetic nerve activity is reduced throughout normal pregnancy.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT",
+   "evidence": [
+    {
+     "title": "Sympathetic neural mechanisms in normal and hypertensive pregnancy in humans.",
+     "sentences": [
+      "BACKGROUND Direct recordings from peripheral sympathetic nerves have shown an increased sympathetic drive in pregnancy-induced hypertension (PIH) and preeclampsia (PE).",
+      "It is unknown whether sympathetic drive is altered in normal pregnancy, when arterial blood pressure can be normal or relatively low.",
+      "The aim of this study was to measure and compare peripheral sympathetic discharge, its vasoconstrictor effect and its baroreceptor control, during pregnancy and postpartum in women with normal pregnancy (NP) and PIH and in normotensive nonpregnant (NN) women.   \n",
+      "METHODS AND RESULTS Twenty-one women with NP, 18 women with PIH, and 21 NN women had muscle sympathetic nerve activity assessed from multiunit discharges (MSNA) and from single units with defined vasoconstrictor properties (s-MSNA).",
+      "The s-MSNA in NP (38+/-6.6 impulses/100 beats) was greater (P<0.05) than in NN women (19+/-1.8 impulses/100 beats) despite similar age and body weight but less than in PIH women (P<0.001) (146+/-23.5 impulses/100 beats).",
+      "MSNA followed a similar trend.",
+      "Cardiac baroreceptor reflex sensitivity (BRS) was impaired in NP and PIH women relative to NN.",
+      "After delivery, sympathetic activity decreased to values similar to those obtained in NN, and there was an increase in BRS.",
+      "In women with NP, the decrease in sympathetic output occurred despite an insignificant change in blood pressure.   \n",
+      "CONCLUSIONS Central sympathetic output was increased in women with normal pregnancy and was even greater in the hypertensive pregnant group.",
+      "The findings suggest that the moderate sympathetic hyperactivity during the latter months of normal pregnancy may help to return the arterial pressure to nonpregnant levels, although when the increase in activity is excessive, hypertension may ensue."
+     ],
+     "evidence_idx": [
+      4,
+      10
+     ]
+    },
+    {
+     "title": "Sympathetic baroreflex gain in normotensive pregnant women.",
+     "sentences": [
+      "Muscle sympathetic nerve activity is increased during normotensive pregnancy while mean arterial pressure is maintained or reduced, suggesting baroreflex resetting.",
+      "We hypothesized spontaneous sympathetic baroreflex gain would be reduced in normotensive pregnant women relative to nonpregnant matched controls.",
+      "Integrated muscle sympathetic burst incidence and total sympathetic activity (microneurography), blood pressure (Finometer), and R-R interval (ECG) were assessed at rest in 11 pregnant women (33 ± 1 wk gestation, 31 ± 1 yr, prepregnancy BMI: 23.5 ± 0.9 kg/m(2)) and 11 nonpregnant controls (29 ± 1 yr; BMI: 25.2 ± 1.7 kg/m(2)).",
+      "Pregnant women had elevated baseline sympathetic burst incidence (43 ± 2 vs. 33 ± 2 bursts/100 heart beats, P = 0.01) and total sympathetic activity (1,811 ± 148 vs. 1,140 ± 55 au, P < 0.01) relative to controls.",
+      "Both mean (88 ± 3 vs. 91 ± 2 mmHg, P = 0.4) and diastolic (DBP) (72 ± 3 vs. 73 ± 2 mmHg, P = 0.7) pressures were similar between pregnant and nonpregnant women, respectively, indicating an upward resetting of the baroreflex set point with pregnancy.",
+      "Baroreflex gain, calculated as the linear relationship between sympathetic burst incidence and DBP, was reduced in pregnant women relative to controls (-3.7 ± 0.5 vs. -5.4 ± 0.5 bursts·100 heart beats(-1)·mmHg(-1), P = 0.03), as was baroreflex gain calculated with total sympathetic activity (-294 ± 24 vs. -210 ± 24 au·100 heart beats(-1)·mmHg(-1); P = 0.03).",
+      "Cardiovagal baroreflex gain (sequence method) was not different between nonpregnant controls and pregnant women (49 ± 8 vs. 36 ± 8 ms/mmHg; P = 0.2).",
+      "However, sympathetic (burst incidence) and cardiovagal gains were negatively correlated in pregnant women (R = -0.7; P = 0.02).",
+      "Together, these data indicate that the influence of the sympathetic nervous system over arterial blood pressure is reduced in normotensive pregnancy, in terms of both long-term and beat-to-beat regulation of arterial pressure, likely through a baroreceptor-dependent mechanism."
+     ],
+     "evidence_idx": [
+      0,
+      3
+     ]
+    },
+    {
+     "title": "Regulation of sympathetic nerve activity during the cold pressor test in normotensive pregnant and nonpregnant women.",
+     "sentences": [
+      "Baseline neurovascular transduction is reduced in normotensive pregnancy; however, little is known about changes to neurovascular transduction during periods of heightened sympathetic activation.",
+      "We tested the hypothesis that, despite an exacerbated muscle sympathetic nerve activity (microneurography) response to cold pressor stimulation, the blunting of neurovascular transduction in normotensive pregnant women would result in similar changes in vascular resistance and mean arterial pressure (Finometer) relative to nonpregnant controls.",
+      "Baseline neurovascular transduction was reduced in pregnant women relative to controls when expressed as the quotient of both total resistance and mean arterial pressure and sympathetic burst frequency (0.32±0.07 versus 0.58±0.16 mm Hg/L/min/bursts/min, P<0.001 and 2.4±0.7 versus 3.6±0.8 mm Hg/bursts/min, P=0.001).",
+      "Sympathetic activation was greater across all 3 minutes of cold pressor stimulation in the pregnant women relative to the nonpregnant controls.",
+      "Peak sympathoexcitation was also greater in pregnant than in nonpregnant women, whether expressed as sympathetic burst frequency (+17±13 versus +7±8 bursts/min, P=0.049), burst incidence (+17±9 versus +6±11 bursts/100 hb, P=0.03), or total activity (+950±660 versus +363±414 arbitrary units, P=0.04).",
+      "However, neurovascular transduction during peak cold pressor-induced sympathoexcitation remained blunted in pregnant women (0.25±0.11 versus 0.45±0.08 mm Hg/L/min/bursts/min, P<0.001 and 1.9±1.0 versus 3.2±0.9 mm Hg/bursts/min, P=0.006).",
+      "Therefore, mean arterial pressure (93±21 versus 99±6 mm Hg, P=0.4) and total peripheral resistance (12±3 versus 14±3 mm Hg/L/min) were not different between pregnant and nonpregnant women during peak sympathoexcitation.",
+      "These data indicate that the third trimester of normotensive pregnancy is associated with reductions in neurovascular transduction, which result in the dissociation of sympathetic outflow from hemodynamic outcomes, even during cold pressor-induced sympathoexcitation."
+     ],
+     "evidence_idx": [
+      3,
+      4
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "validation-130",
+  "text": "Articles published in open access format are more likely to be cited than traditional journals.",
+  "label": true,
+  "meta": {
+   "split": "validation",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Open Access Increases Citation Rate",
+     "sentences": [
+      "PLoS Biology publishes today a research article by Gunther Eysenbach that is not about biology.",
+      "It is about citations.",
+      "It provides robust evidence that open-access articles (OA articles) are more immediately recognized and cited than non-OA articles.",
+      "As such, it adds objective support to the belief we have always held that open-access publication speeds up scientific dialog between researchers and, consequently, should be extended to the whole scientific literature as quickly as possible.",
+      "It is therefore fitting that we publish such a paper.    ",
+      "We have long argued that papers freely available in a journal will be more often read and cited than those behind a subscription barrier.",
+      "However, solid evidence to support or refute such a claim has been surprisingly hard to find.",
+      "Since most open-access journals are new, comparisons of the effects of open access with established subscription-based journals are easily confounded by age and reputation.",
+      "In the current study, Eysenbach compared citations compiled by Thomson Scientific (formerly Thomson ISI) to individual articles published between June 2004 and December 2004 in the same journal—namely, Proceedings of the National Academy of Sciences (PNAS), which announced its open-access option for authors on June 8 of that year, with an associated publication charge of US$1,000.",
+      "Non-OA articles in PNAS are subject to a six-month “toll-access” delay before the article becomes publicly available.",
+      "The results of this natural experiment are clear: in the 4 to 16 months following publication, OA articles gained a significant citation advantage over non-OA articles during the same period.",
+      "They are twice as likely to be cited 4 to 10 months after publication and almost three times as likely between 10 and 16 months.",
+      "Given that PNAS delays open access for only six months, the disparity between OA and non-OA articles in journals where the delay is longer or where articles remain “toll-access” is likely to be even greater.    ",
+      "Eysenbach also looked at the impact of self-archiving non-OA articles.",
+      "One route to open access, it is argued, is for authors to archive their published articles on their own Web sites or in institutional repositories, although this does not include an explicit business model to cover the cost of peer-review and publishing.",
+      "The analysis revealed that self-archived articles are also cited less often than OA articles from the same journal.    ",
+      "Yes, you're right; we do have a strong and vested interest in publishing results that so obviously endorse our existence.",
+      "Moreover, the author of the article is also an editor of an open-access journal.",
+      "But sometimes a potential conflict of interest can actually help to ensure rigor.",
+      "In this case, we have an acute interest in ensuring that the article meets the same, if not higher, standards as any other research article we publish.",
+      "Not only must the conclusions provide a significant advance for the field, but the study must be technically sound, with appropriate evidence to support those conclusions.",
+      "As with all our research articles, we consulted throughout the evaluation process with an academic editor with appropriate expertise—in this case, Carol Tenopir, professor of information sciences at the University of Tennessee (Knoxville, Tennessee, United States).",
+      "The article was reviewed by two experts in bibliometric analyses and information science, and an experienced research biologist with expertise in statistics.",
+      "They all enthusiastically supported publication, although one understandably questioned the suitability of PLoS Biology as the publication venue.    ",
+      "We have no intention of making PLoS Biology a regular home for bibliometric studies (even when about open access).",
+      "What makes this study worth publishing in PLoS Biology is not only the relative strength of evidence supporting the claim but also the extent to which many (especially other publishers) have anticipated such an analysis.",
+      "As far as we are aware, no other study has compared OA and non-OA articles from the same journal and controlled for so many potentially confounding factors.",
+      "Eysenbach's multivariate analysis took into account the number of days since publication, number of authors, article type, country of the corresponding author, funding type, subject area, submission track ( PNAS has three different ways that authors can submit a paper), and the previous citation record of the first and last authors.",
+      "He even administered a supplementary questionnaire to assess whether authors choosing the OA option in PNAS chose to do so for only their most important research (they didn't).",
+      "As Ian Rowlands from the Centre for Publishing at University College London—and one of the reviewers who agreed to be identified in this article—said at the start of his review:          “Many (most) of the papers and presentations I have read/seen on this topic have completely failed to address the kinds of confounding issues that are so convincingly tackled here.",
+      "For that reason alone, this paper deserves to be published and alerted to the widest possible audience.",
+      "”          In addition to providing evidence for the immediate advantage of open access, Eysenbach's analysis also highlights several potential challenges to its long-term future.",
+      "Although a limited dataset, the citation history of the first and last authors differed between those who chose the open-access option and those who did not.",
+      "In the group that chose open access, last authors tended to have a “stronger” previous citation record, whereas this situation was reversed among the group that declined the open-access option—here, it was the first authors who tended to be stronger.",
+      "This may reflect varying attitudes of authors at different stages of their career, a stronger influence from the leader of a particular group, or an age- or career-related difference in the ability to pay the publication charge (e.g., [ 1]).",
+      "Indeed, access to appropriate funds may also be a reason why a lower proportion of authors from European countries tended to choose the open-access option.",
+      "In many of these countries, funds for page charges—and, by extension, open-access publication fees—are often not included within research grants.    ",
+      "PNAS was one of the first journals to offer an open-access option to its authors.",
+      "However, such hybrid journals are increasing: Blackwell, Springer, and Oxford University Press now provide this option as well.",
+      "This means that similar experiments can be replicated.",
+      "Moreover, although the evidence from the current analysis argues most strongly for a time advantage in citation for OA articles, a study over longer periods will reveal whether this translates into a sustained increase in the number of citations.",
+      "In the meantime, open-access advocates should be emboldened by tangible evidence for what has seemed obvious all along."
+     ],
+     "evidence_idx": [
+      2,
+      10,
+      11,
+      40
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-643",
+  "text": "Insulin effects appetite via ventral tegmental neurons.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Role for insulin signaling in catecholaminergic neurons in control of energy homeostasis.",
+     "sentences": [
+      "Dopaminergic midbrain neurons integrate signals on food palatability and food-associated reward into the complex control of energy homeostasis.",
+      "To define the role of insulin receptor (IR) signaling in this circuitry, we inactivated IR signaling in tyrosine hydroxylase (Th)-expressing cells of mice (IR(ΔTh)).",
+      "IR inactivation in Th-expressing cells of mice resulted in increased body weight, increased fat mass, and hyperphagia.",
+      "While insulin acutely stimulated firing frequency in 50% of dopaminergic VTA/SN neurons, this response was abolished in IR(ΔTh) mice.",
+      "Moreover, these mice exhibited an altered response to cocaine under food-restricted conditions.",
+      "Taken together, these data provide in vivo evidence for a critical role of insulin signaling in catecholaminergic neurons to control food intake and energy homeostasis."
+     ],
+     "evidence_idx": [
+      3,
+      5
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-953",
+  "text": "Pioglitazone use is significantly associated with an increased risk of pancreatic cancer.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Pioglitazone Use and Risk of Bladder Cancer and Other Common Cancers in Persons With Diabetes.",
+     "sentences": [
+      "IMPORTANCE Studies suggest pioglitazone use may increase risk of cancers.   \n",
+      "OBJECTIVE To examine whether pioglitazone use for diabetes is associated with risk of bladder and 10 additional cancers.   \n",
+      "DESIGN, SETTING, AND PARTICIPANTS Cohort and nested case-control analyses among persons with diabetes.",
+      "A bladder cancer cohort followed 193,099 persons aged 40 years or older in 1997-2002 until December 2012; 464 case patients and 464 matched controls were surveyed about additional confounders.",
+      "A cohort analysis of 10 additional cancers included 236,507 persons aged 40 years or older in 1997-2005 and followed until June 2012.",
+      "Cohorts were from Kaiser Permanente Northern California.   ",
+      "EXPOSURES Ever use, duration, cumulative dose, and time since initiation of pioglitazone as time dependent.   \n",
+      "MAIN OUTCOMES AND MEASURES Incident cancer, including bladder, prostate, female breast, lung/bronchus, endometrial, colon, non-Hodgkin lymphoma, pancreas, kidney/renal pelvis, rectum, and melanoma.   \n",
+      "RESULTS Among 193,099 persons in the bladder cancer cohort, 34,181 (18%) received pioglitazone (median duration, 2.8 years; range, 0.2-13.2 years) and 1261 had incident bladder cancer.",
+      "Crude incidences of bladder cancer in pioglitazone users and nonusers were 89.8 and 75.9 per 100,000 person-years, respectively.",
+      "Ever use of pioglitazone was not associated with bladder cancer risk (adjusted hazard ratio [HR], 1.06; 95% CI, 0.89-1.26).",
+      "Results were similar in case-control analyses (pioglitazone use: 19.6% among case patients and 17.5% among controls; adjusted odds ratio, 1.18; 95% CI, 0.78-1.80).",
+      "In adjusted analyses, there was no association with 8 of the 10 additional cancers; ever use of pioglitazone was associated with increased risk of prostate cancer (HR, 1.13; 95% CI, 1.02-1.26) and pancreatic cancer (HR, 1.41; 95% CI, 1.16-1.71).",
+      "Crude incidences of prostate and pancreatic cancer in pioglitazone users vs nonusers were 453.3 vs 449.3 and 81.1 vs 48.4 per 100,000 person-years, respectively.",
+      "No clear patterns of risk for any cancer were observed for time since initiation, duration, or dose.   \n",
+      "CONCLUSIONS AND RELEVANCE Pioglitazone use was not associated with a statistically significant increased risk of bladder cancer, although an increased risk, as previously observed, could not be excluded.",
+      "The increased prostate and pancreatic cancer risks associated with ever use of pioglitazone merit further investigation to assess whether they are causal or are due to chance, residual confounding, or reverse causality."
+     ],
+     "evidence_idx": [
+      12,
+      13,
+      16
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-267",
+  "text": "Cognitive behavioral therapy is an ineffective treatment for insomnia",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT",
+   "evidence": [
+    {
+     "title": "Cognitive behavioral therapy vs zopiclone for treatment of chronic primary insomnia in older adults: a randomized controlled trial.",
+     "sentences": [
+      "CONTEXT Insomnia is a common condition in older adults and is associated with a number of adverse medical, social, and psychological consequences.",
+      "Previous research has suggested beneficial outcomes of both psychological and pharmacological treatments, but blinded placebo-controlled trials comparing the effects of these treatments are lacking.   \n",
+      "OBJECTIVE To examine short- and long-term clinical efficacy of cognitive behavioral therapy (CBT) and pharmacological treatment in older adults experiencing chronic primary insomnia.   \n",
+      "DESIGN, SETTING, AND PARTICIPANTS A randomized, double-blinded, placebo-controlled trial of 46 adults (mean age, 60.8 y; 22 women) with chronic primary insomnia conducted between January 2004 and December 2005 in a single Norwegian university-based outpatient clinic for adults and elderly patients.   \n",
+      "INTERVENTION CBT (sleep hygiene, sleep restriction, stimulus control, cognitive therapy, and relaxation; n = 18), sleep medication (7.5-mg zopiclone each night; n = 16), or placebo medication (n = 12).",
+      "All treatment duration was 6 weeks, and the 2 active treatments were followed up at 6 months.   \n",
+      "MAIN OUTCOME MEASURES Ambulant clinical polysomnographic data and sleep diaries were used to determine total wake time, total sleep time, sleep efficiency, and slow-wave sleep (only assessed using polysomnography) on all 3 assessment points.   \n",
+      "RESULTS CBT resulted in improved short- and long-term outcomes compared with zopiclone on 3 out of 4 outcome measures.",
+      "For most outcomes, zopiclone did not differ from placebo.",
+      "Participants receiving CBT improved their sleep efficiency from 81.4% at pretreatment to 90.1% at 6-month follow-up compared with a decrease from 82.3% to 81.9% in the zopiclone group.",
+      "Participants in the CBT group spent much more time in slow-wave sleep (stages 3 and 4) compared with those in other groups, and spent less time awake during the night.",
+      "Total sleep time was similar in all 3 groups; at 6 months, patients receiving CBT had better sleep efficiency using polysomnography than those taking zopiclone.   \n",
+      "CONCLUSION These results suggest that interventions based on CBT are superior to zopiclone treatment both in short- and long-term management of insomnia in older adults.   \n",
+      "TRIAL REGISTRATION clinicaltrials.gov Identifier: NCT00295386."
+     ],
+     "evidence_idx": [
+      7,
+      9,
+      10,
+      12
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-1181",
+  "text": "The RANK-RANK-Ligand (RANKL) pathway is involved in the development of Aire-expressing medullary thymic epithelial cells (mTECs).",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Rank Signaling Links the Development of Invariant γδ T Cell Progenitors and Aire+ Medullary Epithelium",
+     "sentences": [
+      "The thymic medulla provides a specialized microenvironment for the negative selection of T cells, with the presence of autoimmune regulator (Aire)-expressing medullary thymic epithelial cells (mTECs) during the embryonic-neonatal period being both necessary and sufficient to establish long-lasting tolerance.",
+      "Here we showed that emergence of the first cohorts of Aire(+) mTECs at this key developmental stage, prior to αβ T cell repertoire selection, was jointly directed by Rankl(+) lymphoid tissue inducer cells and invariant Vγ5(+) dendritic epidermal T cell (DETC) progenitors that are the first thymocytes to express the products of gene rearrangement.",
+      "In turn, generation of Aire(+) mTECs then fostered Skint-1-dependent, but Aire-independent, DETC progenitor maturation and the emergence of an invariant DETC repertoire.",
+      "Hence, our data attributed a functional importance to the temporal development of Vγ5(+) γδ T cells during thymus medulla formation for αβ T cell tolerance induction and demonstrated a Rank-mediated reciprocal link between DETC and Aire(+) mTEC maturation."
+     ],
+     "evidence_idx": [
+      1,
+      3
+     ]
+    },
+    {
+     "title": "The tumor necrosis factor family receptors RANK and CD40 cooperatively establish the thymic medullary microenvironment and self-tolerance.",
+     "sentences": [
+      "Medullary thymic epithelial cells (mTECs) establish T cell self-tolerance through the expression of autoimmune regulator (Aire) and peripheral tissue-specific self-antigens.",
+      "However, signals underlying mTEC development remain largely unclear.",
+      "Here, we demonstrate crucial regulation of mTEC development by receptor activator of NF-kappaB (RANK) and CD40 signals.",
+      "Whereas only RANK signaling was essential for mTEC development during embryogenesis, in postnatal mice, cooperation between CD40 and RANK signals was required for mTEC development to successfully establish the medullary microenvironment.",
+      "Ligation of RANK or CD40 on fetal thymic stroma in vitro induced mTEC development in a tumor necrosis factor-associated factor 6 (TRAF6)-, NF-kappaB inducing kinase (NIK)-, and IkappaB kinase beta (IKKbeta)-dependent manner.",
+      "These results show that developmental-stage-dependent cooperation between RANK and CD40 promotes mTEC development, thereby establishing self-tolerance."
+     ],
+     "evidence_idx": [
+      2,
+      3,
+      4,
+      5
+     ]
+    },
+    {
+     "title": "The cytokine RANKL produced by positively selected thymocytes fosters medullary thymic epithelial cells that express autoimmune regulator.",
+     "sentences": [
+      "The thymic medulla provides a microenvironment where medullary thymic epithelial cells (mTECs) express autoimmune regulator and diverse tissue-restricted genes, contributing to launching self-tolerance.",
+      "Positive selection is essential for thymic medulla formation via a previously unknown mechanism.",
+      "Here we show that the cytokine RANK ligand (RANKL) was produced by positively selected thymocytes and regulated the cellularity of mTEC by interacting with RANK and osteoprotegerin.",
+      "Forced expression of RANKL restored thymic medulla in mice lacking positive selection, whereas RANKL perturbation impaired medulla formation.",
+      "These results indicate that RANKL produced by positively selected thymocytes is responsible for fostering thymic medulla formation, thereby establishing central tolerance."
+     ],
+     "evidence_idx": [
+      2
+     ]
+    },
+    {
+     "title": "RANK signals from CD4+3− inducer cells regulate development of Aire-expressing epithelial cells in the thymic medulla",
+     "sentences": [
+      "Aire-expressing medullary thymic epithelial cells (mTECs) play a key role in preventing autoimmunity by expressing tissue-restricted antigens to help purge the emerging T cell receptor repertoire of self-reactive specificities.",
+      "Here we demonstrate a novel role for a CD4+3− inducer cell population, previously linked to development of organized secondary lymphoid structures and maintenance of T cell memory in the functional regulation of Aire-mediated promiscuous gene expression in the thymus.",
+      "CD4+3− cells are closely associated with mTECs in adult thymus, and in fetal thymus their appearance is temporally linked with the appearance of Aire+ mTECs.",
+      "We show that RANKL signals from this cell promote the maturation of RANK-expressing CD80−Aire− mTEC progenitors into CD80+Aire+ mTECs, and that transplantation of RANK-deficient thymic stroma into immunodeficient hosts induces autoimmunity.",
+      "Collectively, our data reveal cellular and molecular mechanisms leading to the generation of Aire+ mTECs and highlight a previously unrecognized role for CD4+3−RANKL+ inducer cells in intrathymic self-tolerance."
+     ],
+     "evidence_idx": [
+      3,
+      4
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-825",
+  "text": "N348I mutations reduce resistance to nevirapine.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT",
+   "evidence": [
+    {
+     "title": "N348I in the Connection Domain of HIV-1 Reverse Transcriptase Confers Zidovudine and Nevirapine Resistance",
+     "sentences": [
+      "Background The catalytically active 66-kDa subunit of the human immunodeficiency virus type 1 (HIV-1) reverse transcriptase (RT) consists of DNA polymerase, connection, and ribonuclease H (RNase H) domains.",
+      "Almost all known RT inhibitor resistance mutations identified to date map to the polymerase domain of the enzyme.",
+      "However, the connection and RNase H domains are not routinely analysed in clinical samples and none of the genotyping assays available for patient management sequence the entire RT coding region.",
+      "The British Columbia Centre for Excellence in HIV/AIDS (the Centre) genotypes clinical isolates up to codon 400 in RT, and our retrospective statistical analyses of the Centre’s database have identified an N348I mutation in the RT connection domain in treatment-experienced individuals.",
+      "The objective of this multidisciplinary study was to establish the in vivo relevance of this mutation and its role in drug resistance.",
+      "Methods and Findings The prevalence of N348I in clinical isolates, the time taken for it to emerge under selective drug pressure, and its association with changes in viral load, specific drug treatment, and known drug resistance mutations was analysed from genotypes, viral loads, and treatment histories from the Centre’s database.",
+      "N348I increased in prevalence from below 1% in 368 treatmentnao ¨ve individuals to 12.1% in 1,009 treatment-experienced patients (p ¼ 7.7 3 10 � 12 ).",
+      "N348I appeared early in therapy and was highly associated with thymidine analogue mutations (TAMs) M41L and T215Y/F (p , 0.001), the lamivudine resistance mutations M184V/I (p , 0.001), and non-nucleoside RTI (NNRTI) resistance mutations K103N and Y181C/I (p , 0.001).",
+      "The association with TAMs and NNRTI resistance mutations was consistent with the selection of N348I in patients treated with regimens that included both zidovudine and nevirapine (odds ratio 2.62, 95% confidence interval 1.43–4.81).",
+      "The appearance of N348I was associated with a significant increase in viral load (p , 0.001), which was as large as the viral load increases observed for any of the TAMs.",
+      "However, this analysis did not account for the simultaneous selection of other RT or protease inhibitor resistance mutations on viral load.",
+      "To delineate the role of this mutation in RT inhibitor resistance, N348I was introduced into HIV-1 molecular clones containing different genetic backbones.",
+      "N348I decreased zidovudine susceptibility 2- to 4-fold in the context of wildtype HIV-1 or when combined with TAMs.",
+      "N348I also decreased susceptibility to nevirapine (7.4fold) and efavirenz (2.5-fold) and significantly potentiated resistance to these drugs when combined with K103N.",
+      "Biochemical analyses of recombinant RT containing N348I provide supporting evidence for the role of this mutation in zidovudine and NNRTI resistance and give some insight into the molecular mechanism of resistance.",
+      "Conclusions"
+     ],
+     "evidence_idx": [
+      13
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "validation-219",
+  "text": "CX3CR1 on the Th2 cells suppresses airway inflammation.",
+  "label": false,
+  "meta": {
+   "split": "validation",
+   "gold": "CONTRADICT",
+   "evidence": [
+    {
+     "title": "CX3CR1 is required for airway inflammation by promoting T helper cell survival and maintenance in inflamed lung",
+     "sentences": [
+      "Allergic asthma is a T helper type 2 (T(H)2)-dominated disease of the lung.",
+      "In people with asthma, a fraction of CD4(+) T cells express the CX3CL1 receptor, CX3CR1, and CX3CL1 expression is increased in airway smooth muscle, lung endothelium and epithelium upon allergen challenge.",
+      "Here we found that untreated CX3CR1-deficient mice or wild-type (WT) mice treated with CX3CR1-blocking reagents show reduced lung disease upon allergen sensitization and challenge.",
+      "Transfer of WT CD4(+) T cells into CX3CR1-deficient mice restored the cardinal features of asthma, and CX3CR1-blocking reagents prevented airway inflammation in CX3CR1-deficient recipients injected with WT T(H)2 cells.",
+      "We found that CX3CR1 signaling promoted T(H)2 survival in the inflamed lungs, and injection of B cell leukemia/lymphoma-2 protein (BCl-2)-transduced CX3CR1-deficient T(H)2 cells into CX3CR1-deficient mice restored asthma.",
+      "CX3CR1-induced survival was also observed for T(H)1 cells upon airway inflammation but not under homeostatic conditions or upon peripheral inflammation.",
+      "Therefore, CX3CR1 and CX3CL1 may represent attractive therapeutic targets in asthma."
+     ],
+     "evidence_idx": [
+      2,
+      3
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "validation-578",
+  "text": "In mouse models, the loss of CSF1R facilitates MOZ-TIF2-induced leuekmogenesis.",
+  "label": false,
+  "meta": {
+   "split": "validation",
+   "gold": "CONTRADICT",
+   "evidence": [
+    {
+     "title": "PU.1-mediated upregulation of CSF1R is crucial for leukemia stem cell potential induced by MOZ-TIF2",
+     "sentences": [
+      "Leukemias and other cancers possess self-renewing stem cells that help to maintain the cancer.",
+      "Cancer stem cell eradication is thought to be crucial for successful anticancer therapy.",
+      "Using an acute myeloid leukemia (AML) model induced by the leukemia-associated monocytic leukemia zinc finger (MOZ)-TIF2 fusion protein, we show here that AML can be cured by the ablation of leukemia stem cells.",
+      "The MOZ fusion proteins MOZ-TIF2 and MOZ-CBP interacted with the transcription factor PU.1 to stimulate the expression of macrophage colony–stimulating factor receptor (CSF1R, also known as M-CSFR, c-FMS or CD115).",
+      "Studies using PU.1-deficient mice showed that PU.1 is essential for the ability of MOZ-TIF2 to establish and maintain AML stem cells.",
+      "Cells expressing high amounts of CSF1R (CSF1Rhigh cells), but not those expressing low amounts of CSF1R (CSF1Rlow cells), showed potent leukemia-initiating activity.",
+      "Using transgenic mice expressing a drug-inducible suicide gene controlled by the CSF1R promoter, we cured AML by ablation of CSF1Rhigh cells.",
+      "Moreover, induction of AML was suppressed in CSF1R-deficient mice and CSF1R inhibitors slowed the progression of MOZ-TIF2–induced leukemia.",
+      "Thus, in this subtype of AML, leukemia stem cells are contained within the CSF1Rhigh cell population, and we suggest that targeting of PU.1-mediated upregulation of CSF1R expression might be a useful therapeutic approach."
+     ],
+     "evidence_idx": [
+      5,
+      7,
+      8
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "validation-436",
+  "text": "Free histones are degraded by a Rad53-dependent mechanism once DNA has been replicated.",
+  "label": true,
+  "meta": {
+   "split": "validation",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Histone levels are regulated by phosphorylation and ubiquitylation dependent proteolysis",
+     "sentences": [
+      "Histone levels are tightly regulated to prevent harmful effects such as genomic instability and hypersensitivity to DNA-damaging agents due to the accumulation of these highly basic proteins when DNA replication slows down or stops.",
+      "Although chromosomal histones are stable, excess (non-chromatin bound) histones are rapidly degraded in a Rad53 (radiation sensitive 53) kinase-dependent manner in Saccharomyces cerevisiae.",
+      "Here we demonstrate that excess histones associate with Rad53 in vivo and seem to undergo modifications such as tyrosine phosphorylation and polyubiquitylation, before their proteolysis by the proteasome.",
+      "We have identified the Tyr 99 residue of histone H3 as being critical for the efficient ubiquitylation and degradation of this histone.",
+      "We have also identified the ubiquitin conjugating enzymes (E2) Ubc4 and Ubc5, as well as the ubiquitin ligase (E3) Tom1 (temperature dependent organization in mitotic nucleus 1), as enzymes involved in the ubiquitylation of excess histones.",
+      "Regulated histone proteolysis has major implications for the maintenance of epigenetic marks on chromatin, genomic stability and the packaging of sperm DNA."
+     ],
+     "evidence_idx": [
+      1,
+      2
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "validation-1140",
+  "text": "Taking 400mg of α-tocopheryl acetate helps to prevent prostate cancer.",
+  "label": false,
+  "meta": {
+   "split": "validation",
+   "gold": "CONTRADICT",
+   "evidence": [
+    {
+     "title": "Vitamins E and C in the prevention of prostate and total cancer in men: the Physicians' Health Study II randomized controlled trial.",
+     "sentences": [
+      "CONTEXT Many individuals take vitamins in the hopes of preventing chronic diseases such as cancer, and vitamins E and C are among the most common individual supplements.",
+      "A large-scale randomized trial suggested that vitamin E may reduce risk of prostate cancer; however, few trials have been powered to address this relationship.",
+      "No previous trial in men at usual risk has examined vitamin C alone in the prevention of cancer.   \n",
+      "OBJECTIVE To evaluate whether long-term vitamin E or C supplementation decreases risk of prostate and total cancer events among men.   \n",
+      "DESIGN, SETTING, AND PARTICIPANTS The Physicians' Health Study II is a randomized, double-blind, placebo-controlled factorial trial of vitamins E and C that began in 1997 and continued until its scheduled completion on August 31, 2007.",
+      "A total of 14,641 male physicians in the United States initially aged 50 years or older, including 1307 men with a history of prior cancer at randomization, were enrolled.   \n",
+      "INTERVENTION Individual supplements of 400 IU of vitamin E every other day and 500 mg of vitamin C daily.   \n",
+      "MAIN OUTCOME MEASURES Prostate and total cancer.   \n",
+      "RESULTS During a mean follow-up of 8.0 years, there were 1008 confirmed incident cases of prostate cancer and 1943 total cancers.",
+      "Compared with placebo, vitamin E had no effect on the incidence of prostate cancer (active and placebo vitamin E groups, 9.1 and 9.5 events per 1000 person-years; hazard ratio [HR], 0.97; 95% confidence interval [CI], 0.85-1.09; P = .58) or total cancer (active and placebo vitamin E groups, 17.8 and 17.3 cases per 1000 person-years; HR, 1.04; 95% CI, 0.95-1.13; P = .41).",
+      "There was also no significant effect of vitamin C on total cancer (active and placebo vitamin C groups, 17.6 and 17.5 events per 1000 person-years; HR, 1.01; 95% CI, 0.92-1.10; P = .86) or prostate cancer (active and placebo vitamin C groups, 9.4 and 9.2 cases per 1000 person-years; HR, 1.02; 95% CI, 0.90-1.15; P = .80).",
+      "Neither vitamin E nor vitamin C had a significant effect on colorectal, lung, or other site-specific cancers.",
+      "Adjustment for adherence and exclusion of the first 4 or 6 years of follow-up did not alter the results.",
+      "Stratification by various cancer risk factors demonstrated no significant modification of the effect of vitamin E on prostate cancer risk or either agent on total cancer risk.   \n",
+      "CONCLUSIONS In this large, long-term trial of male physicians, neither vitamin E nor C supplementation reduced the risk of prostate or total cancer.",
+      "These data provide no support for the use of these supplements for the prevention of cancer in middle-aged and older men.   \n",
+      "TRIAL REGISTRATION clinicaltrials.gov Identifier: NCT00270647."
+     ],
+     "evidence_idx": [
+      9,
+      14
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-797",
+  "text": "Mitochondria play a major role in energy production.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Mitochondria: Dynamic Organelles in Disease, Aging, and Development",
+     "sentences": [
+      "Mitochondria are the primary energy-generating system in most eukaryotic cells.",
+      "Additionally, they participate in intermediary metabolism, calcium signaling, and apoptosis.",
+      "Given these well-established functions, it might be expected that mitochondrial dysfunction would give rise to a simple and predictable set of defects in all tissues.",
+      "However, mitochondrial dysfunction has pleiotropic effects in multicellular organisms.",
+      "Clearly, much about the basic biology of mitochondria remains to be understood.",
+      "Here we discuss recent work that suggests that the dynamics (fusion and fission) of these organelles is important in development and disease."
+     ],
+     "evidence_idx": [
+      0
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-280",
+  "text": "Comparative transcriptome analysis identified new platelet proteins with structural features suggesting a role in platelet function.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Comparative gene expression profiling of in vitro differentiated megakaryocytes and erythroblasts identifies novel activatory and inhibitory platelet membrane proteins.",
+     "sentences": [
+      "To identify previously unknown platelet receptors we compared the transcriptomes of in vitro differentiated megakaryocytes (MKs) and erythroblasts (EBs).",
+      "RNA was obtained from purified, biologically paired MK and EB cultures and compared using cDNA microarrays.",
+      "Bioinformatical analysis of MK-up-regulated genes identified 151 transcripts encoding transmembrane domain-containing proteins.",
+      "Although many of these were known platelet genes, a number of previously unidentified or poorly characterized transcripts were also detected.",
+      "Many of these transcripts, including G6b, G6f, LRRC32, LAT2, and the G protein-coupled receptor SUCNR1, encode proteins with structural features or functions that suggest they may be involved in the modulation of platelet function.",
+      "Immunoblotting on platelets confirmed the presence of the encoded proteins, and flow cytometric analysis confirmed the expression of G6b, G6f, and LRRC32 on the surface of platelets.",
+      "Through comparative analysis of expression in platelets and other blood cells we demonstrated that G6b, G6f, and LRRC32 are restricted to the platelet lineage, whereas LAT2 and SUCNR1 were also detected in other blood cells.",
+      "The identification of the succinate receptor SUCNR1 in platelets is of particular interest, because physiologically relevant concentrations of succinate were shown to potentiate the effect of low doses of a variety of platelet agonists."
+     ],
+     "evidence_idx": [
+      6,
+      7
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-305",
+  "text": "DRD1 proteins enable Pol V transcription in vivo.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT",
+   "evidence": [
+    {
+     "title": "Noncoding Transcription by RNA Polymerase Pol IVb/Pol V Mediates Transcriptional Silencing of Overlapping and Adjacent Genes",
+     "sentences": [
+      "Nuclear transcription is not restricted to genes but occurs throughout the intergenic and noncoding space of eukaryotic genomes.",
+      "The functional significance of this widespread noncoding transcription is mostly unknown.",
+      "We show that Arabidopsis RNA polymerase IVb/Pol V, a multisubunit nuclear enzyme required for siRNA-mediated gene silencing of transposons and other repeats, transcribes intergenic and noncoding sequences, thereby facilitating heterochromatin formation and silencing of overlapping and adjacent genes.",
+      "Pol IVb/Pol V transcription requires the chromatin-remodeling protein DRD1 but is independent of siRNA biogenesis.",
+      "However, Pol IVb/Pol V transcription and siRNA production are both required to silence transposons, suggesting that Pol IVb/Pol V generates RNAs or chromatin structures that serve as scaffolds for siRNA-mediated heterochromatin-forming complexes.",
+      "Pol IVb/Pol V function provides a solution to a paradox of epigenetic control: the need for transcription in order to transcriptionally silence the same region."
+     ],
+     "evidence_idx": [
+      3
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-290",
+  "text": "Cost effectiveness evaluations based on cRCT data accurately reflect prices for patients in actual clinical practice.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT",
+   "evidence": [
+    {
+     "title": "A Comparison of Cost Effectiveness Using Data from Randomized Trials or Actual Clinical Practice: Selective Cox-2 Inhibitors as an Example",
+     "sentences": [
+      "BACKGROUND Data on absolute risks of outcomes and patterns of drug use in cost-effectiveness analyses are often based on randomised clinical trials (RCTs).",
+      "The objective of this study was to evaluate the external validity of published cost-effectiveness studies by comparing the data used in these studies (typically based on RCTs) to observational data from actual clinical practice.",
+      "Selective Cox-2 inhibitors (coxibs) were used as an example.   \n",
+      "METHODS AND FINDINGS The UK General Practice Research Database (GPRD) was used to estimate the exposure characteristics and individual probabilities of upper gastrointestinal (GI) events during current exposure to nonsteroidal anti-inflammatory drugs (NSAIDs) or coxibs.",
+      "A basic cost-effectiveness model was developed evaluating two alternative strategies: prescription of a conventional NSAID or coxib.",
+      "Outcomes included upper GI events as recorded in GPRD and hospitalisation for upper GI events recorded in the national registry of hospitalisations (Hospital Episode Statistics) linked to GPRD.",
+      "Prescription costs were based on the prescribed number of tables as recorded in GPRD and the 2006 cost data from the British National Formulary.",
+      "The study population included over 1 million patients prescribed conventional NSAIDs or coxibs.",
+      "Only a minority of patients used the drugs long-term and daily (34.5% of conventional NSAIDs and 44.2% of coxibs), whereas coxib RCTs required daily use for at least 6-9 months.",
+      "The mean cost of preventing one upper GI event as recorded in GPRD was US$104k (ranging from US$64k with long-term daily use to US$182k with intermittent use) and US$298k for hospitalizations.",
+      "The mean costs (for GPRD events) over calendar time were US$58k during 1990-1993 and US$174k during 2002-2005.",
+      "Using RCT data rather than GPRD data for event probabilities, the mean cost was US$16k with the VIGOR RCT and US$20k with the CLASS RCT.   \n",
+      "CONCLUSIONS The published cost-effectiveness analyses of coxibs lacked external validity, did not represent patients in actual clinical practice, and should not have been used to inform prescribing policies.",
+      "External validity should be an explicit requirement for cost-effectiveness analyses."
+     ],
+     "evidence_idx": [
+      10,
+      11,
+      12
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-566",
+  "text": "In S. cerevisiae, the absence of RNA surveillance pathways reduces sensitivity to high iron conditions.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT",
+   "evidence": [
+    {
+     "title": "Multiple RNA surveillance pathways limit aberrant expression of iron uptake mRNAs and prevent iron toxicity in S. cerevisiae.",
+     "sentences": [
+      "Tight regulation of the expression of mRNAs encoding iron uptake proteins is essential to control iron homeostasis and avoid intracellular iron toxicity.",
+      "We show that many mRNAs encoding iron uptake or iron mobilization proteins are expressed in iron-replete conditions in the absence of the S. cerevisiae RNase III ortholog Rnt1p or of the nuclear exosome component Rrp6p.",
+      "Extended forms of these mRNAs accumulate in the absence of Rnt1p or of the 5'-->3' exonucleases Xrn1p and Rat1p, showing that multiple degradative pathways contribute to the surveillance of aberrant forms of these transcripts.",
+      "RNase III-deficient cells are hypersensitive to high iron concentrations, suggesting that Rnt1p-mediated RNA surveillance is required to prevent iron toxicity.",
+      "These results show that RNA surveillance through multiple ribonucleolytic pathways plays a role in iron homeostasis in yeast to avoid the potentially toxic effects of the expression of the iron starvation response in iron-replete conditions."
+     ],
+     "evidence_idx": [
+      1,
+      2,
+      3,
+      4
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "train-2",
+  "text": "1 in 5 million in UK have abnormal PrP positivity.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT",
+   "evidence": [
+    {
+     "title": "Prevalent abnormal prion protein in human appendixes after bovine spongiform encephalopathy epizootic: large scale survey",
+     "sentences": [
+      "OBJECTIVES To carry out a further survey of archived appendix samples to understand better the differences between existing estimates of the prevalence of subclinical infection with prions after the bovine spongiform encephalopathy epizootic and to see whether a broader birth cohort was affected, and to understand better the implications for the management of blood and blood products and for the handling of surgical instruments.   \n",
+      "DESIGN Irreversibly unlinked and anonymised large scale survey of archived appendix samples.   \n",
+      "SETTING Archived appendix samples from the pathology departments of 41 UK hospitals participating in the earlier survey, and additional hospitals in regions with lower levels of participation in that survey.   ",
+      "SAMPLE 32,441 archived appendix samples fixed in formalin and embedded in paraffin and tested for the presence of abnormal prion protein (PrP).   \n",
+      "RESULTS Of the 32,441 appendix samples 16 were positive for abnormal PrP, indicating an overall prevalence of 493 per million population (95% confidence interval 282 to 801 per million).",
+      "The prevalence in those born in 1941-60 (733 per million, 269 to 1596 per million) did not differ significantly from those born between 1961 and 1985 (412 per million, 198 to 758 per million) and was similar in both sexes and across the three broad geographical areas sampled.",
+      "Genetic testing of the positive specimens for the genotype at PRNP codon 129 revealed a high proportion that were valine homozygous compared with the frequency in the normal population, and in stark contrast with confirmed clinical cases of vCJD, all of which were methionine homozygous at PRNP codon 129.   \n",
+      "CONCLUSIONS This study corroborates previous studies and suggests a high prevalence of infection with abnormal PrP, indicating vCJD carrier status in the population compared with the 177 vCJD cases to date.",
+      "These findings have important implications for the management of blood and blood products and for the handling of surgical instruments."
+     ],
+     "evidence_idx": [
+      4
+     ]
+    }
+   ]
+  }
+ }
+]
