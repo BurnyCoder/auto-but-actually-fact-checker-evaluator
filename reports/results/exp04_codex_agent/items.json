@@ -1,0 +1,362 @@
+[
+ {
+  "id": "train-278",
+  "text": "Commelina yellow mottle virus' (ComYMV) genome consists of 2140 baise pairs.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "train-815",
+  "text": "Mutations in RIM1 decrease levels of IME1 RNA.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-853",
+  "text": "Nonhuman primates are incapable of producing neutralizing antibodies in reponse to the Eilat virus (EILV) produced in mosquitos.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "train-844",
+  "text": "Neutrophil extracellular trap (NET) antigens may contain the targeted autoantigens PR3 and MPO.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-119",
+  "text": "Antidepressants increase the severity of migraines.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "validation-148",
+  "text": "Autophagy declines in aged organisms.",
+  "label": true,
+  "meta": {
+   "split": "validation",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-531",
+  "text": "Human embryonic stem cells have the capacity to give rise to differentiated progeny representative of all three embryonic germ layers.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "validation-501",
+  "text": "Headaches are not correlated with cognitive impairment.",
+  "label": true,
+  "meta": {
+   "split": "validation",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-245",
+  "text": "Charcoal is an effective treatment for acute paraquat poisoning.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "validation-1232",
+  "text": "The minor G allele of FOXO3 is related to more severe symptoms of Crohn's Disease.",
+  "label": false,
+  "meta": {
+   "split": "validation",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "train-709",
+  "text": "Long chain polyunsaturated fatty acids supplementation is associated with lower rates of atopic eczema at 1 year.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-1159",
+  "text": "The DESMOND program demonstrates no significant impact on weight loss.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-590",
+  "text": "In young and middle-aged adults, current or remote uses of ADHD medications increase the risk of serious cardiovascular events.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "train-926",
+  "text": "Patients with common epithelial cancers  are more likely to have an emergency event as their first hospital admission if they live in resource-deprived areas.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-296",
+  "text": "Cyclin A2 destruction is necessary to switch from unstable to stable kt-mt attachments in mitosis.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-114",
+  "text": "Anthrax spores are very difficult to dispose once they are dispersed.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-779",
+  "text": "Mice lacking Sirt1 in Sf1-expressing neurons have increased susceptibility to diet-induced obesity and insulin resistance.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-1372",
+  "text": "Walking in traffic areas in London did not improve lung function in elderly adults.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-1170",
+  "text": "The NF-κB essential modulator gene induces intestinal inflammation by promoting receptor-interacting protein (RIP) kinase 1 kinase activity-mediated epithelial cell death.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "train-235",
+  "text": "Cell autonomous sex determination in somatic cells occurs in Galliformes.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-498",
+  "text": "Having a main partner worsens HIV outcomes.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "validation-1290",
+  "text": "There is an inverse relationship between hip fractures and statin use.",
+  "label": true,
+  "meta": {
+   "split": "validation",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-1157",
+  "text": "The DESMOND program demonstrates no significant impact on biochemical outcomes.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-1120",
+  "text": "Sympathetic nerve activity is reduced throughout normal pregnancy.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "validation-130",
+  "text": "Articles published in open access format are more likely to be cited than traditional journals.",
+  "label": true,
+  "meta": {
+   "split": "validation",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-643",
+  "text": "Insulin effects appetite via ventral tegmental neurons.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-953",
+  "text": "Pioglitazone use is significantly associated with an increased risk of pancreatic cancer.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-267",
+  "text": "Cognitive behavioral therapy is an ineffective treatment for insomnia",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "train-1181",
+  "text": "The RANK-RANK-Ligand (RANKL) pathway is involved in the development of Aire-expressing medullary thymic epithelial cells (mTECs).",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-825",
+  "text": "N348I mutations reduce resistance to nevirapine.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "validation-219",
+  "text": "CX3CR1 on the Th2 cells suppresses airway inflammation.",
+  "label": false,
+  "meta": {
+   "split": "validation",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "validation-578",
+  "text": "In mouse models, the loss of CSF1R facilitates MOZ-TIF2-induced leuekmogenesis.",
+  "label": false,
+  "meta": {
+   "split": "validation",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "validation-436",
+  "text": "Free histones are degraded by a Rad53-dependent mechanism once DNA has been replicated.",
+  "label": true,
+  "meta": {
+   "split": "validation",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "validation-1140",
+  "text": "Taking 400mg of α-tocopheryl acetate helps to prevent prostate cancer.",
+  "label": false,
+  "meta": {
+   "split": "validation",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "train-797",
+  "text": "Mitochondria play a major role in energy production.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-280",
+  "text": "Comparative transcriptome analysis identified new platelet proteins with structural features suggesting a role in platelet function.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-305",
+  "text": "DRD1 proteins enable Pol V transcription in vivo.",
+  "label": true,
+  "meta": {
+   "split": "train",
+   "gold": "SUPPORT"
+  }
+ },
+ {
+  "id": "train-290",
+  "text": "Cost effectiveness evaluations based on cRCT data accurately reflect prices for patients in actual clinical practice.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "train-566",
+  "text": "In S. cerevisiae, the absence of RNA surveillance pathways reduces sensitivity to high iron conditions.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT"
+  }
+ },
+ {
+  "id": "train-2",
+  "text": "1 in 5 million in UK have abnormal PrP positivity.",
+  "label": false,
+  "meta": {
+   "split": "train",
+   "gold": "CONTRADICT"
+  }
+ }
+]

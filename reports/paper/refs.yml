@@ -1,0 +1,83 @@
+scifact:
+  type: article
+  title: "Fact or Fiction: Verifying Scientific Claims"
+  author: ["Wadden, David", "Lin, Shanchuan", "Lo, Kyle", "Wang, Lucy Lu", "van Zuylen, Madeleine", "Cohan, Arman", "Hajishirzi, Hannaneh"]
+  date: 2020
+  parent: {type: proceedings, title: "EMNLP 2020"}
+  url: https://arxiv.org/abs/2004.14974
+safe:
+  type: article
+  title: "Long-form factuality in large language models"
+  author: ["Wei, Jerry", "Yang, Chengrun", "Song, Xinying", "others"]
+  date: 2024
+  parent: {type: proceedings, title: "NeurIPS 2024"}
+  url: https://arxiv.org/abs/2403.18802
+factscore:
+  type: article
+  title: "FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation"
+  author: ["Min, Sewon", "others"]
+  date: 2023
+  parent: {type: proceedings, title: "EMNLP 2023"}
+  url: https://arxiv.org/abs/2305.14251
+factool:
+  type: article
+  title: "FacTool: Factuality Detection in Generative AI -- A Tool Augmented Framework for Multi-Task and Multi-Domain Scenarios"
+  author: ["Chern, I-Chun", "others"]
+  date: 2023
+  url: https://arxiv.org/abs/2307.13528
+veriscore:
+  type: article
+  title: "VeriScore: Evaluating the factuality of verifiable claims in long-form text generation"
+  author: ["Song, Yixiao", "Kim, Yekyung", "Iyyer, Mohit"]
+  date: 2024
+  parent: {type: proceedings, title: "Findings of EMNLP 2024"}
+  url: https://arxiv.org/abs/2406.19276
+fire:
+  type: article
+  title: "FIRE: Fact-checking with Iterative Retrieval and Verification"
+  author: ["Xie, Zhuohan", "others"]
+  date: 2024
+  url: https://arxiv.org/abs/2411.00784
+claimify:
+  type: article
+  title: "Towards Effective Extraction and Evaluation of Factual Claims"
+  author: ["Metropolitansky, Dasha", "Larson, Jonathan"]
+  date: 2025
+  parent: {type: proceedings, title: "ACL 2025"}
+  url: https://arxiv.org/abs/2502.10855
+factcheckbench:
+  type: article
+  title: "Factcheck-Bench: Fine-Grained Evaluation Benchmark for Automatic Fact-checkers"
+  author: ["Wang, Yuxia", "others"]
+  date: 2023
+  url: https://arxiv.org/abs/2311.09000
+openfactcheck:
+  type: article
+  title: "OpenFactCheck: A Unified Framework for Factuality Evaluation of LLMs"
+  author: ["Wang, Yuxia", "others"]
+  date: 2024
+  url: https://arxiv.org/abs/2405.05583
+mcnemar:
+  type: article
+  title: "Note on the sampling error of the difference between correlated proportions or percentages"
+  author: ["McNemar, Quinn"]
+  date: 1947
+  parent: {type: periodical, title: "Psychometrika", volume: 12}
+dietterich:
+  type: article
+  title: "Approximate Statistical Tests for Comparing Supervised Classification Learning Algorithms"
+  author: ["Dietterich, Thomas G."]
+  date: 1998
+  parent: {type: periodical, title: "Neural Computation", volume: 10}
+bergkirkpatrick:
+  type: article
+  title: "An Empirical Investigation of Statistical Significance in NLP"
+  author: ["Berg-Kirkpatrick, Taylor", "Burkett, David", "Klein, Dan"]
+  date: 2012
+  parent: {type: proceedings, title: "EMNLP-CoNLL 2012"}
+connor:
+  type: article
+  title: "Sample size for testing differences in proportions for the paired-sample design"
+  author: ["Connor, Roger J."]
+  date: 1987
+  parent: {type: periodical, title: "Biometrics", volume: 43}
