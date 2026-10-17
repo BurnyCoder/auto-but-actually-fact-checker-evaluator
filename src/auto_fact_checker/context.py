@@ -26,6 +26,7 @@ class Cancelled(RuntimeError):
 _HANDLERS: dict[str, list] = {}  # run_id -> [handler, refcount]; one run.log handler however many contexts
 _H_LOCK = threading.Lock()
 CANCEL: dict[str, threading.Event] = {}  # run_id -> Stop flag shared by all contexts of the run
+_COUNTERS: dict[str, itertools.count] = {}  # run_id -> call numbering shared by concurrent contexts
 
 
 class RunContext:
@@ -37,14 +38,14 @@ class RunContext:
         self.dir = self.settings.runs_dir / run.run_id
         self.log = run_logger(run.run_id, "afc.pipeline")
         self.cancel = CANCEL.setdefault(run.run_id, threading.Event())
-        self.cancel.clear()  # a new batch starts un-cancelled
-        self._counter = itertools.count(len(run.calls) + 1)  # artifact numbering continues across batches
         with _H_LOCK:
             entry = _HANDLERS.get(run.run_id)
             if entry:
-                entry[1] += 1
+                entry[1] += 1  # another batch of this run is active: keep its Stop flag as it is
             else:
+                self.cancel.clear()  # first active batch starts un-cancelled
                 _HANDLERS[run.run_id] = [attach_run_log(self.dir / "run.log", run.run_id), 1]
+            self._counter = _COUNTERS.setdefault(run.run_id, itertools.count(len(run.calls) + 1))
 
     def request(self, step: str, prompt: str, label: str, agents: dict | None = None) -> LLMRequest:
         """LLMRequest from the step's settings; Claude Code also gets the remaining budget as --max-budget-usd."""
@@ -82,6 +83,8 @@ class RunContext:
             self.log.exception("Call %s failed", label)
             res = LLMResult(backend=req.backend, model=req.model, error=f"{type(e).__name__}: {e}")
         log_block(self.log, f"OUTPUT #{n} {label}", res.text)
+        if res.cost_usd is None and res.billed:
+            self.log.warning("No price for model %s: this call counts as $0 toward the budgets", res.model)
         self.log.info("CALL #%d %s: %s/%s tokens in=%d out=%d searches=%d cost=%s billed=%s %.1fs error=%s "
                       "sources=%s", n, label, res.backend, res.model, res.input_tokens, res.output_tokens,
                       res.web_searches, f"${res.cost_usd:.5f}" if res.cost_usd is not None else "unknown",

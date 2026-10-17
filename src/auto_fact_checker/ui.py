@@ -3,7 +3,8 @@
 Local: widgets are generated from the pydantic field types (bool -> Checkbox, Literal -> Radio/Dropdown,
 int/float -> Slider, list[str] -> CheckboxGroup (+ "extra items" Textbox), str -> Textbox) so a new config field
 appears in the UI without UI code. Run / One more iteration are generator handlers that run the pipeline in a
-worker thread and stream progress (report, tables, live log) every second; Stop cancels them and kills agents.
+worker thread and stream progress (report, tables, live log) every second; Stop sets the run's cancel flag
+(agents are killed, OpenAI streams abandoned, no new calls start) and cancels the UI events.
 Global context: the UI only builds a FactCheckConfig and calls pipeline.run_fact_check / run_perspective /
 synthesize_perspectives; everything shown comes from render.py.
 Gradio docs: Blocks https://www.gradio.app/docs/gradio/blocks ; streaming generators
@@ -13,6 +14,7 @@ https://www.gradio.app/docs/gradio/button#event-listeners
 """
 
 import json
+import re
 import time
 import typing
 from concurrent.futures import ThreadPoolExecutor
@@ -34,6 +36,7 @@ from .results import RUNS, FactCheckRun, new_run
 EXECUTOR = ThreadPoolExecutor(max_workers=8)  # pipeline work runs here; UI handlers only poll
 WHOLE_TEXT = "Whole (current) text"
 EXAMPLES = sorted(p for p in (ROOT / "examples").glob("*.md") if p.name != "README.md")
+SHIPPED_PRESETS = {p for p in list_presets() if re.match(r"L\d_", p)}  # repo presets L0-L5 are read-only here
 # Slider ranges (min, max, step) for numeric fields; max_turns 0 means "no limit".
 RANGES = {"max_searches": (0, 50, 1), "max_subagents": (1, 30, 1), "max_turns": (0, 300, 1),
           "timeout_s": (60, 7200, 60), "max_claims": (1, 50, 1), "max_parallel": (1, 16, 1),
@@ -327,6 +330,8 @@ def build_ui() -> gr.Blocks:
             run = RUNS.get(rid)
             if run is None:
                 raise gr.Error("Run a fact-check first")
+            if run.status == "running":
+                raise gr.Error("This run is still in progress; wait for it or press Stop")
             cfg = cfg_from(knobs, vals)
             yield from _stream(run, EXECUTOR.submit(run_fact_check, run.current_text, cfg, run, 1))
 
@@ -341,11 +346,14 @@ def build_ui() -> gr.Blocks:
             return values_from(knobs, load_preset(name))
 
         def on_save(name, *vals):
-            if not (name or "").strip():
-                raise gr.Error("Enter a preset name")
-            path = save_preset(cfg_from(knobs, vals), PRESETS_DIR / f"{name.strip()}.json")
+            name = (name or "").strip()
+            if not re.fullmatch(r"[\w-]+", name):
+                raise gr.Error("Preset names may contain only letters, digits, _ and -")
+            if name in SHIPPED_PRESETS:
+                raise gr.Error(f"{name} is a shipped preset; choose another name")
+            path = save_preset(cfg_from(knobs, vals), PRESETS_DIR / f"{name}.json")
             gr.Info(f"Saved {path.name}")
-            return gr.Dropdown(choices=list_presets(), value=name.strip())
+            return gr.Dropdown(choices=list_presets(), value=name)
 
         load_btn.click(on_load, preset, comps)
         save_btn.click(on_save, [preset_name, *comps], preset)
@@ -374,8 +382,9 @@ def build_ui() -> gr.Blocks:
                 raise gr.Error("Run some perspective calls first")
             yield from _stream(run, EXECUTOR.submit(synthesize_perspectives, run, cfg_from(knobs, vals)))
 
-        all_btn.click(on_all, [run_id, target, text, *comps], outputs)
-        synth_btn.click(on_synth, [run_id, *comps], outputs)
+        all_evt = all_btn.click(on_all, [run_id, target, text, *comps], outputs)
+        synth_evt = synth_btn.click(on_synth, [run_id, *comps], outputs)
+        stop_btn.click(None, None, None, cancels=[all_evt, synth_evt])  # per-scientist buttons stop via the flag
     demo.afc_knobs = knobs  # exposed for tests (config <-> widget round trip)
     return demo
 

@@ -59,6 +59,9 @@ def call(req: LLMRequest, log: logging.Logger | logging.LoggerAdapter) -> LLMRes
     t0 = time.monotonic()
     with client.responses.stream(**build_kwargs(req)) as stream:
         for event in stream:  # realtime visibility of the server-side search loop
+            if req.cancel is not None and req.cancel.is_set():  # UI Stop: abandon the stream (closed on exit)
+                return LLMResult(backend="openai_api", model=req.model, error="cancelled",
+                                 duration_s=time.monotonic() - t0)
             if event.type == "response.output_item.done" and event.item.type == "web_search_call":
                 a = event.item.action
                 log.info("[openai web_search] %s %s", getattr(a, "type", ""), getattr(a, "query", None)

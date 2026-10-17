@@ -58,7 +58,8 @@ def run_iteration(it: IterationResult, cfg: FactCheckConfig, ctx: RunContext) ->
     p = f"iter{it.index}"
     if cfg.claim_strategy == "separate_call_per_claim":
         it.claims = [c.claim for c in extract_claims(it.input_text, cfg, ctx, f"{p}/extract")]
-        targets = [(claim, it.input_text) for claim in it.claims]  # each claim keeps the document as context
+        targets = [(claim, None if claim.strip() == it.input_text.strip() else it.input_text)  # claim + document
+                   for claim in it.claims]
     else:
         targets = [(it.input_text, None)]  # whole text; subagent strategies split it inside the agent
     personas = cfg.perspective_scientists if cfg.scientist_strategy == "separate_call_per_scientist" else []
@@ -76,7 +77,7 @@ def run_iteration(it: IterationResult, cfg: FactCheckConfig, ctx: RunContext) ->
     return it
 
 
-def run_perspective(run: FactCheckRun, scientist: str, target: str, cfg: FactCheckConfig) -> CheckResult:
+def run_perspective(run: FactCheckRun, scientist: str, target: str, cfg: FactCheckConfig) -> CheckResult | None:
     """A disconnected call evaluating `target` strictly as `scientist` would (UI per-scientist buttons)."""
     ctx = RunContext(run, cfg)
     try:
@@ -85,11 +86,15 @@ def run_perspective(run: FactCheckRun, scientist: str, target: str, cfg: FactChe
                        context=context)
         run.perspectives.append(result)
         return result
+    except (BudgetExceeded, Cancelled) as e:
+        run.stop_reason = f"perspective {scientist}: {e}"
+        ctx.log.warning("Perspective call %s stopped: %s", scientist, e)
+        return None
     finally:
         ctx.close()
 
 
-def synthesize_perspectives(run: FactCheckRun, cfg: FactCheckConfig) -> CheckResult:
+def synthesize_perspectives(run: FactCheckRun, cfg: FactCheckConfig) -> CheckResult | None:
     """Merge all perspective calls made so far (plus the latest iteration's result) into one report."""
     ctx = RunContext(run, cfg)
     try:
@@ -97,6 +102,10 @@ def synthesize_perspectives(run: FactCheckRun, cfg: FactCheckConfig) -> CheckRes
         result = synthesize(latest + run.perspectives, run.current_text, cfg, ctx, "perspectives/synthesize")
         run.perspectives.append(result)
         return result
+    except (BudgetExceeded, Cancelled) as e:
+        run.stop_reason = f"perspective synthesis: {e}"
+        ctx.log.warning("Perspective synthesis stopped: %s", e)
+        return None
     finally:
         ctx.close()
 
