@@ -6,11 +6,12 @@ non-agentic API call** up to **Claude Code / Codex agents that spawn subagents**
 per scientist**. Every claim gets an accuracy score, every verdict label and evaluative condition gets a
 **0–100 % score plus a confidence %**, and the corrected text can be re-checked **iteratively** until it is accurate.
 
-![The whole Auto Fact-Checker UI: text, run buttons and result tabs on the left; preset and every setting on the right](docs/images/app.png)
+![The whole Auto Fact-Checker UI after a run: input text, done/cost status and the Claims table with six scored and corrected claims on the left; preset and settings on the right](docs/images/app.png)
 
-*The UI: the text and the result tabs are on the left, and the preset and settings are on the right. Here the
-`ai_research` example and the `L1_single_call_search` preset are loaded. A real run on this text is shown under
-[Example](#example-the-ai-research-text).*
+*The UI in a fullscreen 1920×1080 browser window after one run on the `ai_research` example, with the
+`L1_single_call_search` preset. Left: the input text, the status line with the run's cost, and the **Claims** tab
+(accuracy, confidence, claim types, strongest labels and a corrected claim per sentence). Right: the preset and the
+settings. The run is described under [Example](#example-the-ai-research-text).*
 
 ## Methodology
 
@@ -103,7 +104,7 @@ web search, looping on 100 claims and judged against the gold evidence:
 
 Treat the loop's "accurate" label as a claim to verify, not a verification.
 
-The whole project, from implementation through evaluation, cost $7.13 in billed API calls (`uv run afc spend`).
+The whole project, from implementation through evaluation, cost $7.17 in billed API calls (`uv run afc spend`).
 
 ## Quick start
 
@@ -134,21 +135,18 @@ uv run afc bench --systems configs/bench/baseline.json configs/bench/full_single
 This is one run of the default preset `L1_single_call_search` on
 [`examples/ai_research.md`](examples/ai_research.md):
 - one `gpt-6-luna` call with web search, over the whole text, with the full prompt
-- 2 searches, $0.029
-- run `20261017_202513_959481`
+- 3 searches, $0.039
+- run `20261017_210452_941192`
 
-The **Claims** tab gives each sentence an accuracy, a confidence, claim types, its strongest verdict labels and a
-corrected claim:
-
-![Claims tab after the run: six claims with accuracy, confidence, types, top labels and corrected claims](docs/images/example_claims.png)
-
-Against the answer key in [`docs/examples.md`](docs/examples.md):
-- The two accurate claims (Transformer 2017, GPT-3 175B) got 98% and 95%.
-- Two of the planted errors scored low. "RLHF invented by OpenAI in 2022" got 15%, and "emergent abilities proven
-  to be phase transitions" got 10%.
+The screenshot at the top of this README shows its **Claims** tab. Against the answer key in
+[`docs/examples.md`](docs/examples.md):
+- The two accurate claims (Transformer 2017, GPT-3 175B) got 99% and 95%.
+- Two of the planted errors scored low. "RLHF invented by OpenAI in 2022" got 15%, with the correction citing
+  Christiano et al. 2017. "Emergent abilities proven to be phase transitions" got 5%.
 - The third planted error, "loss decreases exponentially", was corrected to Kaplan et al.'s power laws. It still
-  scored 70%, while the key calls it inaccurate.
-- The Chinchilla rule of thumb got 85%, with the 70B-parameter / 1.4T-token detail added.
+  scored 68%, while the key calls it inaccurate.
+- The Chinchilla rule of thumb got 91%. The correction calls the ratio an approximate heuristic, not a universal
+  constant, as the key does.
 
 This is a single run, shown to illustrate the outputs. The measured accuracy is in [Results so far](#results-so-far).
 
