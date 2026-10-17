@@ -133,6 +133,9 @@ class FactCheckConfig(BaseModel):
     claim_types: list[str] = Field(default_factory=_opt("claim_types"))
     scientists: list[str] = Field(default_factory=_opt("scientists"))  # named in the in-prompt scientists section
     perspective_scientists: list[str] = Field(default_factory=_opt("default_perspective_scientists"))
+    conditions: list[str] = Field(default_factory=lambda: [c["name"] for c in options()["conditions"]])
+    score_all_labels: bool = True  # score every selected verdict label per claim (False: only applicable ones)
+    score_each_scientist: bool = False  # add a scored "<scientist>'s standards" condition per named scientist
     custom_instructions: str = ""  # appended after the selected sections
     max_claims: int = 15  # cap for claim extraction
     max_parallel: int = 4  # concurrent calls in per-claim / per-scientist strategies
@@ -150,12 +153,25 @@ class FactCheckConfig(BaseModel):
         check = self.steps["check"]
         if self.uses_subagents and not (check.kind == "agent" and check.allow_subagents):
             raise ValueError("subagent strategies need steps.check.kind='agent' with allow_subagents=true")
+        if not check.enabled and self.scientist_strategy != "separate_call_per_scientist":
+            raise ValueError("with the check step disabled, enable separate_call_per_scientist (nothing would run)")
         return self
 
     @property
     def uses_subagents(self) -> bool:
         """True when the check agent must orchestrate claim-checker / scientist subagents."""
         return self.claim_strategy == "subagent_per_claim" or self.scientist_strategy == "subagent_per_scientist"
+
+    def active_conditions(self) -> list[dict]:
+        """Scored conditions in effect: selected in `conditions` AND their section is enabled (Lego toggles);
+        plus one per named scientist when score_each_scientist and the scientists section are on."""
+        on = set(self.sections)
+        active = [c for c in options()["conditions"] if c["name"] in self.conditions and c["section"] in on]
+        if self.score_each_scientist and "11_scientists" in on:
+            active += [{"name": f"{s}'s standards", "section": "11_scientists",
+                        "score": f"how well the claim holds up by {s}'s methods and standards of evidence"}
+                       for s in self.scientists]
+        return active
 
 
 def deep_merge(base: dict, patch: dict) -> dict:
