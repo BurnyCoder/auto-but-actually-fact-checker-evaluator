@@ -45,12 +45,18 @@ SELF_STOP = 90  # derived self-stop: the first pass whose every claim is self-ra
 
 
 def validate(text: str, errors: list, k: int) -> list[dict]:
-    """The first k usable edits: exact sentence of the passage, one edit per sentence, a real but small change."""
-    out, used = [], set()
+    """The first k usable edits: a sentence of the passage, one edit per sentence, a real but small change.
+
+    A slightly mis-copied original (similarity >= 0.9, common for long sentences) is snapped to the passage's
+    sentence; any extra difference this leaves in the perturbed sentence is visible in the manual QC diff."""
+    out, used, sents = [], set(), sources.split_sentences(text)
+    ratio = lambda a, b: difflib.SequenceMatcher(None, a, b).ratio()  # noqa: E731
     for e in errors:
         o, p = e.original_sentence.strip(), e.perturbed_sentence.strip()
+        best = max(sents, key=lambda s: ratio(o, s), default="")
+        o = best if o not in text and best and ratio(o, best) >= 0.9 else o
         if (o and o in text and o not in used and p and p != o and p not in text
-                and difflib.SequenceMatcher(None, o, p).ratio() >= 0.5 and e.false_fact and e.true_fact):
+                and ratio(o, p) >= 0.5 and e.false_fact and e.true_fact):
             used.add(o)
             out.append({"id": len(out) + 1, **e.model_dump(), "original_sentence": o, "perturbed_sentence": p})
         if len(out) == k:
