@@ -1,0 +1,2 @@
+{"_comment": "One Claude Code agent (claude-haiku-5-5) with WebSearch/WebFetch checks the whole text.",
+ "steps": {"check": {"kind": "agent", "provider": "anthropic", "model": "claude-haiku-5-5", "web_search": true, "timeout_s": 1200}}}

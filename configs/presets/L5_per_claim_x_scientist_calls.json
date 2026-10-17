@@ -1,0 +1,3 @@
+{"_comment": "Fully disconnected calls: extract claims, then per claim one general check plus one API call per perspective scientist, then syntheses.",
+ "claim_strategy": "separate_call_per_claim", "scientist_strategy": "separate_call_per_scientist", "max_claims": 6,
+ "perspective_scientists": ["Karl Popper", "Richard Feynman", "Andrew Gelman"]}
