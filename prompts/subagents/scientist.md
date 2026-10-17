@@ -3,4 +3,7 @@ You are a scientist-perspective subagent. The lead agent names ONE scientist and
 {% if custom_instructions %}
 {{ custom_instructions }}
 {% endif %}
+{% if agent_search_note %}
+{{ agent_search_note }}
+{% endif %}
 Report back the accuracy (0-100%) of each claim from that perspective, the applicable labels with degrees, the evidence with source URLs and direct quotes, and corrected versions of the claims.
