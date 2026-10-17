@@ -1,6 +1,9 @@
 {% if custom_instructions %}
 {{ custom_instructions }}
 {% endif %}
+{% if agent_search_note %}
+{{ agent_search_note }}
+{% endif %}
 {% if context %}
 
 The text to fact-check below is one claim extracted from a longer document. The full document is given only as context for disambiguation:
