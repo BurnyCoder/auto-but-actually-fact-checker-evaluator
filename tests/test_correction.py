@@ -109,3 +109,17 @@ def test_analysis_on_synthetic_records():
     assert res["H1_original_to_output"]["mcnemar"]["c"] == 6 and res["H1_original_to_output"]["mcnemar"]["b"] == 1
     assert res["H2_self_label_precision"]["precision"] == 0.9 and res["repair_rate_false_originals"]["rate"] == 1.0
     assert res["harm_rate_correct_originals"]["rate"] == 0.25 and res["trajectory"][0]["judge_correct"] == 0.4
+
+
+def test_single_pass_policy_matches_one_agent_call():
+    import importlib.util
+    import sys
+
+    sys.path.insert(0, str(C.ROOT / "reports" / "scripts"))
+    spec = importlib.util.spec_from_file_location("cvc", C.ROOT / "reports" / "scripts" / "compare_verdict_correction.py")
+    cvc = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cvc)
+    rec = {"judged": [{"text": "orig"}], "passes": [{"all_accurate": False, "corrected_text": "fixed"}]}
+    assert cvc.single_pass(rec) == "fixed"  # pass 1 flagged it -> its correction is the single-pass answer
+    rec["passes"][0]["all_accurate"] = True
+    assert cvc.single_pass(rec) == "orig"  # pass 1 rated it accurate -> keep the original
