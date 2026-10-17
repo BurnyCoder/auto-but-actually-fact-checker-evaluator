@@ -67,8 +67,9 @@ def run_iteration(it: IterationResult, cfg: FactCheckConfig, ctx: RunContext) ->
     results = parallel_map(lambda j: check(j[1], cfg, ctx, _label(p, j), step="perspective" if j[3] else "check",
                                            persona=j[3], context=j[2]), jobs, cfg.max_parallel)
     it.parts = list(results)
-    per_target = [synthesize([r for j, r in zip(jobs, results) if j[0] == i], target, cfg, ctx,
-                             f"{p}/synthesize/claim{i}") for i, (target, _) in enumerate(targets, 1)]
+    per_target = parallel_map(lambda it_: synthesize([r for j, r in zip(jobs, results) if j[0] == it_[0]], it_[1],
+                                                     cfg, ctx, f"{p}/synthesize/claim{it_[0]}"),
+                              [(i, target) for i, (target, _) in enumerate(targets, 1)], cfg.max_parallel)
     it.parts += [r for r in per_target if r not in results]  # keep per-claim syntheses for the UI
     it.final = per_target[0] if len(per_target) == 1 else synthesize(per_target, it.input_text, cfg, ctx,
                                                                        f"{p}/synthesize/all")
