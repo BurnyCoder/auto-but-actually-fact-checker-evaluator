@@ -1,0 +1,5 @@
+{"_comment": "Exp08 rigorous arm: identical to ai_naive_codex.json except the prompt: the full default rigorous prompt (all default sections, rigorous_sections.md). Forced 4 passes (accuracy_threshold 101, no fixed-point stop).",
+ "iterate_until_accurate": true, "accuracy_threshold": 101, "max_iterations": 4, "stop_on_fixed_point": false, "max_cost_usd": 10,
+ "steps": {"check": {"kind": "agent", "provider": "openai", "model": "gpt-6-luna", "effort": "low", "web_search": true,
+                     "max_searches": 3, "prompt_template": "rigorous_sections.md", "blocked_domains": [], "timeout_s": 900},
+           "repair": {"model": "gpt-6-luna", "effort": "low"}}}

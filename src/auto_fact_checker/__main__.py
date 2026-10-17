@@ -1,4 +1,4 @@
-"""Command-line entry point: `uv run afc ui | check | spend | bench`.
+"""Command-line entry point: `uv run afc ui | check | spend | bench | correct-eval | ai-errors`.
 
 Global context: thin argparse layer over pipeline.run_fact_check (check), ui.launch (ui), the spend ledger (spend)
 and bench.run (bench). argparse docs: https://docs.python.org/3/library/argparse.html#sub-commands
@@ -56,9 +56,11 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("bench", add_help=False, help="run a benchmark; `afc bench --help` lists its options")
     sub.add_parser("correct-eval", add_help=False,
                    help="judge the correction loop against gold evidence (Exp07); `--help` lists options")
+    sub.add_parser("ai-errors", add_help=False,
+                   help="build / run the AI-research error-injection benchmark (Exp08); `--help` lists options")
     # parse_known_args: argparse.REMAINDER does not capture leading "--options", so bench options pass through here.
     args, rest = parser.parse_known_args(argv)
-    if rest and args.cmd not in ("bench", "correct-eval"):
+    if rest and args.cmd not in ("bench", "correct-eval", "ai-errors"):
         parser.error(f"unrecognized arguments: {' '.join(rest)}")
     setup_logging(get_settings().logs_dir)
     if args.cmd == "ui":
@@ -71,6 +73,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "correct-eval":
         from .bench.correction import main as correction_main
         return correction_main(rest)
+    if args.cmd == "ai-errors":
+        from .bench.ai_errors import main as ai_errors_main
+        return ai_errors_main(rest)
     return {"check": cmd_check, "spend": cmd_spend}[args.cmd](args)
 
 

@@ -45,6 +45,22 @@ class FakeBackend:
             text = "```json\n" + json.dumps({"claims": [{"claim": c} for c in self.extract]}) + "\n```"
         elif label.endswith("/repair"):
             text = summary_block(55, "repaired text")
+        elif label.startswith("inject/"):  # error injection: negate the first k sentences of the passage
+            k = int(re.search(r"exactly (\d+)", req.prompt).group(1))
+            passage = re.search(r"<passage>\s*(.*?)\s*</passage>", req.prompt, re.DOTALL).group(1)
+            sents = [s.strip() for s in re.split(r"(?<=\.)\s+", passage) if s.strip()][:k]
+            text = "```json\n" + json.dumps({"errors": [
+                {"error_type": "negation or reversed direction", "original_sentence": s,
+                 "perturbed_sentence": "It is false that " + s[0].lower() + s[1:], "false_fact": "negated",
+                 "true_fact": s} for s in sents]}) + "\n```"
+        elif label.startswith("judge/") and "<reference>" in req.prompt:  # Exp08 reference judge
+            cand = re.search(r"<candidate>\s*(.*?)\s*</candidate>", req.prompt, re.DOTALL).group(1)
+            ref = re.search(r"<reference>\s*(.*?)\s*</reference>", req.prompt, re.DOTALL).group(1)
+            ok = "[corrected]" in cand or cand == ref
+            ids = [int(i) for i in re.findall(r"^\[(\d+)\] wrong:", req.prompt, re.MULTILINE)]
+            text = "```json\n" + json.dumps({"errors": [{"id": i, "status": "corrected" if ok else "uncorrected"}
+                                                        for i in ids], "introduced_errors": [],
+                                             "overall_accuracy_pct": 100 if ok else 40}) + "\n```"
         elif label.startswith("judge/"):  # gold-evidence judge: corrected texts are "right", originals "wrong"
             m = re.search(r"<text>\s*(.*?)\s*</text>", req.prompt, re.DOTALL)
             ok = "[corrected]" in (m.group(1) if m else "")
