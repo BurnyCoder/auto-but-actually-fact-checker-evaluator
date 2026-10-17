@@ -145,3 +145,12 @@ def test_subagent_orchestration_and_agents_json():
     assert "<text_to_fact_check>" in prompt  # the inner rigorous prompt (with the text) is embedded
     both.steps["check"].web_search = False
     assert all("WebSearch" in a["disallowedTools"] for a in P.build_agents(both).values())
+
+
+def test_subagents_receive_search_rules():
+    steps = C.default_steps()
+    steps["check"] = C.StepConfig(kind="agent", provider="anthropic", model="claude-haiku-5-5", allow_subagents=True,
+                                  web_search=True, max_searches=2, blocked_domains=["kaggle.com"])
+    cfg = C.FactCheckConfig(steps=steps, claim_strategy="subagent_per_claim", scientist_strategy="subagent_per_scientist")
+    for agent in P.build_agents(cfg).values():
+        assert "at most 2 web searches" in agent["prompt"] and "kaggle.com" in agent["prompt"]
