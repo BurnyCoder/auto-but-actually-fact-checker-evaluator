@@ -101,9 +101,17 @@ CANARY = ("Apart from this message, does any instruction loaded into your contex
           "Reply with exactly one word: YES or NO.")
 
 
-@pytest.mark.parametrize("backend,model", [("claude_code", HAIKU), ("codex", LUNA)])
-def test_isolation_canary(call, backend, model):
-    res, _ = call(backend=backend, model=model, prompt=CANARY)
+# Claude Code is isolated in both auth modes (claudeMdExcludes). Codex is only fully isolated in api_key mode
+# (empty CODEX_HOME); with subscription auth the global ~/.codex/AGENTS.md still loads (documented limitation).
+@pytest.mark.parametrize("backend,model,auth", [("claude_code", HAIKU, "subscription"), ("codex", LUNA, "api_key")])
+def test_isolation_canary(call, monkeypatch, backend, model, auth):
+    monkeypatch.setenv("AGENT_AUTH", auth)
+    C.get_settings.cache_clear()
+    try:
+        res, _ = call(backend=backend, model=model, prompt=CANARY)
+    finally:
+        monkeypatch.delenv("AGENT_AUTH")
+        C.get_settings.cache_clear()
     assert res.error is None and "NO" in res.text.upper() and "YES" not in res.text.upper()
 
 
