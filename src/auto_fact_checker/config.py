@@ -14,7 +14,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, Field, SecretStr, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from . import catalog
@@ -84,11 +84,12 @@ def default_sections() -> list[str]:
 class StepConfig(BaseModel):
     """Settings for one pipeline step: API call vs agent, provider, model, depth, search, subagents, prompt."""
 
+    model_config = ConfigDict(extra="forbid")  # a typo such as "modle" must fail, not silently run defaults
     enabled: bool = True  # disabled steps are skipped (e.g. no synthesis -> deterministic merge)
     kind: Kind = "api"
     provider: Provider = "openai"  # OpenAI is preferred for simple calls
     model: str = catalog.DEFAULT_MODEL["openai"]  # any catalog id (or a custom id typed in the UI)
-    effort: Effort = "low"  # reasoning effort; backends map unsupported values to the nearest supported one
+    effort: Effort = "low"  # reasoning effort; Anthropic/Claude Code map none/minimal -> low, OpenAI/Codex pass as is
     web_search: bool = False
     search_context_size: Literal["low", "medium", "high"] = "medium"  # OpenAI web_search context size
     max_searches: int = 5  # Anthropic max_uses / OpenAI max_tool_calls / instruction for agents
@@ -96,9 +97,17 @@ class StepConfig(BaseModel):
     allow_subagents: bool = False  # agents only: may the agent spawn subagents (Claude Code Agent tool)
     max_subagents: int = 8  # upper bound stated to the orchestrating agent
     max_turns: int | None = None  # Claude Code --max-turns (None = unlimited)
-    timeout_s: int = 900  # wall-clock limit per call; the process tree is killed after it
+    timeout_s: int = 900  # agents: wall-clock limit (process tree killed); API calls: SDK request timeout
     prompt_template: str = ""  # file name inside prompts/<step>/ ; "" = the step's default template
     prompt_override: str = ""  # full Jinja prompt replacing the template (use {{ text }} for the input)
+
+    @model_validator(mode="after")
+    def _model_matches_provider(self):
+        """A catalogued model must belong to the chosen provider (custom, uncatalogued ids are allowed)."""
+        info = catalog.MODELS.get(self.model)
+        if info and info.provider != self.provider:
+            raise ValueError(f"model {self.model} is a {info.provider} model but provider is {self.provider}")
+        return self
 
 
 DEFAULT_TEMPLATES = {"extract": "claimify.md", "check": "rigorous_sections.md", "perspective": "persona.md",
@@ -124,6 +133,7 @@ def _opt(key: str):
 class FactCheckConfig(BaseModel):
     """Everything that defines a fact-checking run; rendered 1:1 as UI widgets."""
 
+    model_config = ConfigDict(extra="forbid")
     steps: dict[str, StepConfig] = Field(default_factory=default_steps)
     claim_strategy: Literal["whole_text", "subagent_per_claim", "separate_call_per_claim"] = "whole_text"
     scientist_strategy: Literal["none", "subagent_per_scientist", "separate_call_per_scientist"] = "none"
@@ -152,10 +162,13 @@ class FactCheckConfig(BaseModel):
         if set(self.steps) != set(STEPS):
             raise ValueError(f"steps must be exactly {STEPS}")
         check = self.steps["check"]
-        if self.uses_subagents and not (check.kind == "agent" and check.allow_subagents):
-            raise ValueError("subagent strategies need steps.check.kind='agent' with allow_subagents=true")
-        if not check.enabled and self.scientist_strategy != "separate_call_per_scientist":
-            raise ValueError("with the check step disabled, enable separate_call_per_scientist (nothing would run)")
+        if self.uses_subagents and not (backend_for(check) == "claude_code" and check.allow_subagents):
+            raise ValueError("subagent strategies need a Claude Code check agent (kind='agent', provider='anthropic') "
+                             "with allow_subagents=true; Codex cannot load named subagent definitions")
+        if not check.enabled and not (self.scientist_strategy == "separate_call_per_scientist"
+                                      and self.perspective_scientists):
+            raise ValueError("with the check step disabled, use separate_call_per_scientist with at least one "
+                             "perspective scientist (otherwise nothing would run)")
         return self
 
     @property
