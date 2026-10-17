@@ -108,7 +108,20 @@ web search, looping on 100 claims and judged against the gold evidence:
 
 Treat the loop's "accurate" label as a claim to verify, not a verification.
 
-The whole project, from implementation through evaluation, cost $7.17 in billed API calls (`uv run afc spend`).
+**Does correcting several times beat correcting once?** No (Exp08, pre-registered, our own benchmark). The
+benchmark has 20 Wikipedia/arXiv AI-research passages with 48 injected errors. A Codex agent with web search was
+forced through 4 passes and scored 0–100 against the original passage:
+
+| prompt | corrupted → pass 1 → pass 4 | injected errors fixed, pass 1 → 4 |
+|---|---|---|
+| naive ("Fact-check the following text.") | 38.6 → **90.4** → 89.4 | 0.96 → 0.97 |
+| full rigorous prompt | 40.0 → **85.7** → 86.2 | 0.97 → **0.90** |
+
+- One pass does the work.
+- Further passes add nothing. Under the rigorous prompt they hedge or drop correct facts while the text grows 62%.
+- The naive prompt is at least as good and 6× faster.
+
+The whole project, from implementation through evaluation, cost $7.35 in billed API calls (`uv run afc spend`).
 
 ## Quick start
 

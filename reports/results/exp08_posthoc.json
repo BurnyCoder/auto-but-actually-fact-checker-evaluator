@@ -1,0 +1,271 @@
+{
+ "note": "post hoc (after the pre-registered Exp08 analysis); exploratory",
+ "drift": {
+  "naive": {
+   "status_by_pass": [
+    {
+     "0.0": 48
+    },
+    {
+     "1.0": 44,
+     "0.5": 4
+    },
+    {
+     "1.0": 44,
+     "0.5": 4
+    },
+    {
+     "1.0": 44,
+     "0.5": 4
+    },
+    {
+     "1.0": 45,
+     "0.5": 3
+    }
+   ],
+   "words_by_pass": [
+    157.05,
+    150.5,
+    168,
+    181.05,
+    191.1
+   ],
+   "hedge_words_by_pass": [
+    10,
+    24,
+    33,
+    34,
+    41
+   ],
+   "transitions_pass1_to_pass4": {
+    "1.0->1.0": 44,
+    "0.5->0.5": 3,
+    "0.5->1.0": 1
+   },
+   "passages_rewritten_every_pass": 20
+  },
+  "rigorous": {
+   "status_by_pass": [
+    {
+     "0.0": 48
+    },
+    {
+     "1.0": 45,
+     "0.5": 3
+    },
+    {
+     "0.5": 4,
+     "1.0": 44
+    },
+    {
+     "1.0": 41,
+     "0.5": 7
+    },
+    {
+     "0.5": 10,
+     "1.0": 38
+    }
+   ],
+   "words_by_pass": [
+    157.05,
+    175.75,
+    206.6,
+    233.75,
+    253.65
+   ],
+   "hedge_words_by_pass": [
+    10,
+    39,
+    37,
+    50,
+    56
+   ],
+   "transitions_pass1_to_pass4": {
+    "1.0->0.5": 7,
+    "0.5->0.5": 3,
+    "1.0->1.0": 38
+   },
+   "passages_rewritten_every_pass": 20
+  }
+ },
+ "per_pass": {
+  "naive": {
+   "1": {
+    "s": 17.6145,
+    "usd": 0.019553547,
+    "searches": 1.65,
+    "out_tokens": 1541.3
+   },
+   "2": {
+    "s": 16.4325,
+    "usd": 0.021073206,
+    "searches": 1.8,
+    "out_tokens": 1392.1
+   },
+   "3": {
+    "s": 19.048,
+    "usd": 0.025696542,
+    "searches": 2.2,
+    "out_tokens": 1582.3
+   },
+   "4": {
+    "s": 19.0435,
+    "usd": 0.026229256,
+    "searches": 2.25,
+    "out_tokens": 1604.3
+   }
+  },
+  "rigorous": {
+   "1": {
+    "s": 107.34,
+    "usd": 0.033532202,
+    "searches": 2.15,
+    "out_tokens": 17876.15
+   },
+   "2": {
+    "s": 104.501,
+    "usd": 0.030579463,
+    "searches": 1.9,
+    "out_tokens": 17566.9
+   },
+   "3": {
+    "s": 109.7075,
+    "usd": 0.032612271,
+    "searches": 2.05,
+    "out_tokens": 18177.85
+   },
+   "4": {
+    "s": 118.3065,
+    "usd": 0.036100544,
+    "searches": 2.3,
+    "out_tokens": 19742.3
+   }
+  }
+ },
+ "introduced_audit_pass1": {
+  "counts": {
+   "false": 1,
+   "true_per_primary_source": 12,
+   "hedge_or_scope_qualification": 9
+  },
+  "items": {
+   "N01": {
+    "id": "wikipedia-alexnet",
+    "judge_text": "the model contains about 60 million parameters and 500,000 neurons (reference says 650,000 neurons)",
+    "label": "false"
+   },
+   "N02": {
+    "id": "wikipedia-alexnet",
+    "judge_text": "compared with 26.2% for the runner-up, a difference of about 10.9 percentage points (reference says the win was 10.8 points better than the runner-up)",
+    "label": "true_per_primary_source"
+   },
+   "N06": {
+    "id": "arxiv-1706.03762",
+    "judge_text": "The candidate's claim that the results section reports 41.0 for the big model is not in the reference and is unsupported by it, and it sits awkwardly beside the reference's 41.8 figure.",
+    "label": "true_per_primary_source"
+   },
+   "N07": {
+    "id": "arxiv-2203.15556",
+    "judge_text": "The claim that training data 'remained around 300 billion tokens' is not supported by the reference, which says only that the amount of training data was kept constant.",
+    "label": "true_per_primary_source"
+   },
+   "N08": {
+    "id": "arxiv-2203.15556",
+    "judge_text": "The phrase 'on nearly every task' understates the reference's claim that Chinchilla uniformly outperforms the other models on a large range of tasks.",
+    "label": "true_per_primary_source"
+   },
+   "R02": {
+    "id": "wikipedia-transformer_(deep_learning)",
+    "judge_text": "Describes self-attention as permutation-equivariant, contradicting the reference's statement that self-attention is permutation-invariant.",
+    "label": "true_per_primary_source"
+   },
+   "R04": {
+    "id": "wikipedia-alexnet",
+    "judge_text": "a difference of 10.9 percentage points (the reference says more than 10.8 points better than the runner-up)",
+    "label": "true_per_primary_source"
+   },
+   "R06": {
+    "id": "arxiv-1706.03762",
+    "judge_text": "The candidate says the paper's Results prose and Google Research page report 41.0 BLEU for English-French, which is not in the reference, and it casts doubt on the reference's 41.8 figure.",
+    "label": "true_per_primary_source"
+   },
+   "R08": {
+    "id": "arxiv-1706.03762",
+    "judge_text": "The candidate gives specific F1 scores (91.3 WSJ-only, 92.7 semi-supervised) for constituency parsing, which are not in the reference.",
+    "label": "true_per_primary_source"
+   },
+   "R09": {
+    "id": "arxiv-1706.03762",
+    "judge_text": "The candidate dates the work to 2017, which is not in the reference.",
+    "label": "true_per_primary_source"
+   },
+   "R10": {
+    "id": "arxiv-1706.03762",
+    "judge_text": "The candidate says the Transformer retains feed-forward layers and other components, which is not in the reference.",
+    "label": "true_per_primary_source"
+   },
+   "R11": {
+    "id": "arxiv-2203.15556",
+    "judge_text": "Chinchilla is described as outperforming the baselines on 'nearly every measured task, though not every individual comparison', which contradicts the reference's claim that Chinchilla 'uniformly and significantly outperforms' them.",
+    "label": "true_per_primary_source"
+   },
+   "R13": {
+    "id": "arxiv-1512.03385",
+    "judge_text": "We also analyze CIFAR-10 networks, including models with 110 and 1,202 layers, which contradicts the reference's 100 and 1000 layers.",
+    "label": "true_per_primary_source"
+   },
+   "N03": {
+    "id": "wikipedia-alexnet",
+    "judge_text": "the paper did not isolate depth as the sole cause of its performance (reference states the original paper's primary result was that depth was essential)",
+    "label": "hedge_or_scope_qualification"
+   },
+   "N04": {
+    "id": "wikipedia-long_short-term_memory",
+    "judge_text": "The candidate says the historical claim about the name's origin in cognitive psychology is not supported, but the reference states the name is an analogy to long-term and short-term memory studied by cognitive psychologists since the early 20th century.",
+    "label": "hedge_or_scope_qualification"
+   },
+   "N05": {
+    "id": "wikipedia-long_short-term_memory",
+    "judge_text": "The candidate says LSTM's performance does not establish general superiority over all other sequence-learning methods, which contradicts the reference's claim that its relative insensitivity to gap length is an advantage over other sequence learning methods.",
+    "label": "hedge_or_scope_qualification"
+   },
+   "R01": {
+    "id": "wikipedia-generative_adversarial_network",
+    "judge_text": "The candidate says practical implementations and later variants may use objectives that are not strictly zero-sum, which conflicts with the reference's description of the two networks as a zero-sum game.",
+    "label": "hedge_or_scope_qualification"
+   },
+   "R03": {
+    "id": "wikipedia-transformer_(deep_learning)",
+    "judge_text": "States that attention weights do not measure token importance, contradicting the reference's account that attention amplifies key tokens and diminishes less important ones.",
+    "label": "hedge_or_scope_qualification"
+   },
+   "R05": {
+    "id": "wikipedia-diffusion_model",
+    "judge_text": "The candidate says the terms diffusion-based, denoising diffusion probabilistic, and score-based models 'overlap but are not exact synonyms,' which conflicts with the reference's statement that diffusion models are 'also known as' score-based generative models.",
+    "label": "hedge_or_scope_qualification"
+   },
+   "R07": {
+    "id": "arxiv-1706.03762",
+    "judge_text": "The candidate says the parsing experiments give evidence of performance on one additional task 'rather than broad generalization', which contradicts the reference's claim that the Transformer generalizes well to other tasks.",
+    "label": "hedge_or_scope_qualification"
+   },
+   "R12": {
+    "id": "arxiv-2205.14135",
+    "judge_text": "The candidate says block-sparse FlashAttention was faster than the approximate-attention methods evaluated by the authors on their tested workloads and that this does not establish universal superiority. The reference states it is faster than any existing approximate attention method, so the candidate narrows and contradicts the reference's claim.",
+    "label": "hedge_or_scope_qualification"
+   },
+   "R14": {
+    "id": "arxiv-2203.02155",
+    "judge_text": "Such failures indicate local mismatches with a particular user's intent, but do not establish that models are categorically unaligned with all users (contradicts the reference's statement that these models are not aligned with their users).",
+    "label": "hedge_or_scope_qualification"
+   }
+  },
+  "sources": {
+   "AlexNet 650,000 neurons; 15.3% vs 26.2% runner-up (10.9 points)": "https://papers.nips.cc/paper/4824",
+   "Transformer: Results prose 41.0 BLEU vs abstract 41.8; parsing F1 91.3 / 92.7; feed-forward sublayers; 2017": "https://arxiv.org/abs/1706.03762",
+   "Self-attention is permutation-equivariant (Lee et al. 2019, Set Transformer)": "https://arxiv.org/abs/1810.00825",
+   "Chinchilla: baselines trained on ~300B tokens; worse than Gopher on 4 MMLU and 4 BIG-bench tasks": "https://arxiv.org/abs/2203.15556",
+   "ResNet: CIFAR-10 networks of 110 and 1202 layers (abstract rounds to 100 / 1000)": "https://arxiv.org/abs/1512.03385"
+  }
+ }
+}
