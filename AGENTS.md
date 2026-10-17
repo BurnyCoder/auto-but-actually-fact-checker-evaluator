@@ -13,7 +13,11 @@ uv run afc ui --no-browser      # Gradio UI on 127.0.0.1:7860
 uv run afc check FILE --preset NAME [--set dotted.key=value ...] [--iterations N]
 uv run afc bench --systems A.json B.json --n N --max-cost USD --out DIR [--exclude-from PILOT_DIR]
 uv run afc spend                # billed spend so far vs SPEND_LIMIT_USD
+uv run --group docs python docs/scripts/take_screenshots.py --channel msedge   # README screenshots, one paid call (~$0.03)
 ```
+
+After a UI layout change, rerun the screenshot script. It drives the real UI: the left column's `elem_id="afc-io"`
+and the widget labels it clicks are part of its contract.
 
 ## Architecture rules
 
