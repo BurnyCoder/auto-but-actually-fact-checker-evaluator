@@ -1,0 +1,2 @@
+{"_comment": "Default: one OpenAI API call (gpt-6-luna) with the hosted web_search tool, whole text at once.",
+ "steps": {"check": {"kind": "api", "provider": "openai", "model": "gpt-6-luna", "web_search": true}}}

@@ -1,0 +1,3 @@
+{"_comment": "Extract claims with one API call, then one Codex agent per claim (parallel), then one API synthesis.",
+ "claim_strategy": "separate_call_per_claim", "max_claims": 8,
+ "steps": {"check": {"kind": "agent", "provider": "openai", "model": "gpt-6-luna", "web_search": true, "timeout_s": 1200}}}
