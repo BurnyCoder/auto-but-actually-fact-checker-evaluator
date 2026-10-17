@@ -46,6 +46,7 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="cmd", required=True)
     ui = sub.add_parser("ui", help="launch the Gradio UI on 127.0.0.1")
     ui.add_argument("--port", type=int, default=7860)
+    ui.add_argument("--no-browser", action="store_true", help="do not open a browser tab")
     chk = sub.add_parser("check", help="fact-check a text file ('-' = stdin)")
     chk.add_argument("file")
     chk.add_argument("--preset", help="preset name in configs/presets or a JSON path")
@@ -58,7 +59,7 @@ def main(argv: list[str] | None = None) -> int:
     setup_logging(get_settings().logs_dir)
     if args.cmd == "ui":
         from .ui import launch
-        launch(port=args.port)
+        launch(port=args.port, inbrowser=not args.no_browser)
         return 0
     if args.cmd == "bench":
         from .bench.run import main as bench_main
