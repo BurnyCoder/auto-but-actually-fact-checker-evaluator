@@ -85,7 +85,7 @@ are in [`reports/all_experiments.md`](reports/all_experiments.md) and the paper 
 - **The prompt's added value is the richer qualitative output**: label and condition scores with confidences,
   corrections and issue lists. SciFact does not measure that.
 
-The whole project, from implementation through evaluation, cost $6.52 in billed API calls.
+The whole project, from implementation through evaluation, cost $6.55 in billed API calls.
 
 ## Quick start
 
