@@ -27,7 +27,13 @@ def template_choices(step: str) -> list[str]:
 def _vars(cfg: FactCheckConfig, step: str, persona: str | None) -> dict:
     """Variables shared by every template: lists, flags and strategy settings (all always defined)."""
     sc = cfg.steps[step]
-    return {"web_search": sc.web_search, "persona": persona, "degrees": cfg.degrees,
+    # Agents have no API-level search cap or domain filter, so those settings are stated as instructions instead.
+    note = ""
+    if sc.kind == "agent" and sc.web_search:
+        note = f"Use at most {sc.max_searches} web searches in total."
+        if sc.blocked_domains:
+            note += f" Never open or cite these domains: {', '.join(sc.blocked_domains)}."
+    return {"web_search": sc.web_search, "persona": persona, "degrees": cfg.degrees, "agent_search_note": note,
             "verdict_labels": cfg.verdict_labels, "styles": cfg.styles, "claim_types": cfg.claim_types,
             "scientists": cfg.scientists, "perspective_scientists": cfg.perspective_scientists,
             "custom_instructions": cfg.custom_instructions.strip(), "max_claims": cfg.max_claims,
