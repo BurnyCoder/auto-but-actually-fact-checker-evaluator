@@ -89,6 +89,24 @@
    "cost_usd": 0.90698632,
    "mean_searches": 1.8,
    "leak_items": 0
+  },
+  "F_claude_agent": {
+   "n": 40,
+   "accuracy": 0.775,
+   "accuracy_ci": [
+    0.6249690325768998,
+    0.8768390867645927
+   ],
+   "balanced_accuracy": 0.7966751918158568,
+   "macro_f1": 0.7748592870544091,
+   "auroc": 0.9616368286445012,
+   "brier": 0.1610075,
+   "parse_fail": 1,
+   "SUPPORT_recall": 0.6521739130434783,
+   "CONTRADICT_recall": 0.9411764705882353,
+   "cost_usd": 1.27453828,
+   "mean_searches": 2.05,
+   "leak_items": 1
   }
  },
  "comparisons": {
@@ -241,6 +259,82 @@
    "auroc_ci95": [
     -0.19066666666666665,
     -0.0012531328320801727
+   ],
+   "kind": "post hoc"
+  },
+  "F_claude_agent_minus_A_baseline": {
+   "n": 40,
+   "delta_balanced_accuracy": -0.028132992327365658,
+   "ci95": [
+    -0.17708333333333348,
+    0.12276214833759591
+   ],
+   "mcnemar": {
+    "b": 6,
+    "c": 4,
+    "pvalue": 0.75390625
+   },
+   "delta_auroc": 0.07289002557544744,
+   "auroc_ci95": [
+    -0.03276353276353283,
+    0.21744791666666674
+   ],
+   "kind": "post hoc"
+  },
+  "F_claude_agent_minus_B_full": {
+   "n": 40,
+   "delta_balanced_accuracy": -0.10869565217391308,
+   "ci95": [
+    -0.2407407407407407,
+    0.023809523809523947
+   ],
+   "mcnemar": {
+    "b": 7,
+    "c": 2,
+    "pvalue": 0.1796875
+   },
+   "delta_auroc": -0.016624040920716232,
+   "auroc_ci95": [
+    -0.07518796992481203,
+    0.02651515151515149
+   ],
+   "kind": "post hoc"
+  },
+  "F_claude_agent_minus_C_baseline_search": {
+   "n": 40,
+   "delta_balanced_accuracy": -0.13810741687979533,
+   "ci95": [
+    -0.25,
+    -0.045454545454545525
+   ],
+   "mcnemar": {
+    "b": 6,
+    "c": 0,
+    "pvalue": 0.03125
+   },
+   "delta_auroc": -0.03069053708439906,
+   "auroc_ci95": [
+    -0.09066666666666667,
+    0.0014880952380953438
+   ],
+   "kind": "post hoc"
+  },
+  "F_claude_agent_minus_E_codex_agent": {
+   "n": 40,
+   "delta_balanced_accuracy": -0.07928388746803061,
+   "ci95": [
+    -0.22506393861892582,
+    0.06649616368286448
+   ],
+   "mcnemar": {
+    "b": 7,
+    "c": 3,
+    "pvalue": 0.34375
+   },
+   "delta_auroc": 0.04475703324808167,
+   "auroc_ci95": [
+    -0.04219948849104849,
+    0.16276041666666674
    ],
    "kind": "post hoc"
   }

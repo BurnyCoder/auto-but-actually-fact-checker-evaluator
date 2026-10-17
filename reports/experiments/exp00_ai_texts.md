@@ -46,6 +46,37 @@ UI checks were done in the in-app browser:
 - a **Karl Popper** perspective button: an independent call with 1 search, $0.013
 - **Stop**: "stopped by user"
 
+### Gap-closing checks (second session)
+
+**UI with a hand-built mixed per-step setup.** Run `20261017_155456_…`, $0.09 billed, 24 calls. The settings were
+changed by hand in the browser:
+- claims: one separate call per claim
+- Check step: OpenAI, search off
+- Perspective step: provider switched to Anthropic (the model field followed to `claude-haiku-5-5`), search off
+
+What was exercised:
+- **Run:** extract, then 2 parallel claim checks, then a synthesis (iteration 1: 50%).
+- **One more iteration**, pressed twice: iteration 2 re-extracted 5 claims from the corrected text (98%);
+  iteration 3 reached 99%.
+- **Mid-run click:** a click on *One more iteration* during iteration 3 started no second batch; the
+  "still in progress" guard was hit.
+- **Two scientist buttons** (Popper, Feynman) ran as concurrent independent Haiku calls.
+- **Synthesize perspectives:** one Luna call.
+- **Run all selected scientists:** three concurrent Haiku calls.
+
+All of these behaved as designed.
+
+**Codex multi-agent smoke test (negative result).**
+- **Setup:** Codex 0.163.0, `gpt-6-luna`, `--enable multi_agent` (and in one run also `multi_agent_v2`). Four
+  prompts of increasing explicitness asked it to spawn one sub-agent; the last ones named
+  `collaboration.spawn_agent`.
+- **What happened:** Codex listed its sub-agent tools (`collaboration.spawn_agent`, `wait_agent`, …) but never
+  spawned one. Every run emitted only a `wait` collab call with no receivers and empty agent state.
+- **Fabrication:** twice the model then answered "SUBAGENT SAID: PINEAPPLE", a fabricated delegation.
+- **Evidence:** `reports/results/codex_multiagent_smoke/out*.jsonl`.
+- **Consequence:** the subagent strategies stay Claude Code-only. A Codex step's `allow_subagents` only switches
+  the feature on, and spawning was not observed with Luna.
+
 ## Observations and learnings
 
 1. **All presets agree with the key on all 32 claim verdicts.** This shows the plumbing works and that

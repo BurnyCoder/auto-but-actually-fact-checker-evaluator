@@ -4,7 +4,8 @@ Usage: uv run --group paper python reports/scripts/analyze_scifact.py
 Reads the cached per-item records written by `afc bench` and computes, for every system, the pre-registered metrics
 (docs/benchmark.md) and, for every listed pair, the paired comparison on the items both systems completed:
   pre-registered:  A vs B (primary, Exp01), A vs C and C vs B (Exp02)
-  post hoc:        A vs D, D vs B (2x2 prompt x search, Exp03); A/B/C vs E (Codex agent subset, Exp04)
+  post hoc:        A vs D, D vs B (2x2 prompt x search, Exp03); A/B/C vs E (Codex agent subset, Exp04);
+                   A/B/C/E vs F (Claude Code agent subset, Exp05)
 plus the baseline test-retest agreement and two sensitivity analyses of the pre-registered comparisons (dropping
 parse failures; dropping leak-flagged items). Writes reports/results/scifact_analysis.json and reports/figures/.
 """
@@ -21,15 +22,20 @@ SYSTEMS = {"A_baseline": R / "exp01" / "baseline.jsonl", "B_full": R / "exp01" /
            "C_baseline_search": R / "exp02" / "baseline_search.jsonl",
            "D_full_no_search": R / "exp03_full_no_search" / "full_no_search.jsonl",
            "E_codex_agent": R / "exp04_codex_agent" / "full_agent_codex.jsonl",
+           "F_claude_agent": R / "exp05_claude_agent" / "full_agent_claude.jsonl",
            "A_retest": R / "exp01_retest" / "baseline_retest.jsonl"}
 LABELS = {"A_baseline": "A: simple call", "B_full": "B: full prompt + search", "C_baseline_search": "C: simple + search",
-          "D_full_no_search": "D: full prompt, no search", "E_codex_agent": "E: Codex agent, full prompt"}
+          "D_full_no_search": "D: full prompt, no search", "E_codex_agent": "E: Codex agent, full prompt",
+          "F_claude_agent": "F: Claude Code (Haiku), full prompt"}
 COLORS = {"A_baseline": "#2a78d6", "B_full": "#eb6834", "C_baseline_search": "#1baf7a",
-          "D_full_no_search": "#eda100", "E_codex_agent": "#e87ba4"}  # dataviz reference slots 1-5, fixed order
+          "D_full_no_search": "#eda100", "E_codex_agent": "#e87ba4",
+          "F_claude_agent": "#008300"}  # dataviz reference slots 1-6, fixed order
 PAIRS = [("A_baseline", "B_full", "pre-registered primary"), ("A_baseline", "C_baseline_search", "pre-registered"),
          ("C_baseline_search", "B_full", "pre-registered"), ("A_baseline", "D_full_no_search", "post hoc"),
          ("D_full_no_search", "B_full", "post hoc"), ("A_baseline", "E_codex_agent", "post hoc"),
-         ("B_full", "E_codex_agent", "post hoc"), ("C_baseline_search", "E_codex_agent", "post hoc")]
+         ("B_full", "E_codex_agent", "post hoc"), ("C_baseline_search", "E_codex_agent", "post hoc"),
+         ("A_baseline", "F_claude_agent", "post hoc"), ("B_full", "F_claude_agent", "post hoc"),
+         ("C_baseline_search", "F_claude_agent", "post hoc"), ("E_codex_agent", "F_claude_agent", "post hoc")]
 
 
 def load(path: Path) -> dict:
