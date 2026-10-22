@@ -23,7 +23,7 @@ def should_stop(run: FactCheckRun, cfg: FactCheckConfig) -> str | None:
     if summary is None:
         return "no parseable JSON summary"
     if summary.all_accurate(cfg.accuracy_threshold):
-        return f"all claims >= {cfg.accuracy_threshold}% accurate"
+        return f"model rates all returned claims >= {cfg.accuracy_threshold}% accurate"
     if not (summary.corrected_text or "").strip():
         return "no corrected text to re-check"
     if cfg.stop_on_fixed_point and _norm(summary.corrected_text) == _norm(last.input_text):

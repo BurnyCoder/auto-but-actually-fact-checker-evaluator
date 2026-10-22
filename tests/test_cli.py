@@ -32,4 +32,10 @@ def test_bench_command_passes_options(fake, settings, tmp_path, monkeypatch):
 
 def test_spend_command(settings, capsys):
     assert main(["spend"]) == 0
-    assert "Billed spend: $0.0000" in capsys.readouterr().out
+    assert "Known billed estimate: $0.0000" in capsys.readouterr().out
+
+
+def test_check_returns_nonzero_when_summary_is_unusable(fake):
+    """Automation can distinguish an unusable model answer from a completed fact-check."""
+    fake.__init__(no_json_for=["iter1/check"])
+    assert main(["check", str(EXAMPLE), "--set", "steps.repair.enabled=false"]) == 1

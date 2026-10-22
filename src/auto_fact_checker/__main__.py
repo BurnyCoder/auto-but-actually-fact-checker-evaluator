@@ -31,14 +31,17 @@ def cmd_check(args) -> int:
     run = run_fact_check(text, cfg)
     report = get_settings().runs_dir / run.run_id / "report.md"
     report.write_text(run_markdown(run), encoding="utf-8")
-    print(f"\nRun {run.run_id}: {run.status} ({run.stop_reason}); cost ${run.total_cost_usd:.4f}; report: {report}")
+    print(f"\nRun {run.run_id}: {run.status} ({run.stop_reason}); known cost estimate ${run.total_cost_usd:.4f}; "
+          f"{run.unknown_cost_calls} calls with unknown cost; report: {report}")
     return 0 if run.status == "done" else 1
 
 
 def cmd_spend(_args) -> int:
-    """Print the cumulative billed spend against the cap."""
+    """Print known billed estimates and missing-cost calls against the pre-call limit."""
     s = get_settings()
-    print(f"Billed spend: ${spend.total_billed(s.ledger):.4f} of SPEND_LIMIT_USD=${s.spend_limit_usd:.2f} ({s.ledger})")
+    recorded = spend.summary(s.ledger)
+    print(f"Known billed estimate: ${recorded['known_billed_usd']:.4f} of SPEND_LIMIT_USD=${s.spend_limit_usd:.2f}; "
+          f"{recorded['unknown_billed_calls']} billed calls with unknown cost ({s.ledger})")
     return 0
 
 

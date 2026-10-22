@@ -2,7 +2,7 @@
 
 Global context: every LLM call goes through RunContext.call(), which calls spend.check_budget() before and
 spend.record() after the call, so no call starts once the configured dollar limit is reached (a soft cap:
-calls already in flight can overshoot it slightly).
+one or more calls may overshoot, and unknown charges are excluded from its known-cost sum).
 """
 
 import pytest

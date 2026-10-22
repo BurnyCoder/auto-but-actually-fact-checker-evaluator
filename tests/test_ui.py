@@ -40,6 +40,29 @@ def test_preview_shows_each_call_type():
     assert "PERSPECTIVE" not in ui.preview(off, "TEXT")  # a disabled perspective step makes no calls
 
 
+def test_preview_disabled_extraction_matches_real_check():
+    """Disabled extraction checks the actual whole input, with no invented extracted-claim context."""
+    from auto_fact_checker.prompts import build_prompt
+
+    cfg = C.apply_overrides(C.FactCheckConfig(), ["claim_strategy=separate_call_per_claim",
+                                                 "steps.extract.enabled=false"])
+    actual = build_prompt(cfg, "check", "TEXT")
+    preview = ui.preview(cfg, "TEXT")
+    assert "EXTRACT" not in preview and "<one extracted claim>" not in preview
+    assert preview.split("########## CHECK ##########\n")[-1] == actual
+    cfg.steps["extract"].enabled = True
+    assert "illustrative" in ui.preview(cfg, "TEXT").lower()
+
+
+def test_stop_keeps_polling_until_terminal_state(demo):
+    """Stop signals workers immediately; cancelling the polling generator would freeze the status."""
+    config = demo.get_config_file()
+    stop_id = next(c["id"] for c in config["components"] if c.get("props", {}).get("value") == "Stop")
+    events = [d for d in config["dependencies"] if [stop_id, "click"] in d["targets"]
+              or (stop_id, "click") in d["targets"]]
+    assert events and all(not e["cancels"] and e["queue"] is False for e in events)
+
+
 def test_claim_widths_match_claims_table_columns():
     # ui.CLAIM_WIDTHS sizes the Claims Dataframe; a new render.claims_rows column needs a width too.
     from auto_fact_checker import render
@@ -70,3 +93,18 @@ def test_stream_yields_final_outputs(fake):
     frames = list(ui._stream(run, ui.EXECUTOR.submit(run_fact_check, "Text", cfg, run)))
     final = frames[-1]
     assert len(final) == 13 and "**done**" in final[1] and final[6] == "Text [corrected]"
+
+
+def test_status_discloses_unknown_costs(settings):
+    """A missing price must not look like a complete zero-dollar measurement in the UI."""
+    from auto_fact_checker import spend
+    from auto_fact_checker.backends.base import LLMResult
+    from auto_fact_checker.results import record_call
+
+    run = new_run("Text", C.FactCheckConfig())
+    result = LLMResult(backend="openai_api", model="unknown", cost_usd=None, billed=True)
+    record_call(run, "check", "test", result)
+    spend.record(settings.ledger, None, True, "test")
+    status = ui.outputs_for(run)[1]
+    assert "known estimate" in status and "1 unknown-cost calls" in status
+    assert "1 unknown billed calls" in status

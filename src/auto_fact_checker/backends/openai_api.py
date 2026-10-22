@@ -27,7 +27,7 @@ def build_kwargs(req: LLMRequest) -> dict:
                 "user_location": {"type": "approximate"}}  # omitted -> "defaults to the United States" (Responses API ref)
         if req.blocked_domains:
             tool["filters"] = {"blocked_domains": req.blocked_domains}  # e.g. benchmark hosts (leakage guard)
-        kw |= {"tools": [tool], "include": ["web_search_call.action.sources"],  # every URL consulted
+        kw |= {"tools": [tool], "include": ["web_search_call.action.sources"],  # available recorded source URLs
                "max_tool_calls": req.max_searches}  # caps built-in tool calls -> caps search cost
     return kw
 
@@ -45,22 +45,30 @@ def parse_response(req: LLMRequest, r) -> LLMResult:
             urls += [a.url for part in o.content for a in (getattr(part, "annotations", None) or [])
                      if a.type == "url_citation"]  # inline citations
     u = r.usage
-    cached = getattr(getattr(u, "input_tokens_details", None), "cached_tokens", 0) or 0
-    return LLMResult(text=r.output_text or "", backend="openai_api", model=req.model, input_tokens=u.input_tokens,
-                     cached_input_tokens=cached, output_tokens=u.output_tokens, web_searches=searches,
-                     cost_usd=catalog.cost_usd(req.model, u.input_tokens, u.output_tokens, cached, searches),
+    tin, tout = getattr(u, "input_tokens", None), getattr(u, "output_tokens", None)
+    cached = getattr(getattr(u, "input_tokens_details", None), "cached_tokens", None)
+    # Usage is optional in the response schema; preserve available text and expose an incomplete estimate.
+    cost = catalog.cost_usd(req.model, tin, tout, cached, searches) if None not in (tin, tout, cached) else None
+    return LLMResult(text=r.output_text or "", backend="openai_api", model=req.model, input_tokens=tin or 0,
+                     cached_input_tokens=cached or 0, output_tokens=tout or 0, web_searches=searches, cost_usd=cost,
                      sources=dedupe(urls))
 
 
 def call(req: LLMRequest, log: logging.Logger | logging.LoggerAdapter) -> LLMResult:
     """Run one streamed Responses API request and return the normalised result."""
+    if req.cancel is not None and req.cancel.is_set():
+        return LLMResult(backend="openai_api", model=req.model, error="cancelled", cost_usd=0.0)
     key = get_settings().openai_api_key
     client = OpenAI(api_key=key.get_secret_value() if key else None, timeout=req.timeout_s)
     t0 = time.monotonic()
+    chunks = []  # Keep observable partial text if Stop arrives before final usage.
     with client.responses.stream(**build_kwargs(req)) as stream:
         for event in stream:  # realtime visibility of the server-side search loop
+            if event.type == "response.output_text.delta":
+                chunks.append(event.delta)
+                log.info("[openai text] %s", event.delta)  # Untruncated delta; full final output is also archived.
             if req.cancel is not None and req.cancel.is_set():  # UI Stop: abandon the stream (closed on exit)
-                return LLMResult(backend="openai_api", model=req.model, error="cancelled",
+                return LLMResult(text="".join(chunks), backend="openai_api", model=req.model, error="cancelled",
                                  duration_s=time.monotonic() - t0)
             if event.type == "response.output_item.done" and event.item.type == "web_search_call":
                 a = event.item.action

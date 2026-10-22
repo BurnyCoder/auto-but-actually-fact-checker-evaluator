@@ -9,6 +9,7 @@ https://github.com/mangiucugna/json_repair ; pydantic BeforeValidator:
 https://docs.pydantic.dev/latest/concepts/validators/#field-before-validator
 """
 
+import math
 import re
 from typing import Annotated, TypeVar
 
@@ -26,7 +27,9 @@ def _pct(v):
             return None
         v = float(m.group())
     try:
-        return min(max(float(v), 0.0), 100.0)
+        score = float(v)
+        # Nonfinite values are missing evidence, not endpoint scores: https://docs.python.org/3/library/math.html#math.isfinite
+        return min(max(score, 0.0), 100.0) if math.isfinite(score) else None
     except (TypeError, ValueError):
         return None
 
@@ -112,7 +115,8 @@ class FactCheckSummary(_Lenient):
 
     def all_accurate(self, threshold: float) -> bool:
         """True when there is at least one claim and every claim reaches the threshold (missing scores fail)."""
-        return bool(self.claims) and all((c.accuracy_pct or 0) >= threshold for c in self.claims)
+        return bool(self.claims) and all(c.accuracy_pct is not None and c.accuracy_pct >= threshold
+                                        for c in self.claims)
 
 
 class ExtractedClaim(_Lenient):

@@ -74,8 +74,11 @@ def run_system(name: str, cfg, items, out: Path, max_cost: float, spent: list, w
         rec = item_fn(item, cfg)
         with _WRITE:
             spent[0] += rec["cost_usd"]
-            refused = any("refusal" in (e or "") for e in rec["errors"])  # deterministic: scored wrong, not retried
-            complete = rec["status"] == "done" and (not rec["errors"] or refused)
+            refused = bool(rec["errors"]) and all("refusal" in (e or "") for e in rec["errors"])
+            # Completed refusals/parse failures stay scored wrong; retrying them would select better answers.
+            answered = rec["status"] == "done" or (rec["status"] == "error"
+                                                    and rec["stop_reason"] == "no parseable JSON summary")
+            complete = answered and (not rec["errors"] or refused)
             if complete:  # finished items (incl. refusals) are cached; transient failures are retried on resume
                 with path.open("a", encoding="utf-8") as f:
                     f.write(json.dumps(rec, ensure_ascii=False) + "\n")
