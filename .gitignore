@@ -17,5 +17,6 @@ logs/
 runs/
 data/
 .pytest_cache/
+.cache/
 .gradio/
 .claude/settings.local.json
