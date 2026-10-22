@@ -5,8 +5,8 @@ or an arXiv abstract (arXiv API Atom feed), normalise whitespace and trim to who
 Global context: bench/ai_errors.py:build() turns these passages into the frozen benchmark
 benchmarks/ai_errors_v1/dataset.jsonl. APIs: https://www.mediawiki.org/wiki/Extension:TextExtracts ,
 https://info.arxiv.org/help/api/user-manual.html ; Wikipedia text is CC BY-SA 4.0; arXiv dedicates its metadata to
-CC0 1.0 (https://info.arxiv.org/help/license/index.html) without saying explicitly whether that covers abstracts, so
-every item keeps its arXiv URL (the paper's own licence is shown there). arXiv API terms ask for >= 3 s between
+CC0 1.0 (https://info.arxiv.org/help/license/index.html#metadata-license). Abstract is explicitly a metadata field
+(https://info.arxiv.org/help/prep.html); each item retains its URL for the separate full-paper licence. API terms ask for >= 3 s between
 requests (https://info.arxiv.org/help/api/tou.html), hence ARXIV_DELAY_S.
 """
 

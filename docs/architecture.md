@@ -8,7 +8,7 @@ This page describes how the modules fit together. The overview graph is in the [
 |---|---|
 | `config.py` | `.env` `Settings`; `StepConfig` (per step); `FactCheckConfig` (whole run); presets; dotted overrides; `active_conditions()` |
 | `catalog.py` | model price table (verified 2026-10-17, re-checked 2026-10-22), `cost_usd()` including long-context tiers (input, cached input, output) and $0.01/search |
-| `spend.py` | append-only `logs/spend.jsonl`, `check_budget()` against `SPEND_LIMIT_USD` |
+| `spend.py` | append-only `logs/spend.jsonl`, soft pre-call `check_budget()` against recorded billed cost estimates |
 | `logs.py` | one timestamped log file per process plus the terminal; `log_block()` for full prompts/outputs; per-run log handlers filtered by `run_id` |
 | `prompts.py` | Jinja2 rendering of `prompts/`: `sections_text`, `output_contract`, `build_prompt(cfg, step, text, …)`, `build_agents(cfg)` |
 | `schema.py` | the JSON output contract (`FactCheckSummary`, `ClaimVerdict`, `LabelScore`, `Assessment`, `ClaimType`, `ClaimList`), the benchmark judge and injection models (`JudgeVerdict`, `InjectedError`/`InjectionList`, `RefError`/`RefVerdict`) and `parse_block()` |
@@ -45,11 +45,22 @@ sequenceDiagram
 |---|---|---|---|---|
 | `effort` | `reasoning.effort` | `output_config.effort` (none/minimal → low) | `--effort` (none/minimal → low) | `-c model_reasoning_effort=` |
 | `web_search` | `web_search` tool | `web_search_20260318` tool | WebSearch/WebFetch allowed, else `--disallowedTools` | `-c web_search="live"` / `"disabled"` |
-| `max_searches` | `max_tool_calls` | `max_uses` | stated in the prompt | stated in the prompt |
+| `max_searches` | `max_tool_calls` | `max_uses` per request, including continuations | stated in the prompt | stated in the prompt |
 | `blocked_domains` | `filters.blocked_domains` | `blocked_domains` | stated in the prompt | stated in the prompt |
 | `allow_subagents` | n/a | n/a | allow the `Agent` tool; `--agents` file for strategies | `--enable multi_agent` |
 | `max_turns` | n/a | n/a | `--max-turns` | n/a |
-| cost | computed from tokens | computed from tokens | `total_cost_usd` (includes subagents) | computed from tokens |
+| cost | estimated from reported tokens and search calls | estimated from reported tokens and search calls | CLI-reported `total_cost_usd` | estimated from reported tokens and observed search calls |
+
+Budget checks use costs already recorded; they do not reserve the next call's maximum cost. A single sequential
+call can overshoot, and concurrent calls can overshoot further. Unknown costs contribute zero to totals, so these
+are not invoice reconciliations. Returned source URLs support best-effort leakage checks, not a complete record
+of every page consulted or of pretraining exposure. Delegation settings permit/request subagents; they do not
+prove that the agent spawned one. See the [verification record](../reports/verification_2026-10-22.md).
+
+Anthropic input totals include uncached input, cache reads and cache writes. Supported write TTLs are priced
+separately; missing TTL/usage details leave cost unknown. Codex exposes aggregated usage rather than a per-request
+invoice, so catalog-based estimates cannot reconstruct every context tier or discount. Interrupted streams retain
+available text with unknown cost. The UI, CLI and ledger distinguish known totals from unknown-cost calls.
 
 Agent isolation:
 - **Claude Code:** `--setting-sources project --strict-mcp-config --disable-slash-commands --no-session-persistence`,

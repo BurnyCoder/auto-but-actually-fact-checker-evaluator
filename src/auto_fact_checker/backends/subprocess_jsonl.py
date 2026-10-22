@@ -143,8 +143,8 @@ def urls_in(text: str) -> list[str]:
 def run_agent(req, log, *, exe_name: str, exe_override: str | None, keys: dict, build, parse):
     """Shared agent flow: resolve the CLI, fresh temp workdir, auth env, run, parse, annotate errors, clean up.
 
-    build(req, exe, workdir) -> argv ; parse(req, events, billed) -> LLMResult. A fresh empty directory keeps
-    the agent away from this repo's AGENTS.md/CLAUDE.md and any project files.
+    build(req, exe, workdir) -> argv ; parse(req, events, billed) -> LLMResult. A fresh empty directory changes
+    the agent's starting location; it does not prevent access to project files or provide a sandbox.
     """
     settings = get_settings()
     exe = resolve_exe(exe_name, exe_override)

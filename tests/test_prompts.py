@@ -1,8 +1,8 @@
 """Tests for prompts.py: assembling prompts from toggleable sections, lists, templates and overrides.
 
 Global context: the UI's "which parts of the prompt go in" buttons, the per-step template dropdowns and the
-subagent definitions all reduce to prompts.build_prompt() / build_agents(); these tests guarantee that the all-on
-configuration still expresses the user's original prompt and that every toggle really changes the prompt.
+subagent definitions all reduce to prompts.build_prompt() / build_agents(); these tests check selected original
+sentences, the configured lists, representative toggles and template rendering.
 """
 
 import json
@@ -76,7 +76,7 @@ def test_output_contract_and_conditional_fields():
     prompt2 = P.build_prompt(lego, "check", "TEXT")
     assert '"confidence_pct"' in prompt2 and '"claim_types"' in prompt2 and '"labels"' in prompt2
     assert "EVERY one of these labels" in prompt2 and "category error" in prompt2  # all labels scored by default
-    assert "- Bayesian perspective: posterior probability" in prompt2 and "empiricist perspective" not in prompt2
+    assert "- Bayesian perspective: subjective Bayesian-style assessment" in prompt2 and "empiricist perspective" not in prompt2
 
 
 def test_every_original_condition_is_a_scored_block():

@@ -1,6 +1,7 @@
 """Metrics and paired statistical tests for comparing fact-checking systems on the same binary items.
 
-Local: accuracy with Wilson CI, balanced accuracy, macro-F1, AUROC and Brier score on p_true = accuracy_pct/100,
+Local: accuracy with Wilson CI, balanced accuracy, macro-F1, AUROC and historical Brier score on
+p_true = accuracy_pct/100, a probability proxy rather than an established calibrated probability,
 exact McNemar test on paired correctness, paired bootstrap CI for metric differences.
 Global context: bench/run.py writes these into summary.json / results.md, which the experiment reports cite.
 References: Wilson CI https://www.statsmodels.org/stable/generated/statsmodels.stats.proportion.proportion_confint.html ;
@@ -42,7 +43,7 @@ def auroc(y_true, p_true) -> float:
 
 
 def binary_metrics(y_true: list[bool], p_true: list[float | None], threshold: float = 0.5) -> dict:
-    """All per-system metrics; probability metrics use 0.5 for unparsed answers."""
+    """All per-system metrics; AUROC/Brier use score proxies, with 0.5 for unparsed answers."""
     pred = predictions(y_true, p_true, threshold)
     correct = sum(p == y for p, y in zip(pred, y_true))
     n = len(y_true)
