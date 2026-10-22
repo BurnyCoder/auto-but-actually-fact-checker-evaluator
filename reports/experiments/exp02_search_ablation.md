@@ -23,7 +23,7 @@ labelled exploratory.
 | C simple + search | **0.890** | 0.890 [0.839, 0.926] | 0.85 | 0.93 | 0.956 | 0.087 | 1.03 | $2.30 |
 | B full prompt + search | 0.865 | 0.865 [0.811, 0.906] | 0.85 | 0.88 | 0.944 | 0.101 | 1.17 | $2.97 |
 
-| comparison | Δ balanced accuracy [95% paired bootstrap CI] | discordant (first right / second right) | exact McNemar p |
+| comparison | Δ balanced accuracy [95% paired bootstrap CI] | discordant: only the subtracted system right / only the first-named right | exact McNemar p |
 |---|---|---|---|
 | C − A (search effect) | **+0.135 [+0.086, +0.186]** | 2 / 29 | 4.6 × 10⁻⁷ |
 | B − C (rigorous prompt given search) | **−0.025 [−0.061, +0.010]** | 9 / 4 | 0.27 |
@@ -53,6 +53,6 @@ labelled exploratory.
 
 - Prompt complexity is not free. On a narrow accuracy metric it can be neutral or slightly negative, while it
   costs tokens and latency.
-- In the UI, users can switch off every block. The L1-style "search + minimal prompt" configuration is the
-  measured best accuracy-per-dollar setting for binary verification. Presets are kept unchanged because the
+- In the UI, users can switch off every block. System C (search + the minimal prompt) had the highest measured
+  accuracy for binary verification and cost 23% less than B. Presets are kept unchanged because the
   rigorous blocks serve the qualitative outputs.

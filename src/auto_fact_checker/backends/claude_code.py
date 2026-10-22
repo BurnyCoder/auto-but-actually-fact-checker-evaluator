@@ -63,7 +63,9 @@ def isolation_settings() -> dict:
 
     `--setting-sources project` does not stop ~/.claude/CLAUDE.md from loading (our live canary test answered YES),
     but `claudeMdExcludes` applies at every settings layer incl. --settings:
-    https://code.claude.com/docs/en/memory#exclude-specific-claude-md-files (patterns match absolute paths).
+    https://code.claude.com/docs/en/memory#exclude-specific-claude-md-files (patterns match absolute paths);
+    --settings is the "Command line" layer: https://code.claude.com/docs/en/settings#settings-precedence.
+    Managed (organization) CLAUDE.md files cannot be excluded this way.
     """
     home = Path.home() / ".claude"
     explicit = [str(home / "CLAUDE.md"), (home / "CLAUDE.md").as_posix(), str(home / "rules"), (home / "rules").as_posix()]

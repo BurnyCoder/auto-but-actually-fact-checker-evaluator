@@ -1,8 +1,8 @@
 # ai_errors_v1 — AI-research passages with injected factual errors (Exp08)
 
 **Built:** 2026-10-17 with `uv run afc ai-errors build --out benchmarks/ai_errors_v1` (seed 0). The design is
-pre-registered in [`docs/ai_error_bench.md`](../../docs/ai_error_bench.md). The dataset was frozen after the manual
-QC below and before any correction or judge call.
+pre-registered in [`docs/ai_error_bench.md`](../../docs/ai_error_bench.md). The dataset was frozen after the QC below
+(done by the AI coding agent that builds this repository, not by a human) and before any correction or judge call.
 
 ## Files
 
@@ -13,8 +13,8 @@ QC below and before any correction or judge call.
   - `perturbed`: the original with every error applied
   - `errors`: `[{id, error_type, original_sentence, perturbed_sentence, false_fact, true_fact}]`
   - `injector_run_ids`: the logged injection calls, in `runs/`
-  - `qc`: the manual QC edits for that passage
-- `dataset_raw.jsonl`: the injector's validated output before manual QC, kept for transparency.
+  - `qc`: the QC edits for that passage
+- `dataset_raw.jsonl`: the injector's validated output before QC, kept for transparency.
 
 ## Contents
 
@@ -56,14 +56,16 @@ entity", "wrong number") were also normalised to the five canonical names.
   - Validation now snaps a near-copy (similarity ≥ 0.9) to the passage's actual sentence.
   - Any extra change this could carry is visible in the QC diff below. None was found.
 
-## Manual QC log
+## QC log
 
-Every one of the 48 edits was read as a word-level diff of the original vs the corrupted sentence. Criteria:
+The AI coding agent read every one of the 48 edits as a word-level diff of the original vs the corrupted sentence.
+Criteria:
 - the corrupted sentence is objectively false according to the original
 - exactly one fact is changed
 - the claim is coherent, i.e. it asserts something checkable
 
-**42 edits passed unchanged.** Six were edited:
+**42 edits passed unchanged.** Six were edited: four repairs (two incoherent, one multi-fact, one still true) and
+two type relabels:
 
 | passage, error | injector's edit | problem | QC edit |
 |---|---|---|---|

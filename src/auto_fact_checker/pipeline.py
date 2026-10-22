@@ -62,7 +62,8 @@ def run_iteration(it: IterationResult, cfg: FactCheckConfig, ctx: RunContext) ->
                    for claim in it.claims]
     else:
         targets = [(it.input_text, None)]  # whole text; subagent strategies split it inside the agent
-    personas = cfg.perspective_scientists if cfg.scientist_strategy == "separate_call_per_scientist" else []
+    per_scientist = cfg.scientist_strategy == "separate_call_per_scientist" and cfg.steps["perspective"].enabled
+    personas = cfg.perspective_scientists if per_scientist else []  # UI perspective buttons ignore `enabled`
     jobs = [(i, target, context, persona) for i, (target, context) in enumerate(targets, 1)
             for persona in ([None] if cfg.steps["check"].enabled else []) + personas]
     results = parallel_map(lambda j: check(j[1], cfg, ctx, _label(p, j), step="perspective" if j[3] else "check",

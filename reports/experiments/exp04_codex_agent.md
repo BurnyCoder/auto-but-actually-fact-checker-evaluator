@@ -15,7 +15,7 @@ The 40 items are the first 40 of the Exp01 sample: 23 SUPPORT and 17 CONTRADICT.
 
 ## Results (paired on the same 40 items)
 
-| system | balanced accuracy on these 40 | E − system [95% paired bootstrap CI] | McNemar b / c, p | Δ AUROC (E − system) [95% CI] |
+| system | balanced accuracy on these 40 | E − system [95% paired bootstrap CI] | McNemar b / c, p (b = only the row's system right, c = only E right) | Δ AUROC (E − system) [95% CI] |
 |---|---|---|---|---|
 | E Codex agent, full prompt | 0.876 (Wilson accuracy CI [0.739, 0.945]) | – | – | – |
 | A minimal, no search | 0.825 | +0.051 [−0.073, +0.177] | 2 / 4, 0.69 | +0.028 [−0.041, +0.108] |
@@ -31,7 +31,8 @@ E's own metrics:
 ## Interpretation
 
 - **At n = 40 the agent is statistically indistinguishable from the single API calls.** Every balanced-accuracy
-  CI spans about ±10 pp. The AUROC CI against C just excludes 0, but that is 1 of 8 post-hoc comparisons and is
+  CI spans about ±10 pp. The AUROC CI against C just excludes 0, but that is 1 of 18 post-hoc tests (9 comparisons
+  × Δ balanced accuracy and Δ AUROC) and is
   not interpreted.
 - **This is not evidence that agents are useless for fact-checking.** The task (one atomic biomedical claim, one
   search usually enough) rewards one targeted search. Agents' advantages (multi-step research, reading full

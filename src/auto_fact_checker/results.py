@@ -91,7 +91,7 @@ _RUNS_LOCK = threading.Lock()
 
 
 def new_run(text: str, cfg: FactCheckConfig) -> FactCheckRun:
-    """Create and register a run with a sortable, readable id like 20261017_131500_gpt-3-has-175b."""
+    """Create and register a run with a sortable, readable id like 20261017_131500_123456_gpt-3-has-175b."""
     slug = re.sub(r"[^a-z0-9]+", "-", text.lower())[:24].strip("-") or "text"
     now = datetime.now()
     run = FactCheckRun(run_id=f"{now:%Y%m%d_%H%M%S_%f}_{slug}", created=now.isoformat(timespec="seconds"),

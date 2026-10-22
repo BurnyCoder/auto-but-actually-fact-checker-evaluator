@@ -1,5 +1,5 @@
 {
-  "_comment": "List-valued parts of the fact-checking prompt. Each list becomes a CheckboxGroup in the UI (all items selected by default) and is rendered into prompts/sections/*.md via Jinja2. Items are copied verbatim from prompts/original_prompt.md; claim_types extends the user's list from the feature request.",
+  "_comment": "List-valued parts of the fact-checking prompt. Each list becomes a CheckboxGroup in the UI (all items selected by default) and is rendered into prompts/sections/*.md via Jinja2. Items are copied verbatim from prompts/original_prompt.md, except two corrected spellings (Terence Tao, John von Neumann; see tests/test_prompts.py SPELLING); claim_types extends the user's list from the feature request.",
   "degrees": ["fully", "partially", "slightly"],
   "verdict_labels": [
     "accurate", "inaccurate", "misleading", "oversimplified", "unreliable", "vague", "undefined",
@@ -20,12 +20,12 @@
     "steelmanning", "in good faith"
   ],
   "scientists": [
-    "Karl Popper", "George E. P. Box", "Thomas Kuhn", "W. V. Quine", "Richard Feynman", "John Von Neumann",
+    "Karl Popper", "George E. P. Box", "Thomas Kuhn", "W. V. Quine", "Richard Feynman", "John von Neumann",
     "Alan Turing", "Albert Einstein", "James Clerk Maxwell", "Marie Curie", "Paul Dirac", "Wolfgang Pauli",
     "Emmy Noether", "Charles Darwin", "Rosalind Franklin", "Enrico Fermi", "Lev Landau", "Eugene Wigner",
     "Sidney Coleman", "Elliott Lieb", "Arthur Wightman", "Rudolf Haag", "Henry Cavendish", "Robert Millikan",
     "Henri Becquerel", "John Ioannidis", "Brian Nosek", "Andrew Gelman", "Barbara McClintock",
-    "Santiago Ramón y Cajal", "Uri Simonsohn", "Terrence Tao", "Edward Witten", "Leonard Susskind",
+    "Santiago Ramón y Cajal", "Uri Simonsohn", "Terence Tao", "Edward Witten", "Leonard Susskind",
     "Chris Olah", "Judea Pearl", "Jennifer Doudna", "Michael I. Jordan", "Cynthia Rudin", "Stuart Russell",
     "Percy Liang", "Ben Recht", "Zachary Lipton", "Moritz Hardt", "Sanjeev Arora", "Jacob Steinhardt",
     "Ali Rahimi", "Patrick Suppes", "Hans Reichenbach", "Rudolf Carnap", "Carl Hempel", "Tim Maudlin",

@@ -1,27 +1,28 @@
 # Configuration reference
 
-Every field below is a widget in the UI. The UI generates its widgets from these fields, so this list is complete
-by construction. Each field is also a key in preset JSON and in `afc check --set key=value`.
+Every field below is a widget in the UI (`tests/test_ui.py` checks that every config field has one); this table is
+kept in sync by hand. Each field is also a key in preset JSON and in `afc check --set key=value`. Ranges are the UI
+slider ranges (`ui.RANGES`).
 
 ## Per-step settings (`steps.<extract|check|perspective|synthesize|repair>.*`)
 
 | field | values | meaning |
 |---|---|---|
-| `enabled` | bool | skip the step. Extract off → whole text. Synthesize off → deterministic merge. Repair off → no JSON repair. Check off → only per-scientist calls run. |
-| `kind` | `api` / `agent` | one provider API request, or a CLI agent run |
-| `provider` | `openai` / `anthropic` | api+openai = Responses API, api+anthropic = Messages API, agent+openai = Codex, agent+anthropic = Claude Code |
+| `enabled` | bool (on) | skip the step. Extract off → whole text. Check off → only per-scientist calls run. Perspective off → no per-scientist calls (the UI's perspective buttons still run). Synthesize off → several results are merged deterministically, without a corrected whole text, so iteration stops. Repair off → no JSON repair. |
+| `kind` | `api` / `agent` (api) | one provider API request, or a CLI agent run |
+| `provider` | `openai` / `anthropic` (openai) | api+openai = Responses API, api+anthropic = Messages API, agent+openai = Codex, agent+anthropic = Claude Code |
 | `model` | any id | dropdown of `catalog.MODELS` with prices; custom ids allowed |
-| `effort` | none … max | reasoning depth |
+| `effort` | none … max (low) | reasoning depth; Anthropic/Claude Code map none/minimal → low, and a model rejects levels it lacks (gpt-6-luna has no minimal) |
 | `web_search` | bool | enables the provider's search tool; also turns the "search the web" sentences of the prompt on or off |
-| `search_context_size` | low/medium/high | OpenAI search context size |
-| `max_searches` | 0–50 | search cap (see [architecture](architecture.md#how-the-backends-map-the-settings)) |
-| `blocked_domains` | comma list | excluded from search (API backends) |
-| `allow_subagents` | bool | agents may spawn subagents. Subagent strategies require a Claude Code check agent. For Codex it only enables the `multi_agent` feature: in live tests with `gpt-6-luna` no sub-agent was ever spawned (Exp00) |
-| `max_subagents` | 1–30 | upper bound stated to the orchestrating agent |
-| `max_turns` | 0 = unlimited | Claude Code `--max-turns` |
-| `timeout_s` | seconds | agents: wall-clock limit, the process tree is killed; API calls: SDK request timeout |
+| `search_context_size` | low/medium/high (medium) | OpenAI search context size |
+| `max_searches` | 0–50 (5) | search cap (see [architecture](architecture.md#how-the-backends-map-the-settings)) |
+| `blocked_domains` | comma list (empty) | excluded from search: by the provider's domain filter for API steps, as a prompt instruction for agents |
+| `allow_subagents` | bool (off) | agents may spawn subagents. Subagent strategies require a Claude Code check agent. For Codex it only enables the `multi_agent` feature: in live tests with `gpt-6-luna` no sub-agent was ever spawned (Exp00) |
+| `max_subagents` | 1–30 (8) | upper bound stated to the orchestrating agent |
+| `max_turns` | 0–300 (0 = unlimited; `null` in JSON) | Claude Code `--max-turns` |
+| `timeout_s` | 60–7200 s (900) | agents: wall-clock limit, the process tree is killed; API calls: SDK request timeout |
 | `prompt_template` | file in `prompts/<step>/` | e.g. `check/rigorous_sections.md`, `minimal_baseline.md`, `neurips_review.md`; `extract/claimify.md`, `simple_list.md` |
-| `prompt_override` | Jinja text | replaces the template. Variables include `text`, `context`, `persona`, `sections_text`, `output_contract`, `reports`, `report`, the option lists, and the `web_search` / `confidence` / `classify` / `labels_on` flags |
+| `prompt_override` | Jinja text | replaces the template (and, for subagent strategies, the orchestrator wrapper). Variables include `text`, `context`, `persona`, `sections_text`, `output_contract`, `reports`, `report`, the option lists, and the `web_search` / `confidence` / `classify` / `labels_on` flags |
 
 Defaults: every step uses an OpenAI API call to `gpt-6-luna` with effort `low`. Web search is on only for `check`
 and `perspective`.
@@ -30,18 +31,18 @@ and `perspective`.
 
 | field | meaning |
 |---|---|
-| `claim_strategy` | `whole_text` · `subagent_per_claim` (check must be an agent with `allow_subagents`) · `separate_call_per_claim` (extract → one check per claim → synthesis) |
-| `scientist_strategy` | `none` (scientists only named in-prompt, via section 11) · `subagent_per_scientist` · `separate_call_per_scientist` (one perspective call per scientist per target) |
-| `perspective_scientists` | scientists for the per-scientist strategies and the UI's perspective buttons |
+| `claim_strategy` | `whole_text` (default) · `subagent_per_claim` (check must be a Claude Code agent with `allow_subagents`) · `separate_call_per_claim` (extract → one check per claim → synthesis) |
+| `scientist_strategy` | `none` (default; scientists only named in-prompt, via section 11) · `subagent_per_scientist` · `separate_call_per_scientist` (one perspective call per scientist per target) |
+| `perspective_scientists` | scientists for the per-scientist strategies and the UI's perspective buttons (Karl Popper, Richard Feynman, Andrew Gelman) |
 | `sections` | which prompt blocks go in (24 sections; NeurIPS role off by default) |
 | `conditions` | which scored conditions are requested (only while their section is on) |
 | `score_all_labels` | score every selected label per claim (default), or only those that apply |
-| `score_each_scientist` | add one scored "<scientist>'s standards" condition per named scientist |
+| `score_each_scientist` | off by default; add one scored "<scientist>'s standards" condition per named scientist |
 | `verdict_labels`, `degrees`, `styles`, `claim_types`, `scientists` | the lists rendered into the sections; extendable |
 | `custom_instructions` | appended after the sections |
-| `max_claims`, `max_parallel` | extraction cap; number of concurrent calls |
-| `iterate_until_accurate`, `accuracy_threshold`, `max_iterations`, `stop_on_fixed_point` | iteration control |
-| `max_cost_usd` | per-run budget (the global `SPEND_LIMIT_USD` applies on top) |
+| `max_claims`, `max_parallel` | extraction cap, 1–50 (15); number of concurrent calls, 1–16 (4) |
+| `iterate_until_accurate`, `accuracy_threshold`, `max_iterations`, `stop_on_fixed_point` | iteration control: off, 90 % (0–100), 3 (1–20), on |
+| `max_cost_usd` | per-run budget, 0.01–10 (1.0). It counts billed and notional (subscription-agent) cost, unlike the global `SPEND_LIMIT_USD`, which counts billed cost only and applies on top |
 
 ## Scored conditions
 
@@ -60,7 +61,7 @@ The 12 conditions and the meaning of each 0–100 % score are defined in `prompt
 
 | variable | default | meaning |
 |---|---|---|
-| `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` | – | API keys (read with pydantic-settings, never exported) |
+| `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` | – | API keys (read with pydantic-settings, not exported to the process environment; passed to agent processes only with `AGENT_AUTH=api_key`) |
 | `ANTHROPIC_WORKSPACE_ID` | – | sent as `anthropic-workspace-id`; required for keys not scoped to a workspace |
 | `AGENT_AUTH` | `subscription` | `subscription` strips the keys from agent processes; `api_key` passes them (Codex receives `CODEX_API_KEY`) |
 | `SPEND_LIMIT_USD` | `10` | global cap on billed spend in `logs/spend.jsonl`, checked before every call (soft: in-flight parallel calls can overshoot; uncatalogued models count as $0 with a warning) |

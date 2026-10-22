@@ -8,15 +8,17 @@ per scientist**. Every claim gets an accuracy score, every verdict label and eva
 
 ![The whole Auto Fact-Checker UI after a run: input text, done/cost status and the Claims table with six scored and corrected claims on the left; preset and settings on the right](docs/images/app.png)
 
-*The UI in a fullscreen 1920×1080 browser window after one run on the `ai_research` example, with the
+*The UI (full-page capture of a 1920×1080 browser window) after one run on the `ai_research` example, with the
 `L1_single_call_search` preset. Left: the input text, the status line with the run's cost, and the **Claims** tab
 (accuracy, confidence, claim types, strongest labels and a corrected claim per sentence). Right: the preset and the
 settings. The run is described under [Example](#example-the-ai-research-text).*
 
 ## Methodology
 
-**1. The prompt as building blocks.** [`prompts/original_prompt.md`](prompts/original_prompt.md) is split into 24
-toggleable sections. They are verbatim except for light rewording where a sentence had to be cut into separate blocks ([`prompts/sections/`](prompts/sections)). The added options are:
+**1. The prompt as building blocks.** [`prompts/original_prompt.md`](prompts/original_prompt.md) is split into 20
+toggleable sections (01–20 in [`prompts/sections/`](prompts/sections)). They are verbatim except for light rewording
+where a sentence had to be cut into separate blocks, and the "search the web" wording drops out when web search is
+off. Four added sections (00, 21–23) make 24 in total. The added options are:
 - the NeurIPS-reviewer role
 - claim classification
 - 0–100 % scoring
@@ -42,11 +44,13 @@ original.
   rationalist, Bayesian and frequentist perspectives, predictive power, and explanatory power.
 - a corrected claim
 
-The summary also contains a corrected whole text and a one-sentence-per-issue list. A field exists only while its
-section is switched on.
+The summary also contains a corrected whole text and a one-sentence-per-issue list. Claim types, confidences,
+labels and conditions are requested only while their sections are switched on; the accuracy, corrected claim,
+corrected text and issue list are always requested.
 
-**3. Granular execution: modes are only presets.** A run has five steps: **extract → check → perspective →
-synthesize → repair**. Each step has its own settings:
+**3. Granular execution: modes are only presets.** A run has five configurable steps: **extract**, **check**,
+**perspective**, **synthesize** and **repair** (repair runs only when an answer has no usable JSON summary). Each
+step has its own settings:
 - API call or agent
 - OpenAI or Anthropic
 - model (any listed model, with its price)
@@ -68,8 +72,8 @@ times.
 
 **5. Evaluation.** A pre-registered benchmark harness compares configurations on the same items. The data is
 SciFact claims, labelled SUPPORT vs CONTRADICT. The statistics are balanced accuracy, Wilson CIs, an exact
-McNemar test and paired-bootstrap CIs. Search results are filtered with dataset-host domain blocking and every
-source URL is checked for leakage. Design: [`docs/benchmark.md`](docs/benchmark.md). Results:
+McNemar test and paired-bootstrap CIs. Dataset hosts are blocked from search (by the API's domain filter; agents get
+the rule in their prompt) and every source URL is checked for leakage. Design: [`docs/benchmark.md`](docs/benchmark.md). Results:
 [`reports/`](reports). Two further benchmarks score *corrections* rather than verdicts:
 - Exp07 judges the correction loop's output against SciFact's gold abstracts ([`docs/correction_eval.md`](docs/correction_eval.md)).
 - Exp08 builds its own benchmark: real Wikipedia and arXiv AI-research passages with 0–5 injected, known errors.
@@ -82,16 +86,19 @@ These are pre-registered SciFact runs (n = 200 balanced claims, `gpt-6-luna`, on
 are in [`reports/all_experiments.md`](reports/all_experiments.md) and the paper is
 [`reports/paper/paper.pdf`](reports/paper/paper.pdf).
 
-| system | balanced accuracy [95% CI] | cost / 200 claims |
+| system | balanced accuracy [95% Wilson CI]¹ | cost / 200 claims |
 |---|---|---|
 | A simple call, no search | 0.755 [0.691, 0.809] | $0.06 |
 | B full rigorous prompt + web search | 0.865 [0.811, 0.906] | $2.97 |
 | C simple prompt + web search | 0.890 [0.839, 0.926] | $2.30 |
 | D full rigorous prompt, no search (post hoc) | 0.765 [0.702, 0.818] | $0.44 |
 
+¹ Wilson interval of accuracy, which equals balanced accuracy here because the sample is exactly 100 / 100.
+
 On 40 of the same claims (post hoc), agents running the full prompt were not better:
 - Codex: balanced accuracy 0.876
-- Claude Code with Haiku: 0.797, though with the best ranking (AUROC 0.962)
+- Claude Code with Haiku: 0.797. Its AUROC of 0.962 is above A, D and E but below B (0.978) and C (0.992) on the
+  same 40 claims.
 
 - **Web search is what helps.** B beats A by +0.110 [+0.062, +0.160] (McNemar p = 2.7 × 10⁻⁵), and search alone
   explains it (C − A = +0.135).
@@ -118,7 +125,8 @@ forced through 4 passes and scored 0–100 against the original passage:
 | full rigorous prompt | 40.0 → **85.7** → 86.2 | 0.97 → **0.90** |
 
 - One pass does the work.
-- Further passes add nothing. Under the rigorous prompt they hedge or drop correct facts while the text grows 62%.
+- Further passes add nothing. Under the rigorous prompt they erode fixes (pre-registered); post hoc, the lost fixes
+  were hedged or dropped correct facts, while the text grew 62%.
 - The naive prompt is at least as good and 6× faster.
 
 The whole project, from implementation through evaluation, cost $7.35 in billed API calls (`uv run afc spend`).
@@ -127,14 +135,14 @@ The whole project, from implementation through evaluation, cost $7.35 in billed 
 
 ```bash
 git clone https://github.com/BurnyCoder/auto-fact-checker && cd auto-fact-checker
-uv sync                      # creates .venv with Python 3.13 and all dependencies
+uv sync                      # creates .venv with Python 3.13 and the runtime dependencies (+ --group docs/paper)
 cp .env.example .env         # then put your OPENAI_API_KEY / ANTHROPIC_API_KEY in .env
 uv run afc ui                # opens http://127.0.0.1:7860
 ```
 
 Optional, needed only for agent steps:
 - [Claude Code](https://code.claude.com/docs/en/setup) (`claude`) and/or
-  [Codex CLI](https://learn.chatgpt.com/docs/non-interactive-mode) (`codex`) on `PATH`, logged in.
+  [Codex CLI](https://learn.chatgpt.com/docs/cli) (`codex`) on `PATH`, logged in.
 - With `AGENT_AUTH=subscription` (the default), API keys are removed from the agents' environment, so agents use
   those logins. Set `AGENT_AUTH=api_key` to bill the keys instead.
 
@@ -153,11 +161,11 @@ This is one run of the default preset `L1_single_call_search` on
 [`examples/ai_research.md`](examples/ai_research.md):
 - one `gpt-6-luna` call with web search, over the whole text, with the full prompt
 - 3 searches, $0.039
-- run `20261017_210452_941192`
+- run `20261017_210452_941192_the-transformer-architec`
 
 The screenshot at the top of this README shows its **Claims** tab. Against the answer key in
 [`docs/examples.md`](docs/examples.md):
-- The two accurate claims (Transformer 2017, GPT-3 175B) got 99% and 95%.
+- The two fully accurate claims (Transformer 2017, GPT-3 175B) got 99% and 95%.
 - Two of the planted errors scored low. "RLHF invented by OpenAI in 2022" got 15%, with the correction citing
   Christiano et al. 2017. "Emergent abilities proven to be phase transitions" got 5%.
 - The third planted error, "loss decreases exponentially", was corrected to Kaplan et al.'s power laws. It still
@@ -215,12 +223,13 @@ claim × scientist calls. You can save your own.
 
 **Iteration**: iterate until accurate, plus the endless **One more iteration** button.
 
-**Prompt preview**: the exact prompts each call type would send, and the `--agents` JSON.
+**Prompt preview**: the exact extract, check and perspective prompts (for the first perspective scientist) the
+configuration would send, and the `--agents` JSON.
 
 **Logging**:
 - Timestamped `logs/<time>.log` and terminal output in real time.
 - Every prompt and output in full, never truncated.
-- A per-run `runs/<id>/run.log` (shown live in the UI) and per-call artifact files.
+- A per-run `runs/<id>/run.log` (its last 80,000 characters are shown live in the UI) and per-call artifact files.
 
 **Cost control**:
 - Price catalog for all models.
@@ -239,8 +248,9 @@ Python 3.13 and [uv](https://docs.astral.sh/uv/) ·
 [Anthropic Python SDK](https://github.com/anthropics/anthropic-sdk-python) ·
 [Claude Code](https://code.claude.com/docs/en/headless) and [Codex CLI](https://learn.chatgpt.com/docs/non-interactive-mode) ·
 pydantic / pydantic-settings · Jinja2 · json-repair · psutil ·
-🤗 datasets / pandas (SciFact) · scikit-learn · statsmodels · pytest ·
-[Playwright](https://playwright.dev/python/) (README screenshots only).
+pandas + pyarrow (SciFact parquet) · scikit-learn · statsmodels · SciPy · pytest ·
+matplotlib and [Typst](https://typst.app/) (report figures and paper, `--group paper`) ·
+[Playwright](https://playwright.dev/python/) (README screenshots only, `--group docs`).
 
 ## What happens when you run it
 
@@ -260,13 +270,15 @@ pydantic / pydantic-settings · Jinja2 · json-repair · psutil ·
       *one separate call per scientist*, each target also gets one **perspective** call per scientist.
    3. With subagent strategies, a single Claude Code agent receives an orchestration prompt plus a `--agents` file,
       and spawns `claim-checker` / `scientist-perspective` subagents itself.
-   4. Every answer's JSON summary is parsed tolerantly. If it is missing, the **repair** step extracts it.
+   4. Every answer's JSON summary is parsed tolerantly. If it is missing, the **repair** step extracts it (unless
+      repair is switched off or the call itself failed, e.g. a refusal).
    5. **synthesize** merges per-scientist results per claim, then all claims into one report with a corrected
       whole text.
 4. **Stopping.** `iterate.should_stop` decides whether to run another pass (threshold, fixed point, missing
-   summary); budget and Stop are enforced per call by `RunContext`. The UI shows the result in tabs:
+   summary, no corrected text); budget and Stop are enforced per call by `RunContext`. The UI shows the result in
+   tabs:
    - Report, Claims, Labels, Conditions, Corrected text, Issues
-   - Iterations, Calls & cost, Live log
+   - Iterations, Perspectives, Calls & cost, Live log
    - Prompt preview, Raw JSON
 
 ## Architecture
@@ -303,13 +315,20 @@ More detail is in [`docs/architecture.md`](docs/architecture.md). Every setting 
   (`--dangerously-skip-permissions`, `--dangerously-bypass-approvals-and-sandbox`). The measures that are not
   sandboxing:
   - each agent runs in a fresh temporary directory
-  - Claude Code skips your settings, MCP servers, plugins and CLAUDE.md files
-  - Codex skips `config.toml` and its desktop features. Your global `~/.codex/AGENTS.md` is only excluded in
-    `AGENT_AUTH=api_key` mode; in subscription mode a developer instruction tells the agent to ignore it.
+  - Claude Code loads only project settings (`--setting-sources project`), so your user settings and the plugins
+    they enable are skipped. It also gets `--strict-mcp-config` (no MCP servers), `--disable-slash-commands`, and a
+    `--settings` file that excludes CLAUDE.md/AGENTS.md files and turns auto-memory off. Organization-managed
+    settings and CLAUDE.md still apply.
+  - Codex gets `--ignore-user-config` (no `config.toml`), `--ignore-rules`, and its desktop/browser-control,
+    apps, plugins and hooks features off. Your global `~/.codex/AGENTS.md` is only excluded in `AGENT_AUTH=api_key`
+    mode (empty `CODEX_HOME`). In both modes a developer instruction tells the agent to ignore coding, git and
+    project-setup instructions from AGENTS.md files.
   - API keys are stripped in subscription mode
-  - the checked text is wrapped in tags marked as data
+  - the checked text is wrapped in tags; the default templates also tell the model to treat it as data
+    (`check/minimal_baseline.md`, `extract/simple_list.md` and `repair/repair_json.md` only wrap it)
   - budgets and timeouts apply
-  - the UI only listens on 127.0.0.1
+  - the UI only listens on 127.0.0.1. Gradio's telemetry and version check contact api.gradio.app unless you set
+    `GRADIO_ANALYTICS_ENABLED=False` in the environment (the test suite does)
 
   Web pages or the text being checked can still contain prompt injections aimed at an agent that has shell access.
   Do not run agent steps on machines holding secrets you cannot risk.
@@ -324,8 +343,9 @@ src/auto_fact_checker/
   pipeline.py (the wrapper)  phases/  backends/  bench/  ui.py  __main__.py
 examples/       AI research / philosophy / engineering texts with planted errors (answer key: docs/examples.md)
 benchmarks/     ai_errors_v1/: frozen Exp08 dataset (Wikipedia + arXiv passages with injected errors)
-docs/           architecture, configuration, benchmark design, example answer key; images/ (UI screenshots)
-                and scripts/take_screenshots.py, which makes them
+docs/           architecture, configuration, the three pre-registrations (benchmark.md, correction_eval.md,
+                ai_error_bench.md), example answer key; images/ (UI screenshots) and scripts/take_screenshots.py
+                which makes them
 reports/        experiment reports, all_experiments.md, paper/
 tests/          offline pytest suite (fake backend) + live tests (`-m live`)
 ```
@@ -333,15 +353,17 @@ tests/          offline pytest suite (fake backend) + live tests (`-m live`)
 ## Tests
 
 ```bash
-uv run pytest            # offline: fake backend, no network, no cost
+uv run pytest            # offline: fake backend, no LLM or network call, no cost
 uv run pytest -m live    # real calls to gpt-6-luna / claude-haiku-5-5 / claude / codex (a few cents)
 ```
 
 ## Data and licences
 
-SciFact (Wadden et al., 2020) is CC BY-NC 2.0 and is downloaded at run time from the
-[Hugging Face parquet export](https://huggingface.co/datasets/allenai/scifact). Claim extraction follows Claimify
+SciFact (Wadden et al., 2020) is CC BY-NC 2.0 ([dataset card](https://huggingface.co/datasets/allenai/scifact)) and
+is downloaded at run time from the
+[Hugging Face parquet export](https://huggingface.co/datasets/allenai/scifact/tree/refs%2Fconvert%2Fparquet). Claim extraction follows Claimify
 (Metropolitansky & Larson, 2025, [arXiv:2502.10855](https://arxiv.org/abs/2502.10855)). The Exp08 passages come from
 Wikipedia lead sections ([CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); the corrupted versions are
 adaptations under the same licence) and arXiv abstracts (arXiv dedicates its metadata to
-[CC0 1.0](https://info.arxiv.org/help/license/index.html); each item links its paper, whose licence is shown there).
+[CC0 1.0](https://info.arxiv.org/help/license/index.html) without saying whether that covers abstracts; each item
+links its paper, whose licence is shown there).

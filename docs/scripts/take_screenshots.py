@@ -13,7 +13,7 @@ Sources: Playwright screenshots https://playwright.dev/python/docs/screenshots ;
 https://playwright.dev/python/docs/locators ; installed Edge/Chrome via `channel`
 https://playwright.dev/python/docs/browsers#google-chrome--microsoft-edge ; Gradio launch(prevent_thread_lock)
 https://www.gradio.app/docs/gradio/blocks#blocks-launch ; elem_id
-https://www.gradio.app/guides/custom-CSS-and-JS#the-elem_id-and-elem_classes-arguments
+https://www.gradio.app/guides/custom-CSS-and-JS ("The elem_id and elem_classes Arguments")
 """
 
 import argparse

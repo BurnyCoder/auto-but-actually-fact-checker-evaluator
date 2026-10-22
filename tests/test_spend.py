@@ -1,7 +1,8 @@
 """Tests for spend.py: the persistent spend ledger that enforces the global SPEND_LIMIT_USD cap.
 
 Global context: every LLM call goes through RunContext.call(), which calls spend.check_budget() before and
-spend.record() after the call, so the whole project can never exceed the configured dollar limit.
+spend.record() after the call, so no call starts once the configured dollar limit is reached (a soft cap:
+calls already in flight can overshoot it slightly).
 """
 
 import pytest

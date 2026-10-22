@@ -29,8 +29,11 @@ H1 counts as supported only if all three hold:
   - B settings: `max_tool_calls` = 3, `search_context_size` = medium, effort low, and the blocked domains
     huggingface.co, github.com, githubusercontent.com, kaggle.com, paperswithcode.com and allenai.org.
 - **Sample size:** the pilot (6 claims, seed 999) measured $0.0165 per claim on average for B (max $0.0237) and
-  $0.0003 for A. The pre-registered rule is "largest balanced n affordable within $5 at the pilot's worst-case
-  cost": 0.0237 × 200 = $4.74, so n = 200. Connor's McNemar formula needs n ≈ 155 for δ = 10 pp at ψ = 0.2.
+  $0.0003 for A. The pre-registered rule is "the largest balanced sample that fits the budget [about $5] at the
+  pilot's measured cost per item". It was applied conservatively, at the pilot's worst-case cost, which allows about
+  208 (with A's cost) and was rounded down to n = 200 (0.0237 × 200 = $4.74 for B); at the mean cost about 296
+  would have fitted. Connor's McNemar formula needs n ≈ 155 for δ = 10 pp at ψ = 0.2 (α = 0.05 two-sided, 80%
+  power).
 - **Noise control:** A was run a second time on the same 200 items (test–retest).
 
 ## Results
@@ -48,16 +51,16 @@ H1 counts as supported only if all three hold:
 
 As a secondary metric, AUROC also improved: Δ = +0.099 [+0.052, +0.150] (paired bootstrap, 2,000 resamples).
 
-**Sensitivity analyses** (pre-registered):
-- Dropping parse failures changes nothing: there were none.
-- Dropping leak-flagged items changes nothing: none were flagged; no consulted source matched a blocked host or
-  "scifact".
+**Sensitivity analyses:**
+- Dropping parse failures (pre-registered) changes nothing: there were none.
+- Dropping leak-flagged items (added post hoc; the pre-registration only says flags are counted) changes nothing:
+  none were flagged; no consulted source matched a blocked host or "scifact".
 
 **Test–retest of A** (same config, independent run):
 - 96.5% of predictions identical.
 - Retest balanced accuracy 0.760, Δ = +0.005 [−0.020, +0.031], McNemar 3 / 4, p = 1.0.
 
-So run-to-run noise is about ±2–3 pp in balanced accuracy, an order of magnitude smaller than the effect.
+So run-to-run noise is about ±2–3 pp in balanced accuracy, roughly a quarter of the 11 pp effect.
 
 Figures: [`reports/figures/fig1_balanced_accuracy.png`](../figures/fig1_balanced_accuracy.png) (balanced accuracy
 with CIs) and [`fig2_scores_by_gold_label.png`](../figures/fig2_scores_by_gold_label.png) (score distributions by
@@ -76,8 +79,8 @@ against 80 vs 15 for A. A has a large cluster of CONTRADICT claims scored 65–9
 
 ## Threats to validity
 
-- **Contamination.** SciFact (2020) is probably in the pretraining data. This would inflate A more than B; B still
-  improved.
+- **Contamination.** SciFact (2020) is probably in the pretraining data, which could inflate both systems; B still
+  improved over A.
 - **Leakage through search.** Dataset hosts were blocked and every source URL was checked: 0 flags. Blocking
   cannot catch unknown mirrors, so leakage cannot be fully ruled out.
 - **Gold semantics.** Labels are relative to one cited abstract. Some of B's "errors" may reflect newer or broader

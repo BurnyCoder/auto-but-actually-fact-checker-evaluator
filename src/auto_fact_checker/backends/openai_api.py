@@ -24,7 +24,7 @@ def build_kwargs(req: LLMRequest) -> dict:
     kw = {"model": req.model, "input": req.prompt, "reasoning": {"effort": req.effort}}
     if req.web_search:
         tool = {"type": "web_search", "search_context_size": req.search_context_size,
-                "user_location": {"type": "approximate"}}  # avoids the default United States localisation
+                "user_location": {"type": "approximate"}}  # omitted -> "defaults to the United States" (Responses API ref)
         if req.blocked_domains:
             tool["filters"] = {"blocked_domains": req.blocked_domains}  # e.g. benchmark hosts (leakage guard)
         kw |= {"tools": [tool], "include": ["web_search_call.action.sources"],  # every URL consulted

@@ -21,6 +21,13 @@ def test_cached_input_priced_separately():
     assert catalog.cost_usd("gpt-6-luna", 200_000, 0, cached_input_tokens=200_000) == pytest.approx(0.002)
 
 
+def test_long_tier_also_raises_the_cached_rate():
+    # Long prompts are "priced at 2x input and cache rates" (gpt-6-luna model page): $0.02/1M cached for Luna;
+    # Haiku 5.5 cache hits cost $0.05/1M over 100K tokens (Anthropic pricing page)
+    assert catalog.cost_usd("gpt-6-luna", 300_000, 0, cached_input_tokens=300_000) == pytest.approx(0.3 * 0.02)
+    assert catalog.cost_usd("claude-haiku-5-5", 200_000, 0, cached_input_tokens=200_000) == pytest.approx(0.2 * 0.05)
+
+
 def test_haiku_long_context_tier():
     short = catalog.cost_usd("claude-haiku-5-5", 100_000, 0)  # at the 100K threshold: base tier
     long = catalog.cost_usd("claude-haiku-5-5", 100_001, 0)  # above it: $0.50/1M for the whole request

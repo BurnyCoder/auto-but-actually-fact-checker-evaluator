@@ -72,7 +72,10 @@ def attach_run_log(path: Path, run_id: str) -> logging.Handler:
     handler = logging.FileHandler(path, encoding="utf-8")
     handler.setFormatter(logging.Formatter(FORMAT, DATEFMT))
     handler.addFilter(_RunFilter(run_id))
-    logging.getLogger(ROOT_LOGGER).addHandler(handler)
+    logger = logging.getLogger(ROOT_LOGGER)
+    if logger.level == logging.NOTSET:  # without setup_logging (library use) INFO lines would fall to root's WARNING
+        logger.setLevel(logging.INFO)
+    logger.addHandler(handler)
     return handler
 
 
