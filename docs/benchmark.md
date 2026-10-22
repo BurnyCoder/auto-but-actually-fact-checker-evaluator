@@ -21,7 +21,8 @@ claims more accurately than a simple single LLM call?
   No prompt or threshold is tuned on any of these items, so every pool item is held out.
 - **Sample:** balanced (equal SUPPORT and CONTRADICT), seed 0, drawn with `bench/datasets.sample_balanced`.
 - **Pilot:** a separately seeded handful of items (seed 999) measures cost per item. Pilot items are excluded from
-  the main sample (`--exclude-from`) and are never analysed for accuracy.
+  the main sample (`--exclude-from`). The original plan said they would never be analysed for accuracy; the
+  runner nevertheless generated pilot metrics (see the dated clarification below).
 
 ## Systems (pre-specified, `configs/bench/`)
 
@@ -70,9 +71,9 @@ claims more accurately than a simple single LLM call?
     paperswithcode.com, allenai.org (OpenAI `filters.blocked_domains`).
   - Every consulted URL is logged, and items whose sources contain these hosts or "scifact" are flagged
     (`leak`) and counted.
-- **Pretraining contamination.** SciFact (2020) is probably in the model's training data, which affects both
-  systems.
-- **Label semantics.** Gold labels are relative to one cited abstract. The open web may hold newer or
+- **Pretraining contamination.** SciFact (2020) may occur in the models' training data; exposure and its effect
+  on these systems were not measured.
+- **Label semantics.** Gold labels are relative to the cited evidence abstract(s). The open web may hold newer or
   conflicting evidence, so some disagreements with the gold label are not errors.
 - **Construct validity.** SciFact CONTRADICT claims are often negations of a sentence in the source, so the
   benchmark partly measures retrieval.
@@ -88,3 +89,15 @@ uv run afc bench --systems configs/bench/baseline.json configs/bench/full_single
 uv run afc bench --systems configs/bench/baseline.json configs/bench/full_single_openai.json \
   --n N --seed 0 --exclude-from reports/results/exp01_pilot --max-cost 5 --out reports/results/exp01
 ```
+
+## Methodological clarification — 2026-10-22
+
+The [original committed plan](https://github.com/BurnyCoder/auto-fact-checker/blob/378c59b/docs/benchmark.md)
+remains the historical specification. Its “falsified” rule above means the prespecified support criterion was
+not met; a confidence interval containing zero does not establish equality or absence of an effect
+([ASA statement](https://doi.org/10.1080/00031305.2016.1154108)). No primary metric or historical result was changed.
+
+The runner calculated pilot accuracy and paired statistics in
+[`exp01_pilot/results.md`](../reports/results/exp01_pilot/results.md). The six pilot items are excluded from the
+main sample; the statement that their accuracy was never analysed was too strong. A single baseline retest
+describes that pair of runs, not a general estimate of generator variance across runs or configurations.

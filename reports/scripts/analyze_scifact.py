@@ -12,6 +12,7 @@ parse failures; dropping leak-flagged items). Writes reports/results/scifact_ana
 
 import json
 import random
+from statistics import median
 from pathlib import Path
 
 from auto_fact_checker.bench import metrics
@@ -138,11 +139,12 @@ def figures(recs, out) -> None:
             ax.scatter([g + rng.uniform(-0.18, 0.18) for _ in vals], vals, s=7, alpha=0.45, color=COLORS[s],
                        edgecolors="none")
             if vals:
-                ax.plot([g - 0.25, g + 0.25], [sorted(vals)[len(vals) // 2]] * 2, color="#0b0b0b", lw=2)
+                # Average the middle pair for even samples: https://docs.python.org/3/library/statistics.html#statistics.median
+                ax.plot([g - 0.25, g + 0.25], [median(vals)] * 2, color="#0b0b0b", lw=2)
         ax.axhline(50, color="#a3a29c", lw=1, ls=":")
         ax.set_xticks([0, 1], ["SUPPORT", "CONTRA."])
         ax.set_title(LABELS[s], fontsize=8)
-    axes[0].set_ylabel("predicted accuracy (%)")
+    axes[0].set_ylabel("model-reported accuracy (%)")
     fig.suptitle("Black bar = median; dotted line = decision threshold (50%)", fontsize=8, y=1.02)
     fig.savefig(FIG / "fig2_scores_by_gold_label.png", dpi=200, bbox_inches="tight")
     fig.savefig(FIG / "fig2_scores_by_gold_label.pdf", bbox_inches="tight")

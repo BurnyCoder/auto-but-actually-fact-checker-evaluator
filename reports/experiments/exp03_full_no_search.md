@@ -26,17 +26,17 @@ knowledge, a setting where instructions such as "double check yourself" and "be 
 | C − A (search, minimal prompt) | +0.135 [+0.086, +0.186] | 2 / 29, 4.6×10⁻⁷ | +0.112 [+0.065, +0.163] |
 | B − D (search, full prompt) | +0.100 [+0.055, +0.148] | 2 / 22, 3.6×10⁻⁵ | +0.053 [+0.021, +0.089] |
 
-**Main effects** (2×2, balanced accuracy):
+**Simple contrasts** (2×2, balanced accuracy; no factorial interaction test):
 - Search: about +0.10 to +0.135, clearly non-zero under both prompts.
 - Prompt: −0.025 to +0.010, not distinguishable from zero under either search setting.
 
 ## Interpretation
 
-- **The verdict accuracy of the rigorous prompt is null with and without search.** The 2×2 rules out the
-  explanation that search simply makes the prompt redundant.
+- **No verdict improvement from the rigorous prompt was detected in either search condition.** The intervals
+  allow effects in both directions; this does not establish zero effects or rule out a prompt–search interaction.
 - **Hypothesis-generating:**
   - Without search, the full prompt **improves ranking**: AUROC +0.047 [+0.013, +0.082] and Brier 0.165 → 0.142.
-  - It does not improve thresholded verdicts.
+  - No improvement in thresholded verdicts was detected.
   - Its scores are less extreme. The median for SUPPORT drops from 80 to 68 and for CONTRADICT rises from 15 to
     20, consistent with more hedging.
   - This is 1 of 9 post-hoc comparisons (18 post-hoc tests counting Δ AUROC) and the CI lower bound is close to 0,

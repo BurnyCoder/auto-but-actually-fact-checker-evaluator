@@ -111,7 +111,11 @@ def analyse(recs: list[dict], primary: str, secondary: str) -> dict:
 
 
 def trajectory(recs, judge, max_k: int = 8) -> list[dict]:
-    """State after k passes (k = 0: original), items carried forward after they stop (no survivorship bias)."""
+    """Latest proposal after k passes; stopped proposals carry forward and missing judgments are excluded.
+
+    This historical curve is not the returned-answer policy: a stopping pass can return its input while
+    proposing a different correction. Each row reports its actual judged denominator and active self-ratings.
+    """
     rows = []
     for k in range(max_k + 1):
         corr, selfs = [], []
@@ -143,12 +147,14 @@ def figure(results: dict) -> None:
     for ax, arm in zip(axes[0], arms):
         tr = [t for t in results[arm]["trajectory"] if t["judge_correct"] is not None]
         ax.plot([t["k"] for t in tr], [t["judge_correct"] for t in tr], "-o", color=COLORS["judge"], ms=5,
-                label=f"judged correct by gold evidence ({results[arm]['primary_judge']})")
+                label=f"latest proposal, judged correct ({results[arm]['primary_judge']})")
         st = [t for t in results[arm]["trajectory"] if t["self_accuracy_of_input"] is not None]
         ax.plot([t["k"] for t in st], [t["self_accuracy_of_input"] for t in st], "-s", color=COLORS["self"], ms=4,
                 label="loop's own accuracy rating of the text it checks")
         ax.set_title(f"{arm} loop (n = {results[arm]['n_items']})", fontsize=9)
-        ax.set_xlabel("passes completed (0 = original claim; stopped items carried forward)")
+        ax.set_xlabel("passes completed (stopped proposals carried forward)")
+        ax.text(0.02, 0.98, "judged n = " + ", ".join(str(t["n"]) for t in tr),
+                transform=ax.transAxes, va="top", fontsize=6)  # Expose missing judgments rather than implying n=100.
         ax.set_ylim(0, 1.02)
     axes[0][0].set_ylabel("share / mean (0-1)")
     axes[0][0].legend(fontsize=7, loc="lower right", frameon=False)

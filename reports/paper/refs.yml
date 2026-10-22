@@ -5,6 +5,18 @@ scifact:
   date: 2020
   parent: {type: proceedings, title: "EMNLP 2020"}
   url: https://arxiv.org/abs/2004.14974
+asa:
+  type: article
+  title: "The ASA Statement on p-Values: Context, Process, and Purpose"
+  author: ["Wasserstein, Ronald L.", "Lazar, Nicole A."]
+  date: 2016
+  url: https://doi.org/10.1080/00031305.2016.1154108
+lstm:
+  type: article
+  title: "Long Short-Term Memory"
+  author: ["Hochreiter, Sepp", "Schmidhuber, Jürgen"]
+  date: 1997
+  url: https://doi.org/10.1162/neco.1997.9.8.1735
 safe:
   type: article
   title: "Long-form factuality in large language models"
@@ -64,24 +76,28 @@ mcnemar:
   author: ["McNemar, Quinn"]
   date: 1947
   parent: {type: periodical, title: "Psychometrika", volume: 12}
+  url: https://doi.org/10.1007/BF02295996
 dietterich:
   type: article
   title: "Approximate Statistical Tests for Comparing Supervised Classification Learning Algorithms"
   author: ["Dietterich, Thomas G."]
   date: 1998
   parent: {type: periodical, title: "Neural Computation", volume: 10}
+  url: https://pubmed.ncbi.nlm.nih.gov/9744903/
 bergkirkpatrick:
   type: article
   title: "An Empirical Investigation of Statistical Significance in NLP"
   author: ["Berg-Kirkpatrick, Taylor", "Burkett, David", "Klein, Dan"]
   date: 2012
   parent: {type: proceedings, title: "EMNLP-CoNLL 2012"}
+  url: https://aclanthology.org/D12-1091/
 connor:
   type: article
   title: "Sample size for testing differences in proportions for the paired-sample design"
   author: ["Connor, Roger J."]
   date: 1987
   parent: {type: periodical, title: "Biometrics", volume: 43}
+  url: https://pubmed.ncbi.nlm.nih.gov/3567305/
 factcc:
   type: article
   title: "Evaluating the Factual Consistency of Abstractive Text Summarization"

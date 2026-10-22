@@ -2,7 +2,8 @@
 
 **Pre-registration:** [`docs/ai_error_bench.md`](../../docs/ai_error_bench.md). It was committed (PR #19) before the
 dataset was built and before any correction or judge call, together with the analysis script
-[`reports/scripts/analyze_ai_errors.py`](../scripts/analyze_ai_errors.py), which was not changed afterwards.
+[`reports/scripts/analyze_ai_errors.py`](../scripts/analyze_ai_errors.py). Its statistical calculations are
+unchanged; a figure-axis label was clarified on 2026-10-22 to distinguish partial-credit scores from full fixes.
 
 **Data:**
 - benchmark: [`benchmarks/ai_errors_v1/`](../../benchmarks/ai_errors_v1), frozen in PR #20 before any correction run
@@ -24,9 +25,9 @@ correction several times make the text better than running it once? Does a long 
 **Benchmark.**
 - 20 real passages: 10 Wikipedia lead sections and 10 arXiv abstracts about AI research (AlexNet, Transformer,
   GPT-3, RLHF, ResNet, LoRA, Chinchilla, …). Each is 107–180 words.
-- Each passage got k ∈ {0, …, 5} injected errors (seed 0, same k distribution per source), 48 errors in total.
-- The 4 passages with k = 0 are clean controls.
-- Each error changes one checkable fact. Types:
+- Each passage got k ∈ {0, …, 5} annotated edits (seed 0, same k distribution per source), 48 in total.
+- The 4 passages with k = 0 have no injected edits; their source text is not independently error-free.
+- Each edit was intended to change one checkable fact. One is ambiguous (see the dated reassessment). Types:
   - wrong number/year: 15
   - swapped entity: 13
   - negation/reversal: 11
@@ -39,7 +40,7 @@ correction several times make the text better than running it once? Does a long 
   "inherently makes them better".
 
 **Arms.**
-- **Agent:** Codex (`gpt-6-luna`, effort low), live web search with at most 3 searches per pass.
+- **Agent:** Codex (`gpt-6-luna`, effort low), live web search; the prompt requests at most 3 searches per pass.
 - **Hosts:** none blocked; finding the source is legitimate fact-checking.
 - **Prompts:**
   - *Naive:* "Fact-check the following text." plus the minimal JSON contract with `corrected_text`.
@@ -66,11 +67,13 @@ correction several times make the text better than running it once? Does a long 
 | original passage: errors marked corrected / introduced errors | 0.98 / 0 | 1.00 / 0 |
 | corrupted input: errors marked corrected | 0.00 | 0.00 |
 | corrupted input: mean score for k = 0 / 1 / 2 / 3 / 4 / 5 | 100 / 66 / 39 / 13 / 7.5 / 7.5 | 100 / 94 / 81 / 76 / 60 / 60 |
-| Spearman ρ (k, corrupted-input score) | −0.81 (p = 3 × 10⁻¹⁰) | −0.92 (p = 2 × 10⁻¹⁷) |
+| Spearman ρ (k, corrupted-input score), descriptive | −0.81 | −0.92 |
 | test–retest: the same corrupted text judged in both arms, mean \|Δ\| | 3.9 points | 4.5 points |
 
 **Gate:** originals ≥ 90 and corrupted-input fix rate ≤ 0.2. Both held (checked from the `validity` fields of
 `ai_errors_analysis.json`; the script does not apply the gate itself).
+The stored correlation p-values pool two judgments of each of 20 passages and treat them as independent;
+they are not reported as inferential evidence here. Passing the gate does not validate every judgment.
 
 **Further checks:**
 - A deterministic number check (true number present ∧ false number absent) agrees with Haiku's per-error status on
@@ -83,12 +86,12 @@ correction several times make the text better than running it once? Does a long 
 ![fig4](../figures/fig4_ai_errors_passes.png)
 
 **Fig. 4.** Mean score and mean per-error fix score after each pass, with 95% bootstrap bands (n = 20 passages,
-48 errors). Pass 0 is judged separately in each arm, hence 40.0 vs 38.6.
+48 annotated edits). Pass 0 is judged separately in each arm, hence 40.0 vs 38.6.
 
 | primary judge (Haiku) | naive prompt | rigorous prompt |
 |---|---|---|
 | score: corrupted input → pass 1 → 2 → 3 → 4 | 38.6 → **90.4** → 89.4 → 88.7 → 89.4 | 40.0 → **85.7** → 84.4 → 85.4 → 86.2 |
-| injected errors fixed (mean of 1 / 0.5 / 0), pass 1 → 4 | 0.958 → 0.969 | 0.969 → **0.896** |
+| weighted edit-fix score (mean of 1 / 0.5 / 0), pass 1 → 4 | 0.958 → 0.969 | 0.969 → **0.896** |
 | fully corrected errors, pass 1 → 4 (of 48) | 44 → 45 | 45 → **38** |
 | introduced errors per passage, pass 1 → 4 | 0.40 → 0.40 | 0.70 → 0.45 |
 | self-rated accuracy of the text checked, pass 1 → 4 | 68 → 98 | 64 → 96 |
@@ -99,15 +102,16 @@ correction several times make the text better than running it once? Does a long 
 - *Naive:* corrupted input → pass 1 Δ = **+51.8 [+34.1, +68.9]**, Wilcoxon p = 0.0007.
 - *Rigorous:* Δ = **+45.8 [+28.8, +61.9]**, p = 0.0009.
 - The 4 passages that got worse are the 4 clean controls.
-- One pass fixed 96–97% of the injected errors.
+- One pass fully corrected 44/48 (91.7%) and 45/48 (93.8%) annotated edits according to Haiku.
+  The weighted scores 0.958 and 0.969 also grant half credit to partial fixes; they are not percentages fully fixed.
 
-**H1 — more passes do not help (primary: no detectable difference).**
+**H1 — no detectable improvement from more passes in this sample.**
 - *Rigorous*, pass 4 vs pass 1: Δ = **+0.45 [−4.55, +4.80]** (10 better, 8 worse, 2 same), p = 0.43.
 - *Naive:* Δ = −1.0 [−6.75, +5.30], p = 0.13.
 - *Luna judge* (robustness): rigorous +2.2 [−0.25, +4.75]; naive −1.55 [−3.60, +0.45]. Both CIs include 0.
 - *Net fixes* (Σ fix − introduced): rigorous +0.08 [−0.35, +0.48], naive +0.03 [−0.33, +0.40].
-- **Reading:** the falsification condition (Δ ≤ 0, or a CI that includes 0) is met, so the data do not support
-  "iteration makes text better". At n = 20, effects of about d_z < 0.65 cannot be excluded.
+- **Reading:** the prespecified support criterion is not met. The interval permits both improvement and harm;
+  the planned detectable effect size is not a bound on effects compatible with these observations.
 
 **Secondary (pre-registered): iteration erodes fixes under the rigorous prompt.**
 - Per-passage fix rate, pass 4 vs 1: **−0.067 [−0.117, −0.022]**. 6 of 16 passages are worse and none better,
@@ -120,11 +124,12 @@ correction several times make the text better than running it once? Does a long 
   - negations 0.91 → 0.86
   - swapped entities 1.00 → 0.96
 
-**H2 — the rigorous prompt does not beat the naive one.**
+**H2 — no detectable mean-score advantage for the rigorous prompt.**
 - Pass 1: rigorous − naive = **−4.65 [−10.15, +1.80]**. 3 passages better, 16 worse; Wilcoxon p = 0.017.
 - Pass 4: −3.2 [−8.4, +1.75], p = 0.29.
-- The bootstrap CI includes 0, so the pre-registered reading is no detectable difference. The signed-rank test
-  says the rigorous arm scores consistently, if slightly, lower.
+- The mean-difference bootstrap CI includes 0. The signed-rank test concerns the distribution of paired
+  differences, not the mean alone; its nominal p-value does not establish a significant mean difference or
+  equivalence. These are different estimands ([SciPy documentation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wilcoxon.html)).
 - The rigorous arm also costs 6× the time and 12× the output tokens per pass.
 
 **Harm on clean controls (k = 0, n = 4).**
@@ -134,7 +139,7 @@ correction several times make the text better than running it once? Does a long 
 
 **Derived self-stop.**
 - The loop would have stopped at pass 2 (returning pass 1's text) for 17/20 (naive) and 12/20 (rigorous) passages.
-- Its answer equals pass 1 in score: naive Δ 0.0 [−1.5, +1.5], rigorous +1.45 [−0.35, +3.55].
+- Its observed mean differs from pass 1 by naive Δ 0.0 [−1.5, +1.5], rigorous +1.45 [−0.35, +3.55].
 - Self-rated accuracy jumped to 95–98 after one pass and stayed there, whatever the judge said.
 
 **Sources.**
@@ -154,43 +159,30 @@ correction several times make the text better than running it once? Does a long 
 - All 20 passages were rewritten in every pass in both arms.
 - This is the same hedging drift as in Exp07, now measured per fact.
 
-**2. None of the "introduced errors" is clearly an error.**
-The AI coding agent checked every statement the primary judge flagged after pass 1 (8 naive, 14 rigorous) against
-the primary paper. Sources are in `exp08_posthoc.py`.
-
-| flagged statements (pass 1, n = 22) | count | examples |
-|---|---|---|
-| genuinely false | **0** | – |
-| true per the primary source, absent from or conflicting with the reference | **13** | AlexNet "500,000 neurons" (the NeurIPS abstract page says 500,000, the PDF and Wikipedia 650,000; first classified as false, corrected 2026-10-22); "10.9 points" ahead of the runner-up (26.2 − 15.3; Wikipedia: "more than 10.8"); the Transformer paper's Results section says **41.0** BLEU while its abstract says 41.8; parsing F1 91.3 / 92.7; ResNet's CIFAR-10 nets have **110 and 1202** layers (abstract: "100 and 1000"); Chinchilla is *not* uniformly better (it loses on 4 MMLU and 4 BIG-bench tasks); self-attention is permutation-*equivariant* |
-| hedge or scope qualification of a reference claim | 9 | "does not establish general superiority", "attention weights do not measure token importance" |
-
-The corrector, using primary sources, sometimes found inconsistencies in the source passages themselves. The
-reference judge counts these against it. This happened despite its instruction that correct extra details are not
-errors.
+**2. Reassessment of judge-flagged statements.**
+The historical AI-agent annotations classified 13 flags as true per a source and 9 as qualifications. Those
+annotations are retained in `exp08_posthoc.json`, but they are not verified truth labels. The independent dated
+reassessment below distinguishes supported details from source conflicts and unresolved claims.
 
 ## Interpretation
 
-1. **One correction pass does almost all the work.** With web search, the agent fixed 96–97% of the obvious
-   injected errors in one pass and raised the score from about 40 to 86–90 (H3). Exp07 found one pass gave the
-   whole gain on SciFact claims too, but repaired only about half of the false claims. Obvious single-fact errors
-   in famous AI papers are far easier to repair than subtle biomedical claims.
-2. **Iterating does not make the text better** (H1, both prompts, both judges). Under the rigorous prompt it makes
-   the text *less specific*:
+1. **Most observed improvement occurred in the first pass.** The weighted edit-fix score reached 0.958–0.969
+   and the whole-text judge score rose from about 40 to 86–90. Exp07 and Exp08 use different tasks and judges'
+   criteria; their scores do not establish an intrinsic difficulty ranking between the domains.
+2. **No detectable mean-score gain from further passes** (H1, both prompts, both judges). Under the rigorous
+   prompt the stored annotations show loss of specificity:
    - correct facts restored in pass 1 are hedged or dropped later (fix rate −0.067)
-   - the text grows 62% longer
+   - the pass-4 text is 62% longer than the original reference on average
    - the loop's self-rating stays at 96%
 
-   No fixed injected error ever reverted to its false value; the measured loss is hedging and deletion. Statements
-   the judge flagged as introduced after pass 1 were audited (none clearly false); those after passes 2–4 were not.
-3. **The naive prompt is at least as good and far cheaper** (H2). This agrees with Exp02 (SciFact verdicts): the
-   long rigorous prompt adds cost, not accuracy. Here it also adds text that a reference-based judge penalises.
-4. **Clean text is never left alone.** All 4 controls were rewritten in every pass, and their reference-based
-   score fell 8–15 points. But the audit (post hoc, pass 1) suggests the "harm" is true additions and hedges, not
-   false statements.
-5. **Measurement caveat.** The holistic score measures faithfulness to the original passage, not truth.
-   - Correctors with web search add true, more precise details and get penalised for it.
-   - The per-error fix score is the cleaner measure. It gives the same answer: one pass ≈ 0.96–0.97; after four
-     passes 0.969 (naive, +0.01) and 0.896 (rigorous, −0.07).
+   No fully corrected annotation was subsequently scored uncorrected. This describes judge classifications,
+   not an exhaustive factual audit; flags from passes 2–4 were not individually reassessed.
+3. **The naive arm had a higher observed mean and lower runtime.** Its pass-1 mean was 90.35 versus 85.7,
+   with approximately one sixth of the runtime. This does not establish noninferiority or general superiority.
+4. **Every no-injection control was rewritten in this experiment.** Their reference scores fell, but the
+   classification of that change as factual harm is uncertain because some flagged additions are supported.
+5. **Measurement caveat.** The holistic score is a reference-based LLM rating, not verified truth. Weighted
+   per-edit scores isolate the annotated edits more directly, but retain annotation and judge errors.
 
 ## Deviations from the pre-registration
 
@@ -209,20 +201,41 @@ errors.
 - Post-hoc audit: the AlexNet "500,000 neurons" statement was first classified as false and reclassified on
   2026-10-22 as a primary-source inconsistency (see the audit table).
 
+## Dated reassessment — 2026-10-22
+
+Raw text, original annotations and primary numerical results remain unchanged. LSTM annotation 3 changes
+“can last thousands” to “can last three” timesteps without saying “only”; short memory capability is not
+excluded by long memory capability ([LSTM paper](https://doi.org/10.1162/neco.1997.9.8.1735)). Excluding only
+that annotation gives this **post-hoc sensitivity**, computed from existing judgments:
+
+| weighted edit-fix score, 47 annotations | pass 1 | pass 4 |
+|---|---|---|
+| naive | 0.968085 | 0.978723 |
+| rigorous | 0.978723 | 0.904255 |
+
+No whole-text score was changed or rejudged. A source passage is also not a truth oracle: the Transformer
+reference describes self-attention as invariant, whereas the applicable self-attention blocks are equivariant
+([Set Transformer, §3.1 Property 1](https://proceedings.mlr.press/v97/lee19d/lee19d.pdf)).
+
+The [item-level provenance](../results/exp08_claim_provenance_2026-10-22.json) reassesses all 22 pass-1 flags:
+**10 supported details, 3 conflicting-source flags, 5 qualified inferences, 4 unresolved statements**.
+AlexNet's neuron count and the Transformer's BLEU discrepancy are source conflicts, not proven true numbers.
+The broad claims about attention importance, LSTM etymology, GAN variants and diffusion terminology remain
+unresolved. These classifications are an AI-agent literature assessment, not new ground-truth labels.
+
 ## Limitations
 
 - **Small n.** 20 passages give power only for large per-passage effects (d_z ≳ 0.65). The error-level analyses
   rest on 48 errors clustered in 16 passages.
 - **Synthetic, obvious errors.** Each changes one fact in famous, heavily cited sources. Real-world errors (subtle
   misreadings, overgeneralisations) are harder; see Exp07.
-- **Contamination.** The passages and papers are almost certainly in the model's pretraining data, and the agent
+- **Contamination.** The passages and papers may be in the model's undisclosed pretraining data, and the agent
   also found the arXiv abstracts online. The benchmark measures repair *with* the answer reachable, not detection
   from first principles.
 - **Same model family.** `gpt-6-luna` both injected and corrected the errors, which could make the edits easier
   for it to spot.
-- **Reference-based judging penalises true additions** (post-hoc audit above). The holistic score likely
-  underestimates accuracy when correctors add true details, and the rigorous arm, which writes more, is penalised
-  more. The judge can also miss errors, so the score is not a strict bound either way.
+- **Reference-based judging can penalise supported additions** (reassessment above). The net bias is unknown:
+  the judge can also miss errors, and source conflicts remain unresolved.
 - **QC and audit by an AI agent.** The dataset QC and the introduced-error audit were done by the AI coding agent
   that builds this repository, not by a human expert.
 - **One corrector run per arm**, with no corrector test–retest; one model at low effort.
@@ -230,9 +243,13 @@ errors.
 
 ## Learnings
 
-- Run one correction pass. Further passes are not neutral: with a long rigorous prompt they trade specific
-  correct facts for hedges while the self-rating says 96%.
-- A reference-based judge must be audited. Here all 22 "introduced errors" after pass 1 were true statements
-  (13, one of them matching only part of the primary source) or hedges (9).
+- This sample supports investigating a single correction pass: later passes had no detectable mean-score gain
+  and the rigorous arm lost weighted edit-fix score. Broader recommendations require independent replication.
+- A reference-based judge needs validation beyond its own reference scores; the dated reassessment leaves four
+  flags unresolved and three with conflicting sources.
 - Injecting errors with an LLM needs a QC step: 4 of 48 edits were incoherent, multi-fact or still true ("more than
   seven" → "more than three orders of magnitude"), and 2 more had the wrong error-type label.
+
+Timing and per-pass cost summaries use local, ignored `runs/` records. They are not fully reproducible from a
+clean clone; `exp08_posthoc.py` explicitly reports missing runs instead of computing a partial average. Stored
+per-item judgments and the new exclusion sensitivity can be recomputed offline from committed records.

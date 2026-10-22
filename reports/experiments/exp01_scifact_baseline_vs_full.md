@@ -60,7 +60,8 @@ As a secondary metric, AUROC also improved: Δ = +0.099 [+0.052, +0.150] (paired
 - 96.5% of predictions identical.
 - Retest balanced accuracy 0.760, Δ = +0.005 [−0.020, +0.031], McNemar 3 / 4, p = 1.0.
 
-So run-to-run noise is about ±2–3 pp in balanced accuracy, roughly a quarter of the 11 pp effect.
+This describes one pair of baseline runs. Its item-bootstrap interval does not estimate variance across repeated
+complete runs or a general generator noise floor.
 
 Figures: [`reports/figures/fig1_balanced_accuracy.png`](../figures/fig1_balanced_accuracy.png) (balanced accuracy
 with CIs) and [`fig2_scores_by_gold_label.png`](../figures/fig2_scores_by_gold_label.png) (score distributions by
@@ -83,7 +84,7 @@ against 80 vs 15 for A. A has a large cluster of CONTRADICT claims scored 65–9
   improved over A.
 - **Leakage through search.** Dataset hosts were blocked and every source URL was checked: 0 flags. Blocking
   cannot catch unknown mirrors, so leakage cannot be fully ruled out.
-- **Gold semantics.** Labels are relative to one cited abstract. Some of B's "errors" may reflect newer or broader
+- **Gold semantics.** Labels are relative to the cited evidence abstract(s). Some of B's "errors" may reflect newer or broader
   evidence; nothing was re-adjudicated.
 - **External validity.** One model (`gpt-6-luna`, effort low), one biomedical claim dataset, single-sentence
   inputs. Multi-claim documents, other domains and other models were not tested.
