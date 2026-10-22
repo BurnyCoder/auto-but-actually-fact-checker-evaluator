@@ -1,7 +1,7 @@
 """Tests for prompts.py: assembling prompts from toggleable sections, lists, templates and overrides.
 
 Global context: the UI's "which parts of the prompt go in" buttons, the per-step template dropdowns and the
-subagent definitions all reduce to prompts.build_prompt() / build_agents(); these tests guarantee that the default
+subagent definitions all reduce to prompts.build_prompt() / build_agents(); these tests guarantee that the all-on
 configuration still expresses the user's original prompt and that every toggle really changes the prompt.
 """
 

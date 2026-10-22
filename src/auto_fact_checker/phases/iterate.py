@@ -1,7 +1,8 @@
 """Phase: decide whether another fact-checking iteration over the corrected text is needed.
 
-Global context: pipeline.run_fact_check() calls should_stop() after each iteration when iterate_until_accurate is
-on; "One more iteration" ignores it and always runs exactly one more pass.
+Global context: pipeline.run_fact_check() calls should_stop() after every iteration and records the reason; it ends
+the loop only when iterate_until_accurate allows more than one pass. "One more iteration" ignores it and always
+runs exactly one more pass.
 """
 
 import re

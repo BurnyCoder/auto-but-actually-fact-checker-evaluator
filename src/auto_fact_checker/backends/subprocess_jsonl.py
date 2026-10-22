@@ -5,9 +5,10 @@ Local: start the CLI without a shell, write the prompt to its stdin from a threa
 Global context: claude_code.py and codex.py build the command line and interpret the events; this module is the
 only place that spawns processes. References:
 - subprocess (no shell, text/encoding, pipes): https://docs.python.org/3/library/subprocess.html
-- Windows CreateProcess cannot run .cmd shims without cmd.exe, hence resolve_exe() insists on .exe files:
-  https://docs.python.org/3/library/subprocess.html#converting-argument-sequence
-- psutil process-tree kill: https://psutil.readthedocs.io/en/latest/#kill-process-tree
+- Windows may launch .bat/.cmd files in a system shell whatever the arguments, which then re-parses them by shell
+  rules without escaping, so resolve_exe() prefers name.exe and rejects batch shims:
+  https://docs.python.org/3/library/subprocess.html#security-considerations
+- psutil process-tree kill ("Kill a process tree" recipe): https://psutil.io/recipes/#controlling-processes
 """
 
 import json
@@ -41,7 +42,7 @@ class ProcOutput:
 
 
 def resolve_exe(name: str, override: str | None = None) -> str:
-    """Full path of a CLI executable; prefers name.exe because .cmd/.bat shims need a shell on Windows."""
+    """Full path of a CLI executable; prefers name.exe and rejects .cmd/.bat shims, which Windows runs via cmd.exe."""
     path = override or shutil.which(f"{name}.exe") or shutil.which(name)
     if not path:
         raise FileNotFoundError(f"'{name}' CLI not found on PATH; install it or set {name.upper()}_BIN in .env")

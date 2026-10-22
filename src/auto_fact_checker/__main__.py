@@ -1,7 +1,8 @@
 """Command-line entry point: `uv run afc ui | check | spend | bench | correct-eval | ai-errors`.
 
-Global context: thin argparse layer over pipeline.run_fact_check (check), ui.launch (ui), the spend ledger (spend)
-and bench.run (bench). argparse docs: https://docs.python.org/3/library/argparse.html#sub-commands
+Global context: thin argparse layer over pipeline.run_fact_check (check), ui.launch (ui), the spend ledger (spend),
+bench.run (bench), bench.correction (correct-eval) and bench.ai_errors (ai-errors).
+argparse docs: https://docs.python.org/3/library/argparse.html#subcommands
 """
 
 import argparse

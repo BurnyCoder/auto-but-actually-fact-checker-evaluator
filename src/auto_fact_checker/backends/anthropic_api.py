@@ -3,10 +3,11 @@
 Local: builds the request (effort, web_search_20260318 with max_uses and blocked domains), streams it, continues
 while the API pauses long server-tool turns (stop_reason == "pause_turn"), and sums usage/cost over continuations.
 Global context: used for steps with kind="api", provider="anthropic". Native JSON output is not used because the
-docs state structured outputs are incompatible with citations (always on for web search); the pipeline parses the
-JSON block from the text instead. Docs: web search https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool ;
+docs state structured outputs are incompatible with citations (always on for web search; "Feature compatibility" in
+https://platform.claude.com/docs/en/build-with-claude/structured-outputs); the pipeline parses the JSON block from
+the text instead. Docs: web search https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool ;
 pause_turn https://platform.claude.com/docs/en/agents-and-tools/tool-use/server-tools ;
-streaming helpers https://github.com/anthropics/anthropic-sdk-python#streaming-helpers
+streaming helpers https://github.com/anthropics/anthropic-sdk-python/blob/main/helpers.md#streaming-responses
 """
 
 import logging

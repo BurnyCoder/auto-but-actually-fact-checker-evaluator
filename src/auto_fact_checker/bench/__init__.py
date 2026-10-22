@@ -1,1 +1,2 @@
-"""Benchmark harness: datasets, metrics and the resumable runner behind `afc bench`."""
+"""Benchmark harness behind `afc bench` (run, datasets, metrics), `afc correct-eval` (correction, judge) and
+`afc ai-errors` (ai_errors, sources, judge)."""
