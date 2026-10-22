@@ -180,7 +180,8 @@ def preview(cfg: FactCheckConfig, text: str) -> str:
         parts.append(("CHECK", build_prompt(cfg, "check", target, context=context)))
     if cfg.uses_subagents:
         parts.append(("SUBAGENTS (--agents JSON)", json.dumps(build_agents(cfg), indent=1, ensure_ascii=False)))
-    if cfg.scientist_strategy == "separate_call_per_scientist" and cfg.perspective_scientists:
+    if (cfg.scientist_strategy == "separate_call_per_scientist" and cfg.perspective_scientists
+            and cfg.steps["perspective"].enabled):  # same condition as pipeline.run_iteration
         parts.append((f"PERSPECTIVE ({cfg.perspective_scientists[0]})",
                       build_prompt(cfg, "perspective", target, context=context,
                                    persona=cfg.perspective_scientists[0])))
