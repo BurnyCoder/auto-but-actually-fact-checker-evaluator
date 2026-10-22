@@ -82,8 +82,13 @@ class FactCheckRun(BaseModel):
 
     @property
     def billed_cost_usd(self) -> float:
-        """Sum of costs that were actually billed to an API key."""
+        """Known estimates for API-key calls; subscription and unknown charges are excluded."""
         return sum(c.cost_usd or 0.0 for c in self.calls if c.billed)
+
+    @property
+    def unknown_cost_calls(self) -> int:
+        """Keep missing prices/usage visible alongside the sum of known costs."""
+        return sum(c.cost_usd is None for c in self.calls)
 
 
 RUNS: dict[str, FactCheckRun] = {}  # in-memory store polled by the UI

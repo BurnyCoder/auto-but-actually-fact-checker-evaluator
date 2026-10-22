@@ -13,7 +13,7 @@ def _pct(v) -> str:
 
 
 def claims_rows(summary: FactCheckSummary | None) -> list[dict]:
-    """One row per claim: types (with confidence), accuracy, confidence, strongest labels, corrected claim."""
+    """One row per returned claim: model-reported scores and classifications, not calibrated probabilities."""
     rows = []
     for i, c in enumerate(summary.claims if summary else [], 1):
         top = sorted((lab for lab in c.labels if (lab.score_pct or 0) > 0), key=lambda lab: -(lab.score_pct or 0))
@@ -43,7 +43,7 @@ def conditions_rows(summary: FactCheckSummary | None) -> list[dict]:
 def calls_rows(run: FactCheckRun) -> list[dict]:
     """One row per LLM call with backend, model, tokens, searches, cost and errors."""
     return [{"label": c.label, "backend": c.backend, "model": c.model, "in": c.input_tokens, "out": c.output_tokens,
-             "searches": c.web_searches, "cost $": "" if c.cost_usd is None else f"{c.cost_usd:.4f}",
+             "searches": c.web_searches, "estimated cost $": "unknown" if c.cost_usd is None else f"{c.cost_usd:.4f}",
              "billed": c.billed, "s": c.duration_s, "error": c.error or ""} for c in run.calls]
 
 
@@ -69,7 +69,8 @@ def run_markdown(run: FactCheckRun) -> str:
     """Whole-run report: status line, then each iteration's final report, then perspective calls."""
     parts = [f"**Run** `{run.run_id}` — status **{run.status}**"
              + (f" ({run.stop_reason})" if run.stop_reason else "")
-             + f" — {len(run.calls)} calls, ${run.total_cost_usd:.4f} (billed ${run.billed_cost_usd:.4f})"]
+             + f" — {len(run.calls)} calls, known estimates ${run.total_cost_usd:.4f} "
+               f"(API-key ${run.billed_cost_usd:.4f}; {run.unknown_cost_calls} calls with unknown cost)"]
     for it in run.iterations:
         parts.append(f"## Iteration {it.index}")
         if it.final:

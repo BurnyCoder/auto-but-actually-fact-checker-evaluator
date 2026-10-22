@@ -71,6 +71,17 @@ def test_correction_item_records_passes_and_self_labelled_output(fake, settings)
     assert [p["self_accuracy"] for p in rec["passes"]] == [20, 95] and rec["status"] == "done"
 
 
+@pytest.mark.parametrize("reason", ["all claims >= 90% accurate", "model rates all returned claims >= 90% accurate"])
+def test_output_text_accepts_historical_and_qualified_stop_reasons(fake, reason):
+    """Wording corrections must not change which text Exp07 regards as self-labelled correct."""
+    from auto_fact_checker.pipeline import run_fact_check
+
+    fake.__init__(accuracies=[95])
+    run = run_fact_check("Original text", C.FactCheckConfig())
+    run.stop_reason = reason
+    assert correction.output_text(run) == ("Original text", True)
+
+
 def test_correct_eval_cli_is_resumable(fake, settings, tmp_path, monkeypatch):
     from auto_fact_checker.__main__ import main
 

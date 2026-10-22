@@ -1,9 +1,9 @@
-"""Model catalog: every selectable model with its price, plus per-call cost computation.
+"""Static price catalog for listed models, plus per-request cost estimation.
 
 Local: a static table of $/1M-token prices and a cost_usd() helper.
 Global context: OpenAI (Responses API, Codex) and Anthropic (Messages API) return token counts but no dollar
-cost, so all cost figures shown in the UI, written to logs/spend.jsonl and used for the global spend cap are
-computed here. Claude Code reports its own total_cost_usd, which backends prefer when available.
+cost, so those backend estimates use this table. Claude Code reports its own total_cost_usd. These are
+standard-rate estimates, not invoices; service tiers, discounts and unavailable usage may change actual charges.
 
 Prices verified 2026-10-17 and re-checked 2026-10-22 (incl. long-context cached rates) from:
 - OpenAI:    https://developers.openai.com/api/docs/pricing  (web search: $10 / 1k calls)
@@ -50,7 +50,7 @@ DEFAULT_MODEL = {"openai": "gpt-6-luna", "anthropic": "claude-haiku-5-5"}  # che
 
 
 def models_for(provider: str) -> list[str]:
-    """Model ids runnable by a provider, in catalog order (cheapest first within each family)."""
+    """Catalogued model IDs for a provider; account access and availability are not checked here."""
     return [m for m, info in MODELS.items() if info.provider == provider]
 
 
@@ -66,18 +66,21 @@ def choices(provider: str) -> list[tuple[str, str]]:
 
 
 def cost_usd(model: str, input_tokens: int, output_tokens: int, cached_input_tokens: int = 0,
-             web_searches: int = 0) -> float | None:
-    """Dollar cost of one API request; None when the model's price is unknown (never silently $0).
+             web_searches: int = 0, *, cache_write_5m_tokens: int = 0,
+             cache_write_1h_tokens: int = 0) -> float | None:
+    """Standard-rate estimate for one request; None for unpriced models or unsupported cache writes.
 
-    input_tokens includes cached tokens (OpenAI usage semantics), so uncached = input - cached.
+    Input includes cache reads and writes after backend normalization. Anthropic's 5m/1h write rates are
+    1.25x/2x base input: https://platform.claude.com/docs/en/build-with-claude/prompt-caching#pricing .
     """
     info = MODELS.get(model)
-    if info is None:
+    if info is None or ((cache_write_5m_tokens or cache_write_1h_tokens) and info.provider != "anthropic"):
         return None
     long = info.long_threshold is not None and input_tokens > info.long_threshold  # tier applies to the whole request
     in_rate = info.long_input_per_m if long else info.input_per_m
     out_rate = info.long_output_per_m if long else info.output_per_m
     cached_rate = info.long_cached_per_m if long else info.cached_per_m
-    uncached = max(input_tokens - cached_input_tokens, 0)
-    tokens = uncached * in_rate + cached_input_tokens * cached_rate + output_tokens * out_rate
+    uncached = max(input_tokens - cached_input_tokens - cache_write_5m_tokens - cache_write_1h_tokens, 0)
+    tokens = (uncached * in_rate + cached_input_tokens * cached_rate + output_tokens * out_rate
+              + cache_write_5m_tokens * in_rate * 1.25 + cache_write_1h_tokens * in_rate * 2)
     return tokens / 1_000_000 + web_searches * WEB_SEARCH_USD

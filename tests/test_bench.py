@@ -102,3 +102,28 @@ def test_failed_items_are_not_cached_and_summary_survives_missing_system(fake, s
     cached = [json.loads(line)["id"] for line in (out / "a.jsonl").read_text(encoding="utf-8").splitlines()]
     assert "validation-1" not in cached and len(cached) == 3  # the failed item will be retried on resume
     assert json.loads((out / "summary.json").read_text(encoding="utf-8"))["comparisons"] == {}
+
+
+@pytest.mark.parametrize("refusal", [False, True])
+def test_completed_unusable_answers_still_cache_as_wrong(fake, tmp_path, monkeypatch, refusal):
+    """Parse failures/refusals stay wrong on resume, rather than being resampled until successful."""
+    from auto_fact_checker import config as C
+
+    original = type(fake).__call__
+
+    def unusable(self, req, log):
+        result = original(self, req, log)
+        result.text = "I cannot provide this answer." if refusal else "No JSON answer."
+        result.error = "refusal: model declined" if refusal else None
+        return result
+
+    monkeypatch.setattr(type(fake), "__call__", unusable)
+    cfg = C.FactCheckConfig()
+    cfg.steps["repair"].enabled = False
+    item = datasets.BenchItem(id="example", text="Text", label=True)
+    for _ in range(2):
+        bench_run.run_system("test", cfg, [item], tmp_path, 1, [0.0], 1, lambda _: None)
+    records = [json.loads(line) for line in (tmp_path / "test.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert len(records) == 1 and len(fake.requests) == 1
+    assert records[0]["status"] == "error" and records[0]["p_true"] is None
+    assert metrics.predictions([True], [records[0]["p_true"]]) == [False]

@@ -40,7 +40,8 @@ def passes(run: FactCheckRun, threshold: float) -> list[dict]:
 def output_text(run: FactCheckRun) -> tuple[str, bool]:
     """The loop's answer: when it self-stopped because every claim was rated accurate, the text it rated (input of
     the last pass) is what it labels correct; otherwise its latest corrected text (not self-labelled)."""
-    if run.iterations and (run.stop_reason or "").startswith("all claims"):
+    # Older stored runs used the unqualified prefix; keep their output-selection semantics unchanged.
+    if run.iterations and (run.stop_reason or "").startswith(("all claims", "model rates all returned claims")):
         return run.iterations[-1].input_text, True
     return run.current_text, False
 

@@ -39,11 +39,12 @@ class LLMResult(BaseModel):
     text: str = ""  # final answer (report + JSON block)
     backend: str
     model: str
-    input_tokens: int = 0  # incl. cached tokens
+    input_tokens: int = 0  # total known input, including cache reads and writes
     cached_input_tokens: int = 0
+    cache_creation_input_tokens: int = 0  # Anthropic reports cache writes separately from input_tokens
     output_tokens: int = 0  # incl. reasoning tokens
     web_searches: int = 0
-    cost_usd: float | None = None  # None = unknown price
+    cost_usd: float | None = None  # None = unknown price or incomplete usage; a number is an estimate
     billed: bool = True  # False for subscription-auth agent runs (cost is notional)
     sources: list[str] = Field(default_factory=list)  # URLs consulted or cited, in first-seen order
     duration_s: float = 0.0
