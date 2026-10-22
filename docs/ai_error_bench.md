@@ -1,7 +1,8 @@
 # Exp08 pre-registration — does iterative correction fix obviously wrong AI-research text?
 
 Written and committed **before** the dataset was built and before any Exp08 correction or judge call. Results go to
-`reports/experiments/exp08_ai_error_bench.md`. Anything decided after seeing data is marked *post hoc*.
+`reports/experiments/exp08_ai_error_bench.md`. Anything decided after seeing data is marked *post hoc*. Wording
+that was corrected later to match the code, without changing the plan, is marked *(clarified 2026-10-22)*.
 
 ## Why
 
@@ -27,7 +28,8 @@ is the ground truth. That allows scoring corrections on a spectrum and separatin
 - Licences: Wikipedia CC BY-SA 4.0; arXiv metadata CC0 1.0 (each item links its paper and that paper's licence).
 
 **Errors per passage, k:**
-- Drawn with seed 0 from {0, 0, 1, 2, 2, 3, 3, 4, 4, 5} independently within each source.
+- A seeded (seed 0) shuffle of {0, 0, 1, 2, 2, 3, 3, 4, 4, 5}, done separately within each source *(clarified
+  2026-10-22: the code shuffles this fixed multiset, `random.sample`, rather than drawing independently)*.
 - That gives 24 errors per source and 48 in total.
 - The 4 passages with k = 0 are **clean controls** that measure harm.
 
@@ -41,14 +43,16 @@ is the ground truth. That allows scoring corrections on a spectrum and separatin
   - negation/reversed direction
   - absurd overclaim
 - Code keeps an edit only if:
-  - the original sentence is an exact substring
+  - the original sentence is an exact substring (a near-copy with similarity ≥ 0.9 was later snapped to the
+    passage's sentence; see the deviation in the [dataset README](../benchmarks/ai_errors_v1/README.md))
   - each sentence is used once
   - the change is real
   - the change is small (difflib ratio ≥ 0.5)
-- The call is retried up to 3 times until k edits validate.
+- The call is made up to 3 times in total until k edits validate *(clarified 2026-10-22: 3 attempts, not 3 retries)*.
 
-**Manual QC (before any correction run):**
-- I read every injected error.
+**QC of every edit (before any correction run):**
+- The AI coding agent that builds this repository reads every injected error *(clarified 2026-10-22: the QC was done
+  by that agent, not by a human)*.
 - Edits that are not objectively false, or could still be true, are replaced or dropped.
 - Every decision is logged in the dataset README.
 - The dataset is then frozen and committed.
@@ -109,7 +113,7 @@ The judge uses no web and no outside knowledge.
 - Each distinct text is judged once per judge, so the corrupted input is judged twice per judge (once per arm).
   That gives a test-retest check.
 
-**Validity (reported before H1–H3, from `analyze_ai_errors.py`):**
+**Validity (reported before H1–H3, from `analyze_ai_errors.py`; the gate below is checked from its output):**
 - The original passage should score ≈ 100 with ≈ 0 introduced errors and its errors marked `corrected`.
 - The corrupted input should have its errors marked `uncorrected`, and its score should fall with k (Spearman ρ < 0).
 - A deterministic number check agrees with the judge's status on number/year errors. The check: the true number is
@@ -168,7 +172,7 @@ global `SPEND_LIMIT_USD` = $10 cap.
 ## Reproduce
 
 ```bash
-uv run afc ai-errors build --out benchmarks/ai_errors_v1
+uv run afc ai-errors build --out SCRATCH_DIR   # rebuilds an uncurated copy; the frozen dataset.jsonl also holds the QC edits
 uv run afc ai-errors run --system configs/bench/ai_naive_codex.json --judges configs/bench/judge_haiku.json configs/bench/judge_luna.json --out reports/results/exp08_ai_errors --max-cost 10
 uv run afc ai-errors run --system configs/bench/ai_rigorous_codex.json --judges configs/bench/judge_haiku.json configs/bench/judge_luna.json --out reports/results/exp08_ai_errors --max-cost 10
 uv run --group paper python reports/scripts/analyze_ai_errors.py
