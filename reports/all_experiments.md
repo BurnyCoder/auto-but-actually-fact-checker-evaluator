@@ -10,7 +10,7 @@ in [`results/`](results). Every number here comes from `results/scifact_analysis
   UI toggle. It can run as one API call, as one agent (Codex / Claude Code), as an agent with subagents, or as
   separate calls per claim and per scientist.
 - **Exp00.** On three AI-themed texts with planted errors, every preset agreed with a pre-written answer key on all
-  32 claim verdicts. This is a functional check; the errors are textbook.
+  42 claim verdicts (8 runs). This is a functional check; the errors are textbook.
 - **Exp01.** On a pre-registered SciFact benchmark (n = 200 balanced claims, `gpt-6-luna`), the full prompt with
   web search beat a simple single call: balanced accuracy **0.865 vs 0.755**, Δ = +0.110 [+0.062, +0.160],
   McNemar p = 2.7 × 10⁻⁵.
@@ -24,9 +24,9 @@ in [`results/`](results). Every number here comes from `results/scifact_analysis
   [+0.013, +0.082]); this is exploratory.
 - **Exp04** (post hoc): a Codex agent running the full prompt reached 0.876 on 40 claims, statistically
   indistinguishable from the single API calls.
-- **Exp05** (post hoc): a Claude Code agent (Haiku) running the full prompt ranked claims best of all systems
-  (AUROC 0.962) but was sceptical: SUPPORT recall 0.65, balanced accuracy 0.797 on the same 40 claims. It differs
-  in model as well, and one bio-safety refusal was scored wrong.
+- **Exp05** (post hoc): a Claude Code agent (Haiku) running the full prompt ranked claims well (AUROC 0.962, below
+  B's 0.978 and C's 0.992 on the same 40 claims) but was sceptical: SUPPORT recall 0.65, balanced accuracy 0.797. It
+  differs in model as well, and one bio-safety refusal was scored wrong.
 
 - **Exp07** (pre-registered): is text the correct-until-labelled-accurate loop calls "correct" actually correct?
   Setup: a Codex agent with web search looped on 100 SciFact claims (≤ 20 passes), judged against the gold
@@ -36,17 +36,20 @@ in [`results/`](results). Every number here comes from `results/scifact_analysis
   - Passes after the first correction added nothing (61% → 62%).
   - It harmed 20% of originally correct claims; the sceptical checker rewrote 44 of 54 true claims.
   - Optional Claude Code subagent loop (n = 3, stopped early): it never labelled anything correct in 20 passes,
-    while its final texts were judged correct. Neither loop's stopping signal tracks truth.
+    while both judges found its final texts correct on 2 of 3 claims (the third was refused). Neither loop's
+    stopping signal tracks truth.
 - **Exp08** (pre-registered): our own benchmark of obviously wrong AI-research text. Setup: 20 Wikipedia/arXiv
   passages with 0–5 injected errors (48 in total), a Codex agent with web search, forced 4 passes, naive vs
   rigorous prompt, scored 0–100 against the original passage by a Haiku judge.
   - **One pass** fixed 96–97% of the errors and raised the score from about 40 to 86–90 (Δ +46 to +52, p < 0.001).
   - **Passes 2–4 did not help** in either arm (rigorous Δ +0.45 [−4.6, +4.8]). Under the rigorous prompt they
-    eroded fixes (fix rate −0.067 [−0.117, −0.022]): correct facts were hedged or dropped while the text grew 62%.
+    eroded fixes (fix rate −0.067 [−0.117, −0.022]). Post hoc: the lost fixes were hedged or dropped correct facts,
+    and the text grew 62%.
   - **The naive prompt was at least as good** (pass 1: 90.4 vs 85.7, Δ −4.65 [−10.2, +1.8], Wilcoxon p = 0.017)
     at 1/6 of the time.
   - Clean controls were always rewritten.
-  - Post hoc: 21 of 22 judge-flagged "introduced errors" were true per the primary paper, or hedges.
+  - Post hoc: all 22 judge-flagged "introduced errors" after pass 1 were true per the primary paper (13) or hedges
+    (9); the audit was done by the AI coding agent.
 
 ## Glossary (plain language)
 
@@ -56,11 +59,11 @@ in [`results/`](results). Every number here comes from `results/scifact_analysis
 | SciFact | a dataset of 1.4k expert-written biomedical claims labelled SUPPORT (true according to a paper) or CONTRADICT (false according to it); we use only those two labels |
 | balanced accuracy | the average of "share of true claims called true" and "share of false claims called false"; 0.5 = coin flip, 1.0 = perfect, whatever the class balance |
 | recall (per class) | of all claims of one class, the share the system labelled correctly |
-| AUROC | probability that a random true claim gets a higher accuracy score than a random false claim (uses the full 0–100 score, not just the 50% cut-off) |
+| AUROC | probability that a random true claim gets a higher accuracy score than a random false claim, ties counting half (uses the full 0–100 score, not just the 50% cut-off) |
 | Brier score | mean squared error of the predicted probability; lower is better (0 = perfect, 0.25 = always saying 50%) |
 | Wilson CI | a 95% confidence interval for a proportion that behaves well near 0 and 1 |
-| paired bootstrap CI | resample the same items for both systems 10,000 times; the middle 95% of the resampled differences is the interval |
-| McNemar test | a test that looks only at items where the two systems disagree (b = only the first is right, c = only the second is right); exact version = binomial test on b vs c |
+| paired bootstrap CI | resample the same items for both systems (10,000 times for Δ balanced accuracy, 2,000 for Δ AUROC); the middle 95% of the resampled differences is the interval. Fig. 1's per-system CIs use 5,000 unpaired resamples |
+| McNemar test | a test that looks only at items where the two systems disagree. In "X − Y: b / c", b = only Y (the subtracted system) is right and c = only X is right; exact version = binomial test on b vs c |
 | pre-registered | hypothesis, metric, test and decision rule written down and committed before any data was collected |
 | post hoc | decided after seeing data; exploratory, weaker evidence |
 | test–retest | running the same system twice to measure how much results move by chance alone |
@@ -78,15 +81,15 @@ in [`results/`](results). Every number here comes from `results/scifact_analysis
 
 ## Systems ("configurations") and results
 
-All systems use `gpt-6-luna` (OpenAI, $0.10/$0.50 per 1M tokens; web search $0.01 per call) with reasoning effort
-low. Each takes one claim as input and returns a 0–100 accuracy score; the prediction is SUPPORT iff the score is
+All systems except F use `gpt-6-luna` (OpenAI, $0.10/$0.50 per 1M tokens; web search $0.01 per call); all use
+reasoning effort low. Each takes one claim as input and returns a 0–100 accuracy score; the prediction is SUPPORT iff the score is
 ≥ 50.
 
 | id | architecture | prompt | search | data | n | balanced accuracy | AUROC | Brier | cost | status |
 |---|---|---|---|---|---|---|---|---|---|---|
 | A | 1 API call | minimal ("Fact-check the following text." + JSON) | none | SciFact binary | 200 | 0.755 | 0.844 | 0.165 | $0.06 | pre-registered (Exp01) |
 | A′ | same as A, re-run | minimal | none | same items | 200 | 0.760 | – | – | $0.06 | pre-registered noise control |
-| B | 1 API call | full rigorous (24 blocks; 45 labels + 12 conditions scored with confidence) | hosted web_search ≤3 calls, dataset hosts blocked | same | 200 | 0.865 | 0.944 | 0.101 | $2.97 | pre-registered (Exp01) |
+| B | 1 API call | full rigorous (23 of 24 blocks, NeurIPS role off by default; 45 labels + 12 conditions scored with confidence) | hosted web_search ≤3 calls, dataset hosts blocked | same | 200 | 0.865 | 0.944 | 0.101 | $2.97 | pre-registered (Exp01) |
 | C | 1 API call | minimal | as B | same | 200 | 0.890 | 0.956 | 0.087 | $2.30 | pre-registered secondary (Exp02) |
 | D | 1 API call | full rigorous | none | same | 200 | 0.765 | 0.891 | 0.142 | $0.44 | post hoc (Exp03) |
 | E | Codex CLI agent | full rigorous | live web search (≤3 stated in prompt) | first 40 of the same items | 40 | 0.876 | 0.917 | 0.113 | $0 billed ($0.91 notional) | post hoc (Exp04) |
@@ -101,7 +104,7 @@ low. Each takes one claim as input and returns a 0–100 accuracy score; the pre
 | D − A | 200 | +0.010 [−0.026, +0.047] | 6 / 8, 0.79 | +0.047 [+0.013, +0.082] | prompt without search: no verdict gain, maybe better ranking (post hoc) |
 | B − D | 200 | +0.100 [+0.055, +0.148] | 2 / 22, 3.6 × 10⁻⁵ | +0.053 [+0.021, +0.089] | search helps under the full prompt too (post hoc) |
 | E − A / B / C | 40 | +0.051 / −0.029 / −0.059, every CI spans 0 | 2/4 · 2/1 · 3/1 | – | Codex agent indistinguishable at n = 40 (post hoc) |
-| F − A / B / C / E | 40 | −0.028 / −0.109 / −0.138 [−0.250, −0.045] / −0.079 | 6/4 · 7/2 · 6/0 (p = 0.031) · 7/3 | +0.073 / −0.017 / −0.031 / +0.045 | Claude agent: sceptical, best ranking; vs C nominal only (1 of 12 post-hoc tests; model confound) |
+| F − A / B / C / E | 40 | −0.028 / −0.109 / −0.138 [−0.250, −0.045] / −0.079 | 6/4 · 7/2 · 6/0 (p = 0.031) · 7/3 | +0.073 / −0.017 / −0.031 / +0.045 | Claude agent: sceptical; ranks above A and E, below B and C; vs C nominal only (1 of 18 post-hoc tests; model confound) |
 
 ## Correction loop (Exp07, pre-registered)
 
@@ -145,41 +148,44 @@ Details: [exp08](experiments/exp08_ai_error_bench.md).
 
 ## Qualitative runs (Exp00)
 
-Nine runs covered presets L0–L5, iteration, Claude/Codex agents and subagents. They made 49 calls in total and
-agreed with the answer key on all 32 claims (details and costs: [exp00](experiments/exp00_ai_texts.md)).
+Nine runs covered presets L0–L5, iteration, Claude/Codex agents and subagents. They made 49 calls in total. The eight
+runs on the keyed texts agreed with the answer key on all 42 claim verdicts; the ninth used a 2-claim test text
+(details and costs: [exp00](experiments/exp00_ai_texts.md)).
 
 ## What was learned across experiments
 
-- **Retrieval matters more than prompt length for binary verification.** The gains come from CONTRADICT claims
-  (recall 0.72 → 0.88–0.93), which the model accepts as plausible without evidence.
+- **Retrieval matters more than prompt length for binary verification.** The gains come mostly from CONTRADICT
+  claims (recall 0.72 → 0.88–0.93; SUPPORT 0.79 → 0.85), which the model accepts as plausible without evidence.
 - **More instructions are not free.** The rigorous prompt costs 8.5× the output tokens and gave no measurable
   verdict accuracy on SciFact. Its value, if any, is in the qualitative output (labels, conditions, corrections),
   which SciFact does not score.
 - **Synthesis of many perspectives moderates scores** toward the middle (Exp00, L5).
-- **Self-assessed stopping is not verification** (Exp07). The loop marks everything correct after 1–2 passes.
-  About a third of those texts are wrong by gold evidence, and further passes rewrite rather than repair (hedging,
-  question drift).
+- **Self-assessed stopping is not verification** (Exp07). The loop marks everything correct, 76% of items after
+  1–2 passes and the rest within 8. 38% of those texts are wrong by gold evidence, and further passes rewrite rather
+  than repair (hedging, question drift).
 - **One pass is enough; looping is not** (post hoc, Exp07). A single agent pass with web search accounts for the
   whole correction gain. Further passes leave correctness unchanged (Δ 0.00) and cost 2.5× more.
 - **Iteration erodes specifics** (Exp08). On obvious injected errors one pass fixes 96–97%. Further passes with
-  the rigorous prompt never re-introduce a false fact, but they hedge or drop restored ones (45 → 38 fully
-  corrected) while the self-rating stays at 96%.
+  the rigorous prompt never revert a fixed error to its false value, but (post hoc) they hedge or drop restored
+  facts (45 → 38 fully corrected) while the self-rating stays at 96%.
 - **Reference-based judging needs an audit** (Exp08, post hoc). Correctors with web search add true details from
-  primary sources. They even caught the Transformer paper's own 41.0 vs 41.8 BLEU inconsistency, which a judge
-  anchored on the source passage counts as errors.
+  primary sources. They even reproduced inconsistencies inside the primary sources (the Transformer paper's 41.0 vs
+  41.8 BLEU, AlexNet's 500,000 vs 650,000 neurons), which a judge anchored on the source passage counts as errors.
 - **Verdicts are much easier than corrections.** With web search the agent judges claims at about 0.92 balanced
   accuracy, close to a judge given the cited paper (0.93). But only 62% of its corrected texts are correct.
-- **Ranking and threshold can disagree.** The Claude agent had the best AUROC but a poor 50% cut-off (Exp05).
+- **Ranking and threshold can disagree.** The Claude agent ranked well (AUROC 0.962) but had a poor 50% cut-off
+  (Exp05).
   The prompt without search raised AUROC without raising accuracy (Exp03). The threshold metric alone hides this.
 - **Delegation can be fabricated.** In 4 smoke tests Codex never spawned a sub-agent, and twice it claimed one had
   answered (Exp00).
 - **Refusals are a failure mode of their own.** Anthropic's bio-safety filter refused some biomedical claims,
-  non-deterministically, and the JSON repair step once turned a refusal into a fabricated verdict (fixed, Exp05).
+  non-deterministically, and the JSON repair step turned refusals into fabricated verdicts on two claims (fixed,
+  Exp05).
 - **Engineering findings** (Exp00): workspace header, direct search mode, CLAUDE.md isolation, Codex AGENTS.md
   limitation, the subagent-delegation prompt. See the table in [exp00](experiments/exp00_ai_texts.md).
 
 ## Spend
 
 The whole project (implementation tests, live tests, example runs, UI checks, README screenshots and all
-experiments) is recorded call by call in `logs/spend.jsonl`. **Billed total: $7.35 of the $10 cap** (2026-10-18). Agent runs on subscription auth are
+experiments) is recorded call by call in `logs/spend.jsonl`. **Billed total: $7.35 of the $10 cap** (2026-10-18; unchanged on 2026-10-22). Agent runs on subscription auth are
 not billed; their notional cost is logged separately.

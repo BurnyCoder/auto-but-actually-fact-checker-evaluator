@@ -1,7 +1,7 @@
 # Exp00 — End-to-end runs of every preset on AI-research, AI-philosophy and AI-engineering texts
 
-**Type:** functional / qualitative validation. This is not a benchmark: the three texts are mine, and their errors
-are planted and well known.
+**Type:** functional / qualitative validation. This is not a benchmark: the three texts were written for this
+project by the AI coding agent that builds it, and their errors are planted and well known.
 **Date:** 2026-10-17 · **Models:** `gpt-6-luna` (OpenAI API and Codex), `claude-haiku-5-5` (Claude Code)
 · **Billed cost:** about $0.53 for the runs below, plus about $0.02 for the UI checks.
 
@@ -48,8 +48,8 @@ UI checks were done in the in-app browser:
 
 ### Gap-closing checks (second session)
 
-**UI with a hand-built mixed per-step setup.** Run `20261017_155456_…`, $0.09 billed, 24 calls. The settings were
-changed by hand in the browser:
+**UI with a mixed per-step setup.** Run `20261017_155456_…`, $0.09 billed, 24 calls. The settings were changed in the
+UI widgets in the browser (not loaded from a preset):
 - claims: one separate call per claim
 - Check step: OpenAI, search off
 - Perspective step: provider switched to Anthropic (the model field followed to `claude-haiku-5-5`), search off
@@ -79,8 +79,9 @@ All of these behaved as designed.
 
 ## Observations and learnings
 
-1. **All presets agree with the key on all 32 claim verdicts.** This shows the plumbing works and that
-   `gpt-6-luna` / `claude-haiku-5-5` catch these textbook errors. The key's claims are well known and in
+1. **All presets agree with the key on all 42 claim verdicts** (the 8 runs on the keyed texts; the 9th run used a
+   2-claim test text). Re-scored on 2026-10-22 with `score_examples.py` from `runs/`. This shows the plumbing works
+   and that `gpt-6-luna` / `claude-haiku-5-5` catch these textbook errors. The key's claims are well known and in
    pretraining data, so this is **not** evidence of accuracy on harder material (see Exp01–Exp04 for a
    quantitative test).
 2. **Iteration converges in one correction.** The engineering text went from overall accuracy 18% to 95% in
@@ -92,12 +93,13 @@ All of these behaved as designed.
    - Chinese Room claim: 40% vs 38% / 8%
 
    They are still below 50%, but closer to the threshold. Averaging-like synthesis trades decisiveness for hedging.
-4. **Cost scales with calls × searches.** L5 (32 calls, 30 searches) cost 14× L1 for the same verdicts. Searches
-   at $0.01 each dominate the Luna cost.
+4. **Cost scales with calls × searches.** L5 (32 calls, 30 searches, philosophy text) cost 14× the L1 run (1 call,
+   research text), with full agreement in both. Searches at $0.01 each dominate the Luna cost.
 5. **Subagent orchestration needed a stronger prompt.** With the first orchestrator wording ("You can delegate…"),
    the Haiku lead agent never called the subagent tool (`subagent_stats.spawned = 0`). The tool is listed as
-   `Task` in Claude Code 2.1.302's init event, while the prompt said "Agent". After making delegation mandatory
-   and naming the tool and `subagent_type`, it spawned 4 subagents (2 claim-checkers + 2 scientist perspectives).
+   `Task` in Claude Code 2.1.302's init event, while the prompt said "Agent" (the docs say the Task tool was
+   renamed Agent in 2.1.63 and `Task` remains an alias: https://code.claude.com/docs/en/sub-agents). After making
+   delegation mandatory and naming the tool and `subagent_type`, it spawned 4 subagents (2 claim-checkers + 2 scientist perspectives).
    Fix: commit `3909f01`.
 
 ## Bugs found and fixed during these runs

@@ -144,15 +144,15 @@
  },
  "introduced_audit_pass1": {
   "counts": {
-   "false": 1,
-   "true_per_primary_source": 12,
+   "false": 0,
+   "true_per_primary_source": 13,
    "hedge_or_scope_qualification": 9
   },
   "items": {
    "N01": {
     "id": "wikipedia-alexnet",
     "judge_text": "the model contains about 60 million parameters and 500,000 neurons (reference says 650,000 neurons)",
-    "label": "false"
+    "label": "true_per_primary_source"
    },
    "N02": {
     "id": "wikipedia-alexnet",
@@ -261,7 +261,7 @@
    }
   },
   "sources": {
-   "AlexNet 650,000 neurons; 15.3% vs 26.2% runner-up (10.9 points)": "https://papers.nips.cc/paper/4824",
+   "AlexNet: 500,000 neurons on the NeurIPS abstract page vs 650,000 in the PDF; 15.3% vs 26.2% runner-up (10.9 points)": "https://papers.nips.cc/paper_files/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html",
    "Transformer: Results prose 41.0 BLEU vs abstract 41.8; parsing F1 91.3 / 92.7; feed-forward sublayers; 2017": "https://arxiv.org/abs/1706.03762",
    "Self-attention is permutation-equivariant (Lee et al. 2019, Set Transformer)": "https://arxiv.org/abs/1810.00825",
    "Chinchilla: baselines trained on ~300B tokens; worse than Gopher on 4 MMLU and 4 BIG-bench tasks": "https://arxiv.org/abs/2203.15556",

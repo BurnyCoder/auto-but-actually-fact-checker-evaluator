@@ -39,7 +39,8 @@ knowledge, a setting where instructions such as "double check yourself" and "be 
   - It does not improve thresholded verdicts.
   - Its scores are less extreme. The median for SUPPORT drops from 80 to 68 and for CONTRADICT rises from 15 to
     20, consistent with more hedging.
-  - This is 1 of 8 post-hoc comparisons and the CI lower bound is close to 0, so it needs a pre-registered
+  - This is 1 of 9 post-hoc comparisons (18 post-hoc tests counting Δ AUROC) and the CI lower bound is close to 0,
+    so it needs a pre-registered
     replication before being claimed.
 - **Retry note:** one item (train-341) first failed with an API stream error ("Didn't receive a
   `response.completed` event"). It was then the only parse failure and was scored wrong. That run also exposed the

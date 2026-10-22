@@ -23,8 +23,8 @@
   0.755, Δ = +0.110 [95% CI +0.062, +0.160], exact McNemar p = 2.7×10⁻⁵. A pre-registered ablation attributes the
   whole gain to retrieval: the minimal prompt with the same search reached 0.890. The rigorous prompt added no
   detectable accuracy given search (Δ = −0.025 [−0.061, +0.010], p = 0.27) while producing 8.5× more output tokens.
-  In post-hoc arms, the full prompt also failed to help without search (0.765 vs 0.755), although it may improve ranking (AUROC +0.047 [+0.013, +0.082]). Codex and Claude Code agents running the full prompt were not better than single calls on 40 claims. A pre-registered evaluation of the correct-until-labelled-accurate loop shows that it raises gold-evidence correctness only from 49% to 62%, while labelling every answer correct. On our own pre-registered benchmark of 20 AI-research passages with 48 injected errors, one agent pass fixed 96–97% of the errors (mean score ≈ 40 → 86–90 of 100). Three further passes added nothing (Δ +0.45 [−4.6, +4.8]). Under the rigorous prompt they eroded fixed facts into hedges (fix rate −0.067 [−0.117, −0.022]), and a naive prompt did at least as well at one sixth of the time. Test–retest noise was ±2–3 pp. All results use one inexpensive model and one biomedical
-  benchmark of single-sentence claims.
+  In post-hoc arms, the full prompt also failed to help without search (0.765 vs 0.755), although it may improve ranking (AUROC +0.047 [+0.013, +0.082]). Codex and Claude Code agents running the full prompt were not better than single calls on 40 claims. A pre-registered evaluation of the correct-until-labelled-accurate loop shows that it raises gold-evidence correctness only from 49% to 62%, while labelling every answer correct. On our own pre-registered benchmark of 20 AI-research passages with 48 injected errors, one agent pass fixed 96–97% of the errors (mean score ≈ 40 → 86–90 of 100). Three further passes added nothing (rigorous arm Δ +0.45 [−4.6, +4.8]). Under the rigorous prompt they eroded fixes (fix rate −0.067 [−0.117, −0.022]; post hoc, the lost facts were hedged or deleted), and a naive prompt did at least as well at one sixth of the time. Test–retest noise was ±2–3 pp. All verdict and corrector systems use one inexpensive model (`gpt-6-luna`) except one Claude Haiku agent arm; the
+  benchmarks are short SciFact claims and 20 AI-research passages.
 ]
 
 = Introduction
@@ -46,11 +46,12 @@ Our contributions:
 
 = System
 
-*Prompt as blocks.* The original prompt (Appendix A) is split verbatim into 24 sections, for example
-"Evaluate it from both bayesian and frequentist perspectives." The added sections are a NeurIPS-reviewer role,
-claim classification, 0–100% scoring and confidence. The lists (45 verdict labels, degrees fully / partially /
-slightly, 10 style adjectives, 63 scientists, 15 claim types) are editable. A test asserts that the all-on prompt
-contains every sentence and list item of the original.
+*Prompt as blocks.* The original prompt (Appendix A) is split into 20 sections, verbatim except for light rewording
+where a sentence was cut, for example "Evaluate it from both bayesian and frequentist perspectives." Four added
+sections (a NeurIPS-reviewer role, claim classification, 0–100% scoring and confidence) make 24 toggles. The lists
+(45 verdict labels, degrees fully / partially / slightly, 10 style adjectives, 63 scientists, 15 claim types) are
+editable. A test asserts that the all-on prompt contains every list item of the original and every sentence kept
+verbatim.
 
 *Output contract.* Each answer ends with JSON. Per claim it holds:
 - accuracy and confidence
@@ -60,11 +61,11 @@ contains every sentence and list item of the original.
   probability that the claim is true")
 - a corrected claim
 
-The JSON also holds a corrected text and a list of issues. A field is requested only while its section is
-enabled. Parsing tolerates common JSON defects; a repair step re-extracts the JSON if it is still missing.
+The JSON also holds a corrected text and a list of issues. Claim types, confidences, labels and conditions are
+requested only while their sections are enabled; accuracy, corrections and issues always are. Parsing tolerates common JSON defects; a repair step re-extracts the JSON if it is still missing.
 
-*Execution.* A run has five steps: extract (Claimify-style decomposition @claimify), check, perspective,
-synthesize and repair. Each step independently chooses:
+*Execution.* A run has five configurable steps: extract (Claimify-style decomposition @claimify), check, perspective,
+synthesize and repair (repair runs only when an answer lacks the JSON). Each step independently chooses:
 - API call (OpenAI Responses / Anthropic Messages with server-side web search) or agent (Codex CLI / Claude Code)
 - model, reasoning effort, search on/off and its caps
 - subagents, prompt template and prompt override
@@ -96,8 +97,9 @@ Brier score.
 *Hypotheses.* H1: BA(B) > BA(A). It is supported only if Δ > 0, the CI excludes 0 and p < 0.05. H2 (secondary):
 C − A isolates search; B − C isolates the prompt given search.
 
-*Sample size.* n = 200 was the largest balanced sample affordable at the pilot's worst-case cost within \$5. It
-exceeds the n ≈ 155 that Connor's approximation @connor gives for δ = 10 pp at 20% discordance.
+*Sample size.* The pre-registered rule (largest balanced n within about \$5 at the pilot's measured cost) was
+applied conservatively at the pilot's worst-case cost (≈ 208) and rounded down to n = 200. It exceeds the n ≈ 155
+that Connor's approximation @connor gives for δ = 10 pp at 20% discordance (two-sided α = 0.05, 80% power).
 
 *Leakage control.* Dataset hosts were blocked. Every consulted URL was logged and flagged if it matched a dataset
 host or "scifact".
@@ -117,7 +119,7 @@ host or "scifact".
     [E Codex agent, full#super[†]], [40], [0.876], [0.875 [0.739, 0.945]], [0.87 / 0.88], [0.917], [0.113], [0 (subscr.)],
     [F Claude Code agent (Haiku), full#super[†]], [40], [0.797], [0.775 [0.625, 0.877]], [0.65 / 0.94], [0.962], [0.161], [0 (subscr.)],
   ),
-  caption: [Per-system results; recall S / C = SUPPORT / CONTRADICT recall. #super[†] post hoc. No leak flags occurred in any system; D had one transient API failure, re-run once.])
+  caption: [Per-system results; recall S / C = SUPPORT / CONTRADICT recall. #super[†] post hoc. No leak flags occurred in A–E; F had one benign flag (a paperswithcode author page); D had one transient API failure, re-run once.])
 
 #figure(
   table(columns: 4, align: (left, right, right, left), stroke: 0.4pt,
@@ -131,7 +133,7 @@ host or "scifact".
     [E − C (n = 40)], [−0.059 [−0.167, +0.034]], [3 / 1, 0.62], [post hoc],
     [F − C (n = 40)], [−0.138 [−0.250, −0.045]], [6 / 0, 0.031], [post hoc; model differs],
   ),
-  caption: [Paired comparisons on shared items. b = only the first system correct, c = only the second correct.])
+  caption: [Paired comparisons on shared items. In "X − Y", b = only Y (the subtracted system) correct, c = only X correct.])
 
 *H1 is supported.* The improvement is concentrated in CONTRADICT claims (recall 0.72 → 0.88). These are expert
 negations that the model accepts as plausible without evidence (Fig. 2: A gives a large cluster of CONTRADICT
@@ -139,7 +141,7 @@ claims 65–95%).
 
 *Search explains the gain.* C − A (+0.135) is at least as large as B − A, and B − C is indistinguishable from 0.
 The CI rules out a benefit of the rigorous prompt larger than about 1 pp given search. B produced 3,562 output
-tokens per claim on average, vs 420 for C. Post hoc, the full prompt without search (D) also matched A (Δ +0.010 [−0.026, +0.047]). Its AUROC was higher (+0.047 [+0.013, +0.082]) with less extreme scores, a hypothesis for future pre-registered work. A Codex agent running the full prompt (E, n = 40) reached 0.876, statistically indistinguishable from the API systems on the same items. A Claude Code agent with `claude-haiku-5-5` (F) ranked claims best of all systems (AUROC 0.962) but was sceptical (SUPPORT recall 0.65). Its lower balanced accuracy versus C (p = 0.031) is one of 12 post-hoc tests and confounded by the model.
+tokens per claim on average, vs 420 for C. Post hoc, the full prompt without search (D) also matched A (Δ +0.010 [−0.026, +0.047]). Its AUROC was higher (+0.047 [+0.013, +0.082]) with less extreme scores, a hypothesis for future pre-registered work. A Codex agent running the full prompt (E, n = 40) reached 0.876, statistically indistinguishable from the API systems on the same items. A Claude Code agent with `claude-haiku-5-5` (F) ranked claims well (AUROC 0.962, below B's 0.978 and C's 0.992 on the same 40 claims) but was sceptical (SUPPORT recall 0.65). Its lower balanced accuracy versus C (p = 0.031) is one of 18 post-hoc tests (9 comparisons × 2 metrics) and confounded by the model.
 
 *Noise.* A re-run of A agreed on 96.5% of predictions, so differences above about 3 pp are unlikely to be sampling
 noise of the generator.
@@ -148,9 +150,10 @@ noise of the generator.
   caption: [Predicted accuracy by gold label for the 200-item systems (black bar: median).])
 
 *Qualitative validation.* On three AI research / philosophy / engineering texts with planted errors (answer key
-with sources in the repository), nine runs covered all execution presets: single call, Codex and Claude agents,
+with sources in the repository), eight runs covered all execution presets: single call, Codex and Claude agents,
 Claude subagents, per-claim agents, per-claim × per-scientist calls, and iteration. Together they agreed with the
-key on all 32 claim verdicts, with complete JSON contracts. The errors are textbook, so this demonstrates function,
+key on all 42 claim verdicts, with complete JSON contracts (a ninth run tested subagent delegation on a 2-claim
+text). The errors are textbook, so this demonstrates function,
 not accuracy. Two observations:
 - Merging three scientist personas pulled scores toward 50%. For example, "the Turing test is widely accepted as
   a sufficient test for consciousness" scored 46% after synthesis vs 5–25% in single runs.
@@ -171,7 +174,7 @@ and the text addresses the same question.
 With Luna as judge (post hoc) the self-label precision is 61% and extra passes add 0.00. An exploratory Claude Code
 loop with claim and scientist subagents failed in the opposite direction. On 2 of 3 claims it ran all 20 passes
 without ever labelling its text correct, although both judges found its final texts correct; the third claim was
-refused. A self-assessed stopping rule measures persuasion, not truth (Fig. 3).
+refused. A self-assessed stopping rule does not track gold correctness (Fig. 3).
 
 *Post hoc, on the same 100 claims.*
 - *Verdicts.* The agent's first-pass verdict reaches 0.921 balanced accuracy. That compares with 0.774 / 0.779
@@ -193,15 +196,15 @@ refused. A self-assessed stopping rule measures persuasion, not truth (Fig. 3).
   caption: [Post hoc: correction accuracy of one agent pass vs. the iterate-until-accurate loop on the same claims.])
 
 #figure(image("../figures/fig3_correction_loop.png", width: 72%),
-  caption: [Exp07: the loop's own accuracy rating vs. gold-evidence correctness of the latest proposed text after k passes (items carried forward after stopping; n = 100).])
+  caption: [Exp07: the loop's own accuracy rating vs. gold-evidence correctness of the latest proposed text after k passes. Correctness carries items forward after they stop (n = 100); the self-rating covers only items still looping (n = 100, 90, 24, 9, 4, 3, 1, 1).])
 
 *Obviously wrong AI-research text (Exp08, pre-registered).* We built a benchmark
 (#link("https://github.com/BurnyCoder/auto-fact-checker/tree/main/benchmarks/ai_errors_v1")[ai_errors_v1]) in the
 spirit of synthetic perturbation @factcc.
 - *Passages:* 10 Wikipedia leads and 10 arXiv abstracts about AI research, with k ∈ {0, …, 5} injected one-fact
   errors (48 in total, e.g. 2012 → 2022, 28.4 → 284 BLEU, CIFAR-10 → CIFAR-100) and 4 clean controls.
-- *Injection:* `gpt-6-luna` proposed the edits; code validated them; every edit was checked by hand (6 of 48
-  repaired).
+- *Injection:* `gpt-6-luna` proposed the edits; code validated them; the AI coding agent that built the repository
+  checked every edit individually (4 of 48 repaired, 2 relabelled).
 - *Arms:* a Codex agent with web search was forced through 4 correction passes with either the naive
   ("Fact-check the following text.") or the full rigorous prompt.
 - *Judge:* `claude-haiku-5-5`, given the original passage, the injected errors and the candidate. It scored each
@@ -229,11 +232,12 @@ spirit of synthetic perturbation @factcc.
 - *Prompt:* the rigorous prompt scored lower than the naive one after pass 1 (−4.65 [−10.2, +1.8], 16 of 20
   passages worse, Wilcoxon p = 0.017).
 - *Clean controls* were rewritten in every pass by both arms.
-- *Audit (post hoc).* We checked all 22 statements the judge flagged as "introduced errors" after pass 1 against
-  the primary papers. Only 1 was false. 12 were true details from the primary source, e.g. the Transformer
-  paper's results text reports 41.0 BLEU where its abstract says 41.8, and self-attention is
-  permutation-equivariant @settransformer. The other 9 were hedges. A judge anchored on the source passage
-  penalises correct additions, so the holistic score is a lower bound on real-world accuracy.
+- *Audit (post hoc, by the AI coding agent).* All 22 statements the judge flagged as "introduced errors" after
+  pass 1 were checked against the primary papers. None was unambiguously false. 13 were true details from the
+  primary source, e.g. the Transformer paper's results text reports 41.0 BLEU where its abstract says 41.8,
+  self-attention is permutation-equivariant @settransformer, and AlexNet's "500,000 neurons" matches the NeurIPS
+  abstract page (its PDF says 650,000). The other 9 were hedges. A judge anchored on the source passage penalises
+  correct additions, so the holistic score likely underestimates accuracy when correctors add true details.
 
 #figure(image("../figures/fig4_ai_errors_passes.png", width: 92%),
   caption: [Exp08: mean 0–100 score and mean per-error fix score after each forced correction pass, with 95% bootstrap bands (n = 20 passages, 48 injected errors; pass 0 = corrupted input).])
@@ -245,29 +249,29 @@ VeriScore @veriscore and FIRE @fire; Factcheck-Bench @factcheckbench and OpenFac
 such checkers. Claimify @claimify studies claim extraction. Our system reuses this decomposition but focuses on
 making a monolithic expert prompt modular and auditable. Our ablation finding (retrieval dominates) agrees with
 those pipelines' emphasis on evidence retrieval. To our knowledge, the lack of a gain from enumerating rigor
-criteria has not been measured in this form before. Iterative self-refinement @selfrefine improves many generation
+criteria has not been measured in this form before; we did not run a systematic literature search to confirm this.
+Iterative self-refinement @selfrefine improves many generation
 tasks, but intrinsic self-correction without external feedback often fails or degrades answers @selfcorrect.
 Exp07–08 add that, *with* web search, the gain comes from the first correction and further passes trade specific
-facts for hedges. Injecting synthetic errors to obtain known ground truth follows FactCC @factcc. We did not run a
-systematic literature search to confirm
-this.
+facts for hedges. Injecting synthetic errors to obtain known ground truth follows FactCC @factcc.
 
 = Limitations
 
-- *One model, one setting.* `gpt-6-luna` at low effort. Stronger models or other efforts may use the rigorous
+- *One corrector model, one setting.* `gpt-6-luna` at low effort (F and the judges use Claude Haiku). Stronger models or other efforts may use the rigorous
   instructions differently.
-- *One benchmark of short single claims.* SciFact scores only binary truth. The prompt's distinctive outputs
+- *SciFact: short single claims.* SciFact scores only binary truth. The prompt's distinctive outputs
   (label scores, condition assessments with confidences, corrections) were not evaluated against human judgments,
   and the calibration of the self-reported confidences was not measured.
 - *Contamination and gold semantics.* SciFact (2020) is likely in pretraining data, and its labels are relative
   to one abstract.
-- *Leakage.* Host blocking and URL flagging (0 flags) cannot exclude unknown mirrors.
-- *Post-hoc arms* (D, E) are exploratory. E has n = 40 and is underpowered.
+- *Leakage.* Host blocking and URL flagging (0 flags except one benign flag in F) cannot exclude unknown mirrors.
+- *Post-hoc arms* (D, E, F) are exploratory. E and F have n = 40 and are underpowered.
 - *Agent isolation.* With subscription authentication, Codex agents still load the user's global AGENTS.md; only a
   counter-instruction is applied.
 - *Exp08 scope.* 20 passages (power only for d_z ≳ 0.65), with synthetic one-fact errors in famous, likely
   memorised sources whose originals the agent can find online. The same model family injected and corrected the
-  errors, and the reference-based judge penalises true additions.
+  errors, and the reference-based judge penalises true additions. The QC of the injected errors and the audit of
+  judge-flagged statements were done by an AI coding agent, not by a human expert.
 - *Delegation and refusals.* In four smoke tests, Codex (`gpt-6-luna`) never actually spawned a sub-agent and
   twice reported a fabricated sub-agent answer. Claude Haiku refused some biomedical claims non-deterministically
   (bio-safety filter); one refusal is scored wrong in F.
@@ -276,7 +280,7 @@ this.
 
 Making a long expert prompt modular allowed a clean test of what it buys. For binary verification of scientific
 claims with an inexpensive model, web search is what matters. The rigorous instruction set adds cost and output
-volume but no measurable accuracy. Likewise, iterating until the model rates its own correction accurate is not verification: about a third of such "verified" texts were wrong by gold evidence. Whether its labels, condition scores and confidences are *valid* is an open,
+volume but no measurable accuracy. Likewise, iterating until the model rates its own correction accurate is not verification: 38% of such "verified" texts were wrong by gold evidence. Whether its labels, condition scores and confidences are *valid* is an open,
 testable question that needs human-annotated multi-dimensional judgments, which is our next step. For correction,
 one agent pass with search is the useful unit: further passes did not improve gold correctness (Exp07) or injected
 errors (Exp08). With a long prompt they slowly replaced correct specifics with hedges.

@@ -4,9 +4,10 @@ Usage: uv run python reports/scripts/exp08_posthoc.py
 1. Per-error status transitions (primary judge), passage length and hedge-word counts per pass: is the rigorous
    arm's falling fix rate re-introduction of the false fact, or loss of the true fact?
 2. Time, notional cost, searches and output tokens per pass, read from runs/<id>/run.json.
-3. Manual audit of every "introduced error" the primary judge flagged after pass 1 (both arms), each checked
-   against the primary paper (sources in AUDIT_SOURCES): genuinely false, true per the primary source but absent
-   from or conflicting with the reference passage, or a hedge / scope qualification.
+3. Audit of every "introduced error" the primary judge flagged after pass 1 (both arms), done item by item by the
+   AI coding agent that builds this repository (not a human), each checked against the primary paper (sources in
+   AUDIT_SOURCES): genuinely false, true per the primary source but absent from or conflicting with the reference
+   passage, or a hedge / scope qualification.
 Writes reports/results/exp08_posthoc.json.
 """
 
@@ -22,12 +23,15 @@ R = Path(__file__).resolve().parents[1] / "results"
 DATA = R / "exp08_ai_errors"
 HEDGES = (" may ", " might ", " commonly ", " often ", " some ", " reported ", " described as", " typically ")
 # Pass-1 introduced errors (Haiku judge) in file order: naive N01-N08, rigorous R01-R14 (listed by this script).
-AUDIT = {"false": ["N01"],  # AlexNet "500,000 neurons" (paper: 650,000)
-         "true_per_primary_source": ["N02", "N06", "N07", "N08", "R02", "R04", "R06", "R08", "R09", "R10", "R11",
-                                     "R13"],
+# N01, AlexNet "500,000 neurons": the NeurIPS abstract page says 500,000, the PDF and Wikipedia say 650,000, so it is
+# a primary-source inconsistency (like 41.0 vs 41.8 BLEU), not a false statement (reclassified 2026-10-22).
+AUDIT = {"false": [],
+         "true_per_primary_source": ["N01", "N02", "N06", "N07", "N08", "R02", "R04", "R06", "R08", "R09", "R10",
+                                     "R11", "R13"],
          "hedge_or_scope_qualification": ["N03", "N04", "N05", "R01", "R03", "R05", "R07", "R12", "R14"]}
 AUDIT_SOURCES = {
-    "AlexNet 650,000 neurons; 15.3% vs 26.2% runner-up (10.9 points)": "https://papers.nips.cc/paper/4824",
+    "AlexNet: 500,000 neurons on the NeurIPS abstract page vs 650,000 in the PDF; 15.3% vs 26.2% runner-up (10.9 "
+    "points)": "https://papers.nips.cc/paper_files/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html",
     "Transformer: Results prose 41.0 BLEU vs abstract 41.8; parsing F1 91.3 / 92.7; feed-forward sublayers; 2017":
         "https://arxiv.org/abs/1706.03762",
     "Self-attention is permutation-equivariant (Lee et al. 2019, Set Transformer)": "https://arxiv.org/abs/1810.00825",
