@@ -3,7 +3,8 @@
 **Pre-registration:** [`docs/correction_eval.md`](../../docs/correction_eval.md). It was committed (PR #14) before
 any Exp07 call, together with the analysis script
 [`reports/scripts/analyze_correction.py`](../scripts/analyze_correction.py). The script's only later change (commit
-`a8916a0`, after the Codex data) leaves arms with fewer than 10 items out of the figure; no statistic changed.
+`a8916a0`, after the Codex data) left arms with fewer than 10 items out of the figure. The 2026-10-22 change
+clarifies figure labels and missingness; no primary statistic changed.
 **Data:**
 - `reports/results/exp07_correction_codex/`
 - `reports/results/exp07_correction_claude/`
@@ -27,7 +28,7 @@ according to independent, gold evidence?
   - It repeats correct → re-check until it rates every claim ≥ 90%, for at most 20 passes, with a fixed-point stop.
   - The loop's answer is the text it labels correct: the input of its last pass.
 - **Judge:**
-  - Input: the cited SciFact abstract with the expert rationale sentences marked, plus the original claim (which
+  - Input: the cited SciFact abstract(s) with the expert rationale sentences marked, plus the original claim (which
     fixes the question). No web.
   - Output: correct = central claim entailed ∧ no contradiction ∧ still a specific claim on the same question.
   - Primary judge: `claude-haiku-5-5`, a different model family from the corrector. Secondary judge: `gpt-6-luna`.
@@ -44,7 +45,7 @@ according to independent, gold evidence?
 |---|---|
 | **H1** share correct: original → loop answer | **49% → 62%**, Δ = **+0.13 [+0.02, +0.24]**, McNemar 10 / 23, p = 0.035 → **supported** |
 | **H2** precision of "labelled correct" | the loop labelled **100/100** answers correct (all stopped on "all claims ≥ 90%"); judged correct: **62%** [52, 71] |
-| **H3** first correction → final answer | 61% → 62%, Δ = +0.01 [−0.06, +0.08], McNemar 5 / 6, p = 1.0 → **extra passes add nothing** |
+| **H3** first correction → final answer | 61% → 62%, Δ = +0.01 [−0.06, +0.08], McNemar 5 / 6, p = 1.0 → **no detectable improvement** |
 | repair rate (false originals now correct) | 24 / 46 = **52%** [38, 66] |
 | harm rate (correct originals now incorrect) | 10 / 49 = **20%** [11, 34] |
 | answer correct, by gold class | true claims 38 / 54 = 70%; false claims 24 / 46 = 52% |
@@ -57,7 +58,8 @@ according to independent, gold evidence?
 - H3 Δ = 0.00 [−0.06, +0.06].
 - Repair 57%, harm 19%.
 
-The conclusions hold under either judge.
+The observed directions are similar, but Luna falls below the prespecified validity threshold; this is a
+sensitivity analysis, not independent confirmation of correctness.
 
 **Trajectory** ([`fig3_correction_loop.png`](../figures/fig3_correction_loop.png); the latest proposed correction,
 carried forward after an item stops):
@@ -65,7 +67,9 @@ carried forward after an item stops):
   0.91–0.95. This line covers only items still looping (n = 100, 90, 24, 9, 4, 3, 1, 1 for passes 1–8), so from
   pass 3 on it rests on 24 items or fewer.
 - Gold-evidence correctness rises from 0.49 to 0.61 after the first correction, then *drifts down* to about 0.50
-  as further rewrites are proposed.
+  as further rewrites are proposed. The judged denominator is 100 at k=0,1 and 99 at k=2–8 because one judgment
+  is missing. These proposals can differ from the accepted text returned by the loop (62/100 correct); the
+  trajectory endpoint is not the returned-answer accuracy.
 
 ## Interpretation
 
@@ -75,7 +79,7 @@ carried forward after an item stops):
 2. **"Labelled correct" is a weak signal.** Every one of the 100 answers was self-labelled ≥ 90% accurate, but only
    62% are correct by the gold evidence. The self-label is unconditional, so it carries no information about which
    answers are right.
-3. **Looping beyond the first correction does not help** (H3 null). The extra passes mostly rewrite rather than
+3. **No detectable improvement beyond the first correction** (H3). Some extra passes rewrite rather than
    repair. Clinical and causal claims drift into hedged or narrower statements, e.g. "Having a main partner worsens
    HIV outcomes" ended after 6 passes as a description of two observational studies (a 2021 survey and a clinic
    study) plus caveats. The loop's own score climbs (18 → 95), plausibly because a hedged statement is hard to
@@ -142,7 +146,7 @@ Run-to-run noise:
   40.
 - The two independent runs agree on 38 of 40 predictions, so the 5-point gap is two flipped claims.
 
-**2. Correction accuracy: one agent pass gets all of the gain**
+**2. Correction accuracy: the observed gain is unchanged after the first pass**
 
 Policy definitions:
 - **Single pass** = what one agent call does: keep the original if pass 1 rates it ≥ 90%, otherwise use pass 1's
@@ -160,7 +164,7 @@ Policy definitions:
 - By class (Haiku judge), the two policies are identical: false claims repaired 24 / 46 either way, true claims kept
   correct 38 / 54 either way.
 
-**3. Detection is solved, repair is not**
+**3. Detection and repair differ on these claims**
 
 - **False claims:** pass 1 *detects* 43 / 46 (93%), but the loop *repairs* only 22 of those 43 correctly.
 - **True claims:** pass 1 calls 49 / 54 true at the verdict cut-off (50%). But only 10 / 54 reach the loop's
@@ -173,9 +177,9 @@ correct verdicts vs the share of correct output texts). They are shown on the sa
 
 ## Limitations
 
-- **The gold evidence is one abstract.** A correction that is right according to broader literature can be judged
-  "not entailed", which biases correctness *against* the loop. The H2 precision is therefore a lower bound in that
-  respect.
+- **The gold evidence is the supplied abstract(s).** Five of the 100 claims have multiple abstracts. Broader
+  literature may support a correction the judge rejects, while judge mistakes may also accept incorrect text.
+  The net bias is unknown; H2 is not a demonstrated lower bound on real-world correctness.
 - **The judges are LLMs.** Haiku is 93% accurate on originals; Luna is 83%; they agree moderately (κ 0.47).
   Hedged texts are where they disagree most.
 - **One corrector model** (`gpt-6-luna`, effort low) **and one domain** (biomedical single-sentence claims).
@@ -183,8 +187,11 @@ correct verdicts vs the share of correct output texts). They are shown on the sa
 
 ## Learnings
 
-- A self-assessed stopping rule (`iterate_until_accurate`) reflects the model's rating of its own correction and
-  does not track gold correctness. Use at most one correction pass, or an independent check, before calling a text
-  "verified".
+- A self-assessed stopping rule (`iterate_until_accurate`) did not distinguish correct from incorrect returned
+  texts in this sample. Independent evidence is needed before treating that label as verification.
 - The pre-registered `same_question` criterion was necessary: without it, hedged non-answers would have counted as
   correct.
+
+The [original preregistration](https://github.com/BurnyCoder/auto-fact-checker/blob/f681d49/docs/correction_eval.md)
+and primary numerical artifacts remain unchanged. Timing and per-pass costs require local, ignored `runs/`
+artifacts; the published result records support correctness recomputation but not full raw-run reproduction.

@@ -1,3 +1,8 @@
 * text=auto eol=lf
 *.png binary
 *.pdf binary
+
+# Frozen evidence must retain exact bytes on Windows and Unix checkouts (SHA-256 manifest).
+benchmarks/ai_errors_v1/*.jsonl -text
+reports/results/*/*.jsonl -text
+reports/results/*/items.json -text

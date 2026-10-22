@@ -6,15 +6,15 @@ that was corrected later to match the code, without changing the plan, is marked
 
 ## Why
 
-Exp07 found that, on single-sentence biomedical claims judged against one abstract, one agent correction pass
-gave the whole gain and further passes added nothing. Two things limited that test:
+Exp07 found the same observed correctness after one agent pass and after the loop on biomedical claims judged
+against supplied abstracts; additional improvement was not detected. Two things limited that test:
 
-- Each claim held at most one error.
+- Each item was one scientific claim; within-claim error counts were not annotated.
 - The gold was a related abstract, not the text itself.
 
-Here every passage is real AI-research text with a **known number of known errors**, and the uncorrupted original
-is the ground truth. That allows scoring corrections on a spectrum and separating *fixing* injected errors from
-*introducing* new ones, pass by pass.
+Here real AI-research passages receive a known number of annotated edits, and the uncorrupted original is the
+scoring reference. The historical design treated it as ground truth; the dated clarification below identifies
+why that assumption and one error annotation are imperfect.
 
 ## Benchmark (`benchmarks/ai_errors_v1/`, built by `afc ai-errors build`)
 
@@ -152,8 +152,11 @@ Exp07 predicts this null.
 
 **Power:**
 - With n = 20 paired passages, α = 0.05 and power 0.8, only a standardised paired effect d_z ≳ 0.65 is
-  detectable. That is n ≈ ((1.96 + 0.84) / d_z)² + 2 for a paired t-test; Wilcoxon has a similar requirement.
-- So a null H1 is "no large effect", not "no effect".
+  detectable under the planning approximation n ≈ ((1.96 + 0.84) / d_z)² + 2 for a paired t-test.
+  Actual Wilcoxon power depends on the paired-difference distribution; this was not an exact power calculation
+  for that test (clarified 2026-10-22).
+- The original plan interpreted a null H1 as "no large effect", not "no effect"; the dated methodological
+  clarification below retracts that interpretation without changing the historical support rule.
 - About 48 errors give finer, error-level fix-rate CIs, but those are clustered within passages, which the
   cluster bootstrap respects.
 
@@ -166,8 +169,9 @@ Exp07 predicts this null.
 
 **Not billed:** the Codex agent runs on the subscription; it is recorded as notional cost.
 
-**Cap:** each `afc ai-errors run` invocation is capped with `--max-cost` (billed + notional), on top of the
-global `SPEND_LIMIT_USD` = $10 cap.
+**Recorded-cost controls:** `--max-cost` checks billed + notional estimates for the invocation; the global
+`SPEND_LIMIT_USD` checks recorded billed estimates. Calls can overshoot before their costs are recorded, and
+unknown costs are not included. These are soft controls, not provider-enforced spending guarantees.
 
 ## Reproduce
 
@@ -177,3 +181,21 @@ uv run afc ai-errors run --system configs/bench/ai_naive_codex.json --judges con
 uv run afc ai-errors run --system configs/bench/ai_rigorous_codex.json --judges configs/bench/judge_haiku.json configs/bench/judge_luna.json --out reports/results/exp08_ai_errors --max-cost 10
 uv run --group paper python reports/scripts/analyze_ai_errors.py
 ```
+
+## Methodological clarification — 2026-10-22
+
+The [original committed plan](https://github.com/BurnyCoder/auto-fact-checker/blob/a2b7759/docs/ai_error_bench.md)
+and its decision rules remain the historical record. “Falsified” above denotes failure to meet the support
+criterion; neither nonsignificance nor the planned detectable effect size proves equality or excludes larger
+effects ([ASA statement](https://doi.org/10.1080/00031305.2016.1154108)). The bootstrap interval estimates a mean
+difference, whereas [Wilcoxon](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wilcoxon.html)
+tests the paired-difference distribution under its symmetry assumptions; these need not agree.
+
+The frozen benchmark contains 48 annotated edits, not 48 independently established false facts. LSTM edit 3
+changes “can last thousands” to “can last three” timesteps without an upper-bound qualifier; it is ambiguous.
+Original passages also contain source inaccuracies, such as calling self-attention permutation-invariant.
+See the [dataset erratum](../benchmarks/ai_errors_v1/README.md) and the
+[dated post-hoc sensitivity](../reports/experiments/exp08_ai_error_bench.md#dated-reassessment--2026-10-22).
+“Clean” means no injected edits, not verified error-free text. The original texts, judgments and primary
+statistics are preserved; no candidate was changed or rejudged. The weighted error-fix score grants half
+credit to removal/hedging and must not be described as the percentage of errors fully corrected.

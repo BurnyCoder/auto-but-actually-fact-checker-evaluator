@@ -30,7 +30,7 @@ labelled exploratory.
 
 ## Interpretation
 
-- **Web search explains the whole Exp01 improvement.** Adding search to the simple prompt gives +13.5 pp of
+- **Adding web search improved the simple prompt.** Its observed gain was +13.5 pp of
   balanced accuracy, with the CI well away from 0.
 - **There is no detectable benefit of the long rigorous prompt on this task.** The point estimate is negative
   (−2.5 pp) and the CI [−6.1, +1.0] includes 0, so we cannot claim it hurts either.
@@ -45,7 +45,7 @@ labelled exploratory.
   - corrected text, issue lists, perspectives
 
   "No accuracy gain on SciFact" is therefore not "no value". It is evidence that, for the binary-verdict part of
-  the job, the prompt's extra instructions do not improve the verdict.
+  the job, no positive effect of the extra instructions was detected in this sample.
 - **A plausible mechanism (untested).** Spreading the output budget across 57 scored dimensions may dilute
   attention to the core verdict. B used slightly more searches (1.17 vs 1.03), so less search was not the cause.
 
