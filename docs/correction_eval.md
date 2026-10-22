@@ -45,7 +45,7 @@ self-labelled.
 
 The judge uses no web and no outside knowledge.
 
-**Output:** JSON with three fields.
+**Output:** JSON with three decision fields (plus a `verdict` and an `explanation`).
 - `main_claim_entailed`: the central assertion is supported by the gold evidence.
 - `contradicts_evidence`: some statement in the text conflicts with the gold evidence.
 - `same_question`: the text is still a specific claim about the same question. This blocks vacuous
@@ -63,7 +63,8 @@ wrong.
 **Judge validity, checked before any hypothesis:**
 - On the 100 original claims, a valid judge calls SUPPORT claims correct and CONTRADICT claims incorrect.
 - Its accuracy against gold is reported.
-- If the primary judge's accuracy is below 85%, Exp07's conclusions are flagged as unreliable.
+- If the primary judge's accuracy is below 85%, Exp07's conclusions are flagged as unreliable (checked from the
+  analysis output; the script reports the accuracy but does not apply the gate).
 
 ## Hypotheses and analysis
 

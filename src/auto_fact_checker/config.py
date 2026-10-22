@@ -26,7 +26,8 @@ PRESETS_DIR = ROOT / "configs" / "presets"  # UI presets (the "modes")
 STEPS = ("extract", "check", "perspective", "synthesize", "repair")  # pipeline steps, each with its own StepConfig
 Kind = Literal["api", "agent"]  # api = one provider API request; agent = Codex / Claude Code CLI agent run
 Provider = Literal["openai", "anthropic"]
-Effort = Literal["none", "minimal", "low", "medium", "high", "xhigh", "max"]  # reasoning depth, mapped per backend
+Effort = Literal["none", "minimal", "low", "medium", "high", "xhigh", "max"]  # reasoning depth, mapped per backend;
+# a model rejects levels it lacks (gpt-6-luna: none/low/medium/high/xhigh/max, no "minimal"; see its model page)
 BACKENDS = {("api", "openai"): "openai_api", ("api", "anthropic"): "anthropic_api",
             ("agent", "openai"): "codex", ("agent", "anthropic"): "claude_code"}
 DEFAULT_BLOCKED = []  # domains blocked from web search by default (benchmarks add dataset hosts)
@@ -85,11 +86,12 @@ class StepConfig(BaseModel):
     """Settings for one pipeline step: API call vs agent, provider, model, depth, search, subagents, prompt."""
 
     model_config = ConfigDict(extra="forbid")  # a typo such as "modle" must fail, not silently run defaults
-    enabled: bool = True  # disabled steps are skipped (e.g. no synthesis -> deterministic merge)
+    enabled: bool = True  # off: extract -> whole text, check/perspective -> no such calls (perspective buttons
+    # still run), synthesize -> deterministic merge, repair -> no JSON repair
     kind: Kind = "api"
     provider: Provider = "openai"  # OpenAI is preferred for simple calls
     model: str = catalog.DEFAULT_MODEL["openai"]  # any catalog id (or a custom id typed in the UI)
-    effort: Effort = "low"  # reasoning effort; Anthropic/Claude Code map none/minimal -> low, OpenAI/Codex pass as is
+    effort: Effort = "low"  # Anthropic/Claude Code map none/minimal -> low; OpenAI/Codex pass the value as is
     web_search: bool = False
     search_context_size: Literal["low", "medium", "high"] = "medium"  # OpenAI web_search context size
     max_searches: int = 5  # Anthropic max_uses / OpenAI max_tool_calls / instruction for agents
@@ -166,9 +168,10 @@ class FactCheckConfig(BaseModel):
             raise ValueError("subagent strategies need a Claude Code check agent (kind='agent', provider='anthropic') "
                              "with allow_subagents=true; Codex cannot load named subagent definitions")
         if not check.enabled and not (self.scientist_strategy == "separate_call_per_scientist"
-                                      and self.perspective_scientists):
-            raise ValueError("with the check step disabled, use separate_call_per_scientist with at least one "
-                             "perspective scientist (otherwise nothing would run)")
+                                      and self.perspective_scientists and self.steps["perspective"].enabled):
+            raise ValueError("with the check step disabled, enable the perspective step and use "
+                             "separate_call_per_scientist with at least one perspective scientist "
+                             "(otherwise nothing would run)")
         return self
 
     @property

@@ -4,7 +4,9 @@ Local: builds the command (model, reasoning effort, live web search, approvals/s
 user's ~/.codex config and desktop-control features, optional multi-agent) and parses the JSONL events.
 Global context: used for steps with kind="agent", provider="openai" (OpenAI agents are preferred by the user).
 Codex reports tokens only, so the cost is computed from catalog prices. Docs:
-https://learn.chatgpt.com/docs/non-interactive-mode and https://learn.chatgpt.com/docs/config-file/config-reference
+https://learn.chatgpt.com/docs/non-interactive-mode, https://learn.chatgpt.com/docs/cli/reference (exec flags,
+`-c` values parsed as TOML), https://learn.chatgpt.com/docs/config-file/config-reference and
+https://learn.chatgpt.com/docs/agent-configuration/agents-md (global AGENTS.md in CODEX_HOME)
 (flags verified against `codex exec --help`, v0.163.0; `codex exec --search` is rejected, so web search is enabled
 with `-c web_search="live"`).
 """
@@ -20,6 +22,7 @@ from .base import LLMRequest, LLMResult, dedupe
 from .subprocess_jsonl import run_agent, urls_in
 
 # Features switched off for fact-check agents: desktop/browser control, apps/plugins and hooks from the user's setup.
+# Only apps and hooks are in the config reference; the other names are from `codex features list` (v0.163.0).
 ISOLATION_FEATURES = ["computer_use", "browser_use", "browser_use_external", "in_app_browser", "apps", "plugins",
                       "hooks"]
 # Codex has no switch to skip the global ~/.codex/AGENTS.md (config reference, 2026-10-17); with subscription auth

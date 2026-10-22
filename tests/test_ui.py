@@ -36,6 +36,8 @@ def test_preview_shows_each_call_type():
     assert "SUBAGENTS (--agents JSON)" in l3 and "claim-checker" in l3
     l5 = ui.preview(C.load_preset("L5_per_claim_x_scientist_calls"), "TEXT")
     assert "EXTRACT" in l5 and "PERSPECTIVE (Karl Popper)" in l5 and "<document_context>" in l5
+    off = C.apply_overrides(C.load_preset("L5_per_claim_x_scientist_calls"), ["steps.perspective.enabled=false"])
+    assert "PERSPECTIVE" not in ui.preview(off, "TEXT")  # a disabled perspective step makes no calls
 
 
 def test_claim_widths_match_claims_table_columns():

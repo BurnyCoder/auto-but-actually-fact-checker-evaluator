@@ -48,7 +48,7 @@ def validate(text: str, errors: list, k: int) -> list[dict]:
     """The first k usable edits: a sentence of the passage, one edit per sentence, a real but small change.
 
     A slightly mis-copied original (similarity >= 0.9, common for long sentences) is snapped to the passage's
-    sentence; any extra difference this leaves in the perturbed sentence is visible in the manual QC diff."""
+    sentence; any extra difference this leaves in the perturbed sentence is visible in the QC diff."""
     out, used, sents = [], set(), sources.split_sentences(text)
     ratio = lambda a, b: difflib.SequenceMatcher(None, a, b).ratio()  # noqa: E731
     for e in errors:

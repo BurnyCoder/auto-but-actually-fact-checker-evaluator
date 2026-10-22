@@ -1,11 +1,12 @@
-"""Benchmark runner: `afc bench --dataset scifact --systems A.json B.json --n N --out DIR`.
+"""Benchmark runner: `afc bench --dataset scifact --systems A.json B.json --n N --max-cost USD --out DIR`.
 
 Local: samples a seeded balanced item set, fact-checks every item with every system (a system = a preset /
 FactCheckConfig JSON), caches one JSON line per (system, item) so runs resume without paying twice, stops when the
 benchmark's own cost cap or the global spend cap is reached, then writes summary.json and results.md with per-system
 metrics and paired comparisons of the first system (baseline) against each other system.
 Global context: each item goes through pipeline.run_fact_check exactly like a UI run; the prediction is
-p_true = overall accuracy_pct / 100 (SUPPORT iff p_true >= 0.5, fixed in advance).
+p_true = overall_accuracy_pct / 100, or the mean claim accuracy when the overall score is missing
+(schema.FactCheckSummary.accuracy); SUPPORT iff p_true >= 0.5, fixed in advance.
 """
 
 import argparse
@@ -55,7 +56,8 @@ def run_system(name: str, cfg, items, out: Path, max_cost: float, spent: list, w
                item_fn=None) -> None:
     """Run all uncached items of one system in parallel until the benchmark cost cap is hit.
 
-    item_fn(item, cfg) -> record (default run_item); bench/correction.py passes its loop-and-judge function.
+    item_fn(item, cfg) -> record (default run_item); bench/correction.py and bench/ai_errors.py pass their
+    loop-and-judge functions.
     """
     item_fn = item_fn or run_item
     path = out / f"{name}.jsonl"

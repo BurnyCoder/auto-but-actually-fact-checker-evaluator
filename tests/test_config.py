@@ -71,6 +71,9 @@ def test_typos_and_impossible_combinations_are_rejected():
         steps = C.default_steps()
         steps["check"] = C.StepConfig(enabled=False)
         C.FactCheckConfig(steps=steps, scientist_strategy="separate_call_per_scientist", perspective_scientists=[])
+    with pytest.raises(ValidationError, match="nothing would run"):  # check and perspective both off
+        steps["perspective"] = C.StepConfig(enabled=False)
+        C.FactCheckConfig(steps=steps, scientist_strategy="separate_call_per_scientist")
     with pytest.raises(ValidationError, match="anthropic model"):
         C.StepConfig(provider="openai", model="claude-haiku-5-5")
     C.StepConfig(provider="openai", model="my-custom-model")  # uncatalogued ids stay allowed
