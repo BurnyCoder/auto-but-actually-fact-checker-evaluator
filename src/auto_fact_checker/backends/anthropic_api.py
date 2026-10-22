@@ -42,35 +42,57 @@ def build_kwargs(req: LLMRequest) -> dict:
 
 def run(client, req: LLMRequest, log: logging.Logger | logging.LoggerAdapter,
         workspace_id: str | None = None) -> LLMResult:
-    """Execute the request with an existing client (injectable for tests), following pause_turn continuations."""
+    """Stream one logical call; max_uses and SDK timeouts apply separately to each continuation request."""
     kw = build_kwargs(req)
     if workspace_id:
         kw["workspace_id"] = workspace_id  # sent as the anthropic-workspace-id header
-    texts, urls = [], []
-    tin = tout = searches = 0
-    cost = 0.0
+    result = LLMResult(backend="anthropic_api", model=req.model, cost_usd=0.0)
     for _ in range(MAX_CONTINUATIONS):
+        if req.cancel is not None and req.cancel.is_set():  # A completed previous request retains known usage.
+            result.error = "cancelled"
+            return result
+        chunks = []  # Only used if interrupted; completed messages below supply the canonical full text.
         with client.messages.stream(**kw) as stream:
-            msg = stream.get_final_message()  # consumes the stream and returns the accumulated Message
+            for event in stream:  # SDK helpers expose text events before get_final_message().
+                if event.type == "text":
+                    chunks.append(event.text)
+                    log.info("[anthropic text] %s", event.text)  # Full delta, immediately mirrored to file/terminal.
+                if req.cancel is not None and req.cancel.is_set():
+                    result.text += "".join(chunks)
+                    result.cost_usd, result.error = None, "cancelled"  # Final usage is unavailable for this request.
+                    return result  # Exiting the context closes the stream; server-side billing may still occur.
+            msg = stream.get_final_message()
         for b in msg.content:
             if b.type == "text":
-                texts.append(b.text)
-                urls += [getattr(c, "url", None) for c in (getattr(b, "citations", None) or [])]
+                result.text += b.text
+                result.sources += [getattr(c, "url", None) for c in (getattr(b, "citations", None) or [])
+                                   if getattr(c, "url", None)]
             elif b.type == "server_tool_use":
                 log.info("[anthropic %s] %s", getattr(b, "name", "tool"), getattr(b, "input", ""))
             elif b.type == "web_search_tool_result" and isinstance(b.content, list):  # error results are objects
-                urls += [getattr(x, "url", None) for x in b.content]
+                result.sources += [x.url for x in b.content if getattr(x, "url", None)]
         u = msg.usage
         n = getattr(getattr(u, "server_tool_use", None), "web_search_requests", 0) or 0
-        tin, tout, searches = tin + u.input_tokens, tout + u.output_tokens, searches + n
-        cost += catalog.cost_usd(req.model, u.input_tokens, u.output_tokens, web_searches=n) or 0.0  # per request
+        read = getattr(u, "cache_read_input_tokens", 0) or 0
+        written = getattr(u, "cache_creation_input_tokens", 0) or 0
+        cache = getattr(u, "cache_creation", None)
+        short = getattr(cache, "ephemeral_5m_input_tokens", 0) or 0
+        long = getattr(cache, "ephemeral_1h_input_tokens", 0) or 0
+        total = u.input_tokens + read + written  # Anthropic's three disjoint input categories form the context.
+        result.input_tokens += total
+        result.cached_input_tokens += read
+        result.cache_creation_input_tokens += written
+        result.output_tokens += u.output_tokens
+        result.web_searches += n
+        cost = (catalog.cost_usd(req.model, total, u.output_tokens, read, n,
+                                cache_write_5m_tokens=short, cache_write_1h_tokens=long)
+                if written == short + long else None)  # Missing TTL information cannot produce an exact estimate.
+        result.cost_usd = result.cost_usd + cost if result.cost_usd is not None and cost is not None else None
+        result.sources = dedupe(result.sources)
         if msg.stop_reason != "pause_turn":
             break
         # Continue the paused server-tool turn by sending the assistant content back unchanged (docs: pause_turn).
         kw["messages"] = kw["messages"] + [{"role": "assistant", "content": msg.content}]
-    result = LLMResult(text="".join(texts), backend="anthropic_api", model=req.model, input_tokens=tin,
-                       output_tokens=tout, web_searches=searches, sources=dedupe(urls),
-                       cost_usd=cost if req.model in catalog.MODELS else None)
     if msg.stop_reason in ("max_tokens", "refusal", "pause_turn"):  # pause_turn here = continuations exhausted
         result.error = f"stop_reason={msg.stop_reason}"
     return result

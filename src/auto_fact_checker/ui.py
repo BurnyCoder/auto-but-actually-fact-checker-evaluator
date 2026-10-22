@@ -5,7 +5,7 @@ int/float with a RANGES entry -> Slider, list[str] -> CheckboxGroup (+ "extra it
 A new StepConfig field appears in every Steps tab without UI code; a new FactCheckConfig field must be added to one
 of the per-tab field tuples in build_ui (tests/test_ui.py checks that every field has a widget). Run / One more iteration are generator handlers that run the pipeline in a
 worker thread and stream progress (report, tables, live log) every second; Stop sets the run's cancel flag
-(agents are killed, OpenAI streams abandoned, no new calls start) and cancels the UI events.
+(backend cancellation is cooperative); polling stays alive to show the terminal status.
 Global context: the UI only builds a FactCheckConfig and calls pipeline.run_fact_check / run_perspective /
 synthesize_perspectives; everything shown comes from render.py.
 Gradio docs: Blocks https://www.gradio.app/docs/gradio/blocks ; streaming generators
@@ -29,7 +29,7 @@ from pydantic import ValidationError
 from . import catalog, render, spend
 from .config import (PRESETS_DIR, ROOT, STEPS, FactCheckConfig, StepConfig, get_settings, list_presets,
                      load_preset, options, save_preset, section_ids)
-from .context import stop_run
+from .context import begin_batch, stop_run
 from .pipeline import run_fact_check, run_perspective, synthesize_perspectives
 from .prompts import build_agents, build_prompt, template_choices
 from .results import RUNS, FactCheckRun, new_run
@@ -42,7 +42,7 @@ SHIPPED_PRESETS = {p for p in list_presets() if re.match(r"L\d_", p)}  # repo pr
 RANGES = {"max_searches": (0, 50, 1), "max_subagents": (1, 30, 1), "max_turns": (0, 300, 1),
           "timeout_s": (60, 7200, 60), "max_claims": (1, 50, 1), "max_parallel": (1, 16, 1),
           "accuracy_threshold": (0, 100, 1), "max_iterations": (1, 20, 1), "max_cost_usd": (0.01, 10.0, 0.01)}
-LABELS = {"kind": "Call type: one API request or an agent (Codex / Claude Code)",
+LABELS = {"kind": "Call type: API conversation turn or an agent (Codex / Claude Code)",
           "provider": "Provider (OpenAI preferred)", "effort": "Depth: reasoning effort",
           "web_search": "Allow web search", "allow_subagents": "Agent may spawn subagents",
           "prompt_template": "Prompt template (files in prompts/<step>/)",
@@ -54,6 +54,8 @@ LABELS = {"kind": "Call type: one API request or an agent (Codex / Claude Code)"
           "conditions": "Scored conditions (score %, + confidence % while block 23 is on; only while their section is on)",
           "score_all_labels": "Score EVERY selected verdict label for every claim (else only applicable ones)",
           "score_each_scientist": "Add a scored condition per named scientist (long output!)",
+          "iterate_until_accurate": "Repeat until model-reported scores reach the threshold",
+          "accuracy_threshold": "Model-reported accuracy threshold (%)",
           "perspective_scientists": "Scientists for separate calls / subagents / perspective buttons"}
 # Claims table (render.claims_rows: #, claim, accuracy, confidence, types, top labels, corrected claim). Fixed widths
 # with wrap=True keep every column visible; without them the wrapped claim text takes the whole width.
@@ -168,10 +170,10 @@ def values_from(knobs: list[Knob], cfg: FactCheckConfig) -> list:
 
 
 def preview(cfg: FactCheckConfig, text: str) -> str:
-    """Exact prompts the chosen configuration would send (one example per call type)."""
+    """Preview selected prompts; extracted-claim prompts are illustrative until extraction returns."""
     text = text or "<your text>"
     parts = []
-    if cfg.claim_strategy == "separate_call_per_claim":
+    if cfg.claim_strategy == "separate_call_per_claim" and cfg.steps["extract"].enabled:
         parts.append(("EXTRACT", build_prompt(cfg, "extract", text)))
         target, context = "<one extracted claim>", text
     else:
@@ -185,7 +187,9 @@ def preview(cfg: FactCheckConfig, text: str) -> str:
         parts.append((f"PERSPECTIVE ({cfg.perspective_scientists[0]})",
                       build_prompt(cfg, "perspective", target, context=context,
                                    persona=cfg.perspective_scientists[0])))
-    return "\n\n".join(f"########## {title} ##########\n{body}" for title, body in parts)
+    note = ("Illustrative check/perspective prompts: the extracted claim and its context depend on extraction.\n\n"
+            if cfg.claim_strategy == "separate_call_per_claim" and cfg.steps["extract"].enabled else "")
+    return note + "\n\n".join(f"########## {title} ##########\n{body}" for title, body in parts)
 
 
 def outputs_for(run: FactCheckRun | None):
@@ -196,10 +200,13 @@ def outputs_for(run: FactCheckRun | None):
     s = final.summary if final else None
     log_path = get_settings().runs_dir / run.run_id / "run.log"
     log = log_path.read_text(encoding="utf-8", errors="replace")[-80_000:] if log_path.exists() else ""
-    spent = spend.total_billed(get_settings().ledger)
+    ledger = spend.summary(get_settings().ledger)
     status = (f"**{run.status}** — run `{run.run_id}` — iteration {len(run.iterations)} — "
-              f"{len(run.calls)} calls — run cost ${run.total_cost_usd:.4f} — total billed ${spent:.4f} of "
-              f"${get_settings().spend_limit_usd:.2f}" + (f" — {run.stop_reason}" if run.stop_reason else ""))
+              f"{len(run.calls)} calls — run known estimate ${run.total_cost_usd:.4f} "
+              f"({run.unknown_cost_calls} unknown-cost calls) — known billed estimate "
+              f"${ledger['known_billed_usd']:.4f} of ${get_settings().spend_limit_usd:.2f} "
+              f"({ledger['unknown_billed_calls']} unknown billed calls)"
+              + (f" — {run.stop_reason}" if run.stop_reason else ""))
     claims = [c.claim for c in s.claims] if s else []
     return [run.run_id, status, render.run_markdown(run), pd.DataFrame(render.claims_rows(s)),
             pd.DataFrame(render.labels_rows(s)), pd.DataFrame(render.conditions_rows(s)),
@@ -224,7 +231,8 @@ def build_ui() -> gr.Blocks:
     knobs: list[Knob] = []
     with gr.Blocks(title="Auto Fact-Checker") as demo:
         gr.Markdown("# Auto Fact-Checker\nRigorous, configurable LLM fact-checking: choose per step whether to "
-                    "use an API call or an agent, the model, depth, web search, subagents and every prompt block.")
+                    "use an API call or an agent, the model, depth, web search, subagents and every prompt block. "
+                    "Scores and confidence are model-reported assessments; they do not certify factual correctness.")
         run_id = gr.State(None)
         with gr.Row():
             with gr.Column(scale=5, elem_id="afc-io"):  # text + results; the id lets scripts screenshot it
@@ -240,7 +248,7 @@ def build_ui() -> gr.Blocks:
                     with gr.Tab("Report"):
                         report = gr.Markdown()
                     with gr.Tab("Claims"):
-                        claims_df = gr.Dataframe(label="Claims (accuracy, confidence, types, strongest labels)",
+                        claims_df = gr.Dataframe(label="Claims (model-reported accuracy, confidence, types, labels)",
                                                  wrap=True, max_height=2000, column_widths=CLAIM_WIDTHS)
                     with gr.Tab("Labels"):
                         labels_df = gr.Dataframe(label="Every scored verdict label per claim")
@@ -266,7 +274,7 @@ def build_ui() -> gr.Blocks:
                     with gr.Tab("Live log"):
                         log_box = gr.Textbox(lines=25, max_lines=25, autoscroll=True, label="runs/<id>/run.log")
                     with gr.Tab("Prompt preview"):
-                        prompt_box = gr.Code(language="markdown", label="Exact prompts")
+                        prompt_box = gr.Code(language="markdown", label="Prompt preview (extracted claims are illustrative)")
                     with gr.Tab("Raw JSON"):
                         raw = gr.JSON()
             with gr.Column(scale=4):
@@ -330,7 +338,8 @@ def build_ui() -> gr.Blocks:
                 raise gr.Error("Enter a text to fact-check")
             cfg = cfg_from(knobs, vals)
             run = new_run(txt, cfg)
-            yield from _stream(run, EXECUTOR.submit(run_fact_check, txt, cfg, run))
+            cancel = begin_batch(run.run_id)  # Capture before submission so Stop also reaches queued workers.
+            yield from _stream(run, EXECUTOR.submit(run_fact_check, txt, cfg, run, cancel=cancel))
 
         def on_more(rid, *vals):
             run = RUNS.get(rid)
@@ -339,11 +348,13 @@ def build_ui() -> gr.Blocks:
             if run.status == "running":
                 raise gr.Error("This run is still in progress; wait for it or press Stop")
             cfg = cfg_from(knobs, vals)
-            yield from _stream(run, EXECUTOR.submit(run_fact_check, run.current_text, cfg, run, 1))
+            cancel = begin_batch(run.run_id)
+            yield from _stream(run, EXECUTOR.submit(run_fact_check, run.current_text, cfg, run, 1, cancel=cancel))
 
-        run_evt = run_btn.click(on_run, [text, *comps], outputs)
-        more_evt = more_btn.click(on_more, [run_id, *comps], outputs)
-        stop_btn.click(lambda rid: stop_run(rid) if rid else None, run_id, None, cancels=[run_evt, more_evt])
+        run_btn.click(on_run, [text, *comps], outputs)
+        more_btn.click(on_more, [run_id, *comps], outputs)
+        # Keep _stream polling: Gradio cancels would otherwise discard the final stopped frame.
+        stop_btn.click(lambda rid: stop_run(rid) if rid else None, run_id, None, queue=False)
         preview_btn.click(lambda txt, *vals: preview(cfg_from(knobs, vals), txt), [text, *comps], prompt_box)
 
         def on_load(name):
@@ -377,7 +388,9 @@ def build_ui() -> gr.Blocks:
             cfg = cfg_from(knobs, vals)
             run = ensure_run(rid, txt, cfg)
             goal = run.current_text if tgt in (None, WHOLE_TEXT) else tgt
-            yield from _stream(run, *[EXECUTOR.submit(run_perspective, run, n, goal, cfg) for n in names])
+            cancel = begin_batch(run.run_id)
+            yield from _stream(run, *[EXECUTOR.submit(run_perspective, run, n, goal, cfg, cancel=cancel)
+                                     for n in names])
 
         def on_all(rid, tgt, txt, *vals):
             yield from on_perspective(cfg_from(knobs, vals).perspective_scientists, rid, tgt, txt, *vals)
@@ -386,11 +399,11 @@ def build_ui() -> gr.Blocks:
             run = RUNS.get(rid)
             if run is None or not run.perspectives:
                 raise gr.Error("Run some perspective calls first")
-            yield from _stream(run, EXECUTOR.submit(synthesize_perspectives, run, cfg_from(knobs, vals)))
+            cancel = begin_batch(run.run_id)
+            yield from _stream(run, EXECUTOR.submit(synthesize_perspectives, run, cfg_from(knobs, vals), cancel=cancel))
 
-        all_evt = all_btn.click(on_all, [run_id, target, text, *comps], outputs)
-        synth_evt = synth_btn.click(on_synth, [run_id, *comps], outputs)
-        stop_btn.click(None, None, None, cancels=[all_evt, synth_evt])  # per-scientist buttons stop via the flag
+        all_btn.click(on_all, [run_id, target, text, *comps], outputs)
+        synth_btn.click(on_synth, [run_id, *comps], outputs)
     demo.afc_knobs = knobs  # exposed for tests (config <-> widget round trip)
     return demo
 

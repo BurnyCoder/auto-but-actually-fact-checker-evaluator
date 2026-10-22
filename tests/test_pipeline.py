@@ -8,6 +8,37 @@ from auto_fact_checker import config as C
 from auto_fact_checker import pipeline, spend
 
 
+def test_stopped_batch_cannot_be_restarted_by_queued_context(fake):
+    """Queued work keeps its cancelled batch token even after a new user batch starts."""
+    from auto_fact_checker import context
+    from auto_fact_checker.results import new_run
+
+    cfg = C.FactCheckConfig()
+    run = new_run("Text", cfg)
+    cancelled = context.begin_batch(run.run_id)
+    context.stop_run(run.run_id)
+    replacement = context.begin_batch(run.run_id)
+    assert replacement is not cancelled and cancelled.is_set() and not replacement.is_set()
+    assert pipeline.run_perspective(run, "Queued scientist", "Text", cfg, cancel=cancelled) is None
+    assert not fake.requests
+    assert pipeline.run_perspective(run, "New scientist", "Text", cfg, cancel=replacement) is not None
+    assert len(fake.requests) == 1
+    assert run.status == "done" and run.stop_reason is None  # the new batch replaces the stopped UI state
+
+
+def test_stop_before_worker_starts_is_preserved(fake):
+    """The UI captures cancellation before submission, so Stop wins even before the worker starts."""
+    from auto_fact_checker import context
+    from auto_fact_checker.results import new_run
+
+    cfg = C.FactCheckConfig()
+    run = new_run("Text", cfg)
+    cancel = context.begin_batch(run.run_id)
+    context.stop_run(run.run_id)
+    result = pipeline.run_fact_check("Text", cfg, run, cancel=cancel)
+    assert result.status == "stopped" and not fake.requests
+
+
 def steps(**overrides) -> dict:
     s = C.default_steps()
     for name, kw in overrides.items():
@@ -81,6 +112,15 @@ def test_repair_step_when_json_missing(fake):
     run = pipeline.run_fact_check("Text", C.FactCheckConfig())
     assert [r.label for r in fake.requests] == ["iter1/check/claim1", "iter1/check/claim1/repair"]
     assert run.iterations[0].final.summary.overall_accuracy_pct == 55
+    assert run.status == "done"
+
+
+def test_unusable_summary_is_an_error(fake):
+    """Exhausted parsing must not be reported to users or the CLI as a successful check."""
+    fake.__init__(no_json_for=["iter1/check"])
+    cfg = C.FactCheckConfig(steps=steps(repair={"enabled": False}))
+    run = pipeline.run_fact_check("Text", cfg)
+    assert run.status == "error" and run.stop_reason == "no parseable JSON summary"
 
 
 def test_global_spend_cap_stops_before_calling(fake, settings):
@@ -147,3 +187,4 @@ def test_no_repair_of_failed_calls(fake, monkeypatch):
     monkeypatch.setattr(type(fake), "__call__", refusing)
     run = pipeline.run_fact_check("Text", C.FactCheckConfig())
     assert run.iterations[0].final.summary is None and not any(r.label.endswith("repair") for r in fake.requests)
+    assert run.status == "error"

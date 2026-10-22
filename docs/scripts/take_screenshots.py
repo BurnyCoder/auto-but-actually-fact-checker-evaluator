@@ -1,13 +1,13 @@
-"""Screenshots of the Gradio UI for README.md after one real run on an example text.
+"""Screenshots of the Gradio UI for README.md using offline fixtures or an explicitly selected live run.
 
 Local: starts the real app in this process (`ui.launch(block=False)`), drives it with headless Playwright like a
 user would (pick an example text, pick a preset, Load preset, Run fact-check) in a fullscreen 1920x1080 window and
 waits for the run to finish. It then saves PNGs to docs/images/: app.png is the whole page with the Claims tab open
 and its empty border trimmed; the example_*.png files show only the text-and-results column with another tab open.
 Global context: the run goes through pipeline.run_fact_check and RunContext.call like any UI run, so its prompt and
-output are logged in full to logs/ and runs/<id>/, billed to logs/spend.jsonl and capped by SPEND_LIMIT_USD. With
-the default preset it is one gpt-6-luna call with web search, about $0.03.
-Usage: uv run --group docs python docs/scripts/take_screenshots.py [--channel msedge]
+output are logged in full. --offline substitutes marked synthetic responses in an isolated .cache directory;
+without it the run can incur variable API charges subject to soft budget checks.
+Usage: uv run --group docs python docs/scripts/take_screenshots.py --offline [--channel msedge]
 (without --channel, run `uv run --group docs playwright install chromium` once).
 Sources: Playwright screenshots https://playwright.dev/python/docs/screenshots ; locators
 https://playwright.dev/python/docs/locators ; installed Edge/Chrome via `channel`
@@ -19,6 +19,8 @@ https://www.gradio.app/guides/custom-CSS-and-JS ("The elem_id and elem_classes A
 import argparse
 import logging
 import re
+
+from offline_ui import configure_offline
 
 from PIL import Image, ImageChops  # Pillow, installed with gradio
 from playwright.sync_api import expect, sync_playwright
@@ -63,6 +65,18 @@ def save(page, path, tab: str, whole_page: bool = False, max_height: int | None 
     log.info("Saved %s", path)
 
 
+def verify_offline_controls(page) -> None:
+    """Exercise continuation and cooperative Stop through real browser clicks with the offline backend."""
+    page.get_by_role("button", name="One more iteration", exact=True).click()
+    page.get_by_text(re.compile(r"^done — run .*iteration 2 —")).wait_for(timeout=30_000)
+    page.get_by_label("Text to fact-check").fill("OFFLINE_STOP_TEST: wait for the Stop button.")
+    page.get_by_role("button", name="Run fact-check", exact=True).click()
+    page.get_by_text(re.compile(r"^running — run ")).wait_for(timeout=30_000)
+    page.get_by_role("button", name="Stop", exact=True).click()
+    page.get_by_text(re.compile(r"^stopped — run ")).wait_for(timeout=30_000)
+    log.info("Offline browser verification passed: One more iteration and final stopped status")
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--example", default="ai_research", help="examples/<name>.md")
@@ -71,8 +85,9 @@ def main() -> None:
     p.add_argument("--port", type=int, default=7861, help="7860 is left free for a running `afc ui`")
     p.add_argument("--timeout", type=int, default=900, help="seconds to wait for the run to finish")
     p.add_argument("--out", default=str(ROOT / "docs" / "images"))
+    p.add_argument("--offline", action="store_true", help="use visibly marked synthetic responses; no paid calls")
     args = p.parse_args()
-    s = get_settings()
+    s = configure_offline() if args.offline else get_settings()
     setup_logging(s.logs_dir)
     log.info("Billed spend before: $%.4f of $%.2f", spend.total_billed(s.ledger), s.spend_limit_usd)
     out = ROOT / args.out
@@ -97,6 +112,8 @@ def main() -> None:
             save(page, out / "app.png", tab="Claims", whole_page=True)  # README's first image: output + settings
             save(page, out / "example_corrected.png", tab="Corrected text")
             save(page, out / "example_report.png", tab="Report", max_height=1600)
+            if args.offline:
+                verify_offline_controls(page)  # Synthetic backend only: these extra checks never incur charges.
             browser.close()
     finally:
         demo.close()

@@ -1,1 +1,1 @@
-Give a confidence percentage (0-100%: how confident you are that your evaluation is correct; uncertainty = 100% - confidence) for each claim and for each individual evaluation, label and condition, and briefly justify it.
+Give a subjective confidence percentage (0-100%: how confident you are that your evaluation is correct) for each claim and for each individual evaluation, label and condition, and briefly justify it. These are self-reported assessments, not established calibrated probabilities. Do not treat 100% minus confidence as a general measure of uncertainty.

@@ -30,10 +30,10 @@ E's own metrics:
 
 ## Interpretation
 
-- **At n = 40 the agent is statistically indistinguishable from the single API calls.** Every balanced-accuracy
+- **At n = 40 no balanced-accuracy difference from the single API calls was detected.** Every balanced-accuracy
   CI spans about ±10 pp. The AUROC CI against C just excludes 0, but that is 1 of 18 post-hoc tests (9 comparisons
   × Δ balanced accuracy and Δ AUROC) and is
-  not interpreted.
+  not interpreted as confirmatory. These intervals do not establish equivalence.
 - **This is not evidence that agents are useless for fact-checking.** The task (one atomic biomedical claim, one
   search usually enough) rewards one targeted search. Agents' advantages (multi-step research, reading full
   pages, following references) are not exercised.

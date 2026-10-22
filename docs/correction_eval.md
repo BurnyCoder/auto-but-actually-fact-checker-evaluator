@@ -94,15 +94,26 @@ All of these use the primary judge, items with non-missing verdicts, and
   gives a discordant fraction of roughly 0.3–0.4. With n = 100, a 25-point rise has power well above 80% (Connor
   1987). Smaller effects, the optional arm (n = 40) and H3 are exploratory.
 - **Budget:** agents run on subscription logins, so $0 is billed for them. Judges cost about $0.0003–0.0005 per
-  call; the expected total is ≈ $0.5. All of it stays inside the project's $10 cap, which had $3.33 left before
-  Exp07.
+  call; the expected total was ≈ $0.5. The recorded-cost budget had about $3.33 remaining before Exp07;
+  it is a soft estimate-based control, not a guarantee against overspending.
 
 ## Threats to validity
 
-- **Gold evidence is one abstract.** A correction that is right according to newer or broader literature can be
-  judged "not entailed". That makes the judge conservative and biases H1 *against* the loop.
+- **Gold evidence is the supplied abstract(s).** A correction that is right according to newer or broader
+  literature can be judged "not entailed". Judge errors can also accept incorrect text, so no net bias direction
+  or lower bound on real-world correctness is established.
 - **The judge is an LLM.** Its validity is measured on the originals, and cross-family judging avoids a model
   grading its own family. Disagreement between the two judges is reported.
-- **Leakage.** The corrector may find the SciFact paper itself. That is legitimate evidence, but the dataset
-  hosts are blocked and flagged.
+- **Leakage.** The corrector may find the SciFact paper itself. Dataset-host filters or prompt restrictions
+  and recorded-URL flags do not exclude unrecorded sources, mirrors or memorized labels.
 - **Pretraining contamination** may make corrections easier for both arms.
+
+## Methodological clarification — 2026-10-22
+
+The [original committed plan](https://github.com/BurnyCoder/auto-fact-checker/blob/f681d49/docs/correction_eval.md)
+is preserved as the historical specification. The “falsified” criterion means the support rule was not met;
+nonsignificance does not prove no effect ([ASA statement](https://doi.org/10.1080/00031305.2016.1154108)).
+Five of the 100 stored claims have multiple evidence abstracts; “one abstract” was an inaccurate simplification.
+The historical trajectory follows the latest *proposed* correction, which can differ from the answer returned
+when the loop accepts its input. Missing judgments reduce its denominator from 100 to 99 after pass 1.
+Primary numerical analyses and the frozen records remain unchanged.

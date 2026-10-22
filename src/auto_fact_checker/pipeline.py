@@ -11,9 +11,10 @@ every LLM call inside goes through context.RunContext.call().
 """
 
 from concurrent.futures import ThreadPoolExecutor
+from threading import Event
 
 from .config import FactCheckConfig
-from .context import Cancelled, RunContext
+from .context import Cancelled, RunContext, begin_batch
 from .phases.check import check
 from .phases.extract import extract_claims
 from .phases.iterate import should_stop
@@ -23,11 +24,11 @@ from .spend import BudgetExceeded
 
 
 def run_fact_check(text: str, cfg: FactCheckConfig, run: FactCheckRun | None = None,
-                   max_new_iterations: int | None = None) -> FactCheckRun:
+                   max_new_iterations: int | None = None, *, cancel: Event | None = None) -> FactCheckRun:
     """Fact-check `text` (new run) or continue `run`; max_new_iterations=1 implements "One more iteration"."""
     run = run or new_run(text, cfg)
     run.config, run.status, run.stop_reason = cfg, "running", None
-    ctx = RunContext(run, cfg)
+    ctx = RunContext(run, cfg, cancel=cancel if cancel is not None else begin_batch(run.run_id))
     budget = max_new_iterations or (cfg.max_iterations if cfg.iterate_until_accurate else 1)
     ctx.log.info("Run %s: %d iteration(s) max, claim_strategy=%s, scientist_strategy=%s", run.run_id, budget,
                  cfg.claim_strategy, cfg.scientist_strategy)
@@ -39,9 +40,13 @@ def run_fact_check(text: str, cfg: FactCheckConfig, run: FactCheckRun | None = N
             run.stop_reason = should_stop(run, cfg)
             ctx.log.info("Iteration %d done: accuracy=%s stop_reason=%s", run.iterations[-1].index,
                          _accuracy(run.iterations[-1].final), run.stop_reason)
+            if run.stop_reason == "no parseable JSON summary":
+                run.status = "error"  # The report remains available, but the UI/CLI must not claim success.
+                break
             if run.stop_reason and max_new_iterations is None:
                 break
-        run.status = "done"
+        if run.status == "running":
+            run.status = "done"
     except (BudgetExceeded, Cancelled) as e:
         run.status, run.stop_reason = "stopped", str(e)
         ctx.log.warning("Run %s stopped: %s", run.run_id, e)
@@ -78,33 +83,35 @@ def run_iteration(it: IterationResult, cfg: FactCheckConfig, ctx: RunContext) ->
     return it
 
 
-def run_perspective(run: FactCheckRun, scientist: str, target: str, cfg: FactCheckConfig) -> CheckResult | None:
+def run_perspective(run: FactCheckRun, scientist: str, target: str, cfg: FactCheckConfig, *,
+                    cancel: Event | None = None) -> CheckResult | None:
     """A disconnected call evaluating `target` strictly as `scientist` would (UI per-scientist buttons)."""
-    ctx = RunContext(run, cfg)
+    ctx = RunContext(run, cfg, cancel=cancel if cancel is not None else begin_batch(run.run_id))
     try:
         context = None if target.strip() == run.current_text.strip() else run.current_text
         result = check(target, cfg, ctx, f"perspective/{scientist}", step="perspective", persona=scientist,
                        context=context)
-        run.perspectives.append(result)
+        _record_perspective(run, result)
         return result
     except (BudgetExceeded, Cancelled) as e:
-        run.stop_reason = f"perspective {scientist}: {e}"
+        run.status, run.stop_reason = "stopped", f"perspective {scientist}: {e}"
         ctx.log.warning("Perspective call %s stopped: %s", scientist, e)
         return None
     finally:
         ctx.close()
 
 
-def synthesize_perspectives(run: FactCheckRun, cfg: FactCheckConfig) -> CheckResult | None:
+def synthesize_perspectives(run: FactCheckRun, cfg: FactCheckConfig, *,
+                           cancel: Event | None = None) -> CheckResult | None:
     """Merge all perspective calls made so far (plus the latest iteration's result) into one report."""
-    ctx = RunContext(run, cfg)
+    ctx = RunContext(run, cfg, cancel=cancel if cancel is not None else begin_batch(run.run_id))
     try:
         latest = [run.iterations[-1].final] if run.iterations and run.iterations[-1].final else []
         result = synthesize(latest + run.perspectives, run.current_text, cfg, ctx, "perspectives/synthesize")
-        run.perspectives.append(result)
+        _record_perspective(run, result)
         return result
     except (BudgetExceeded, Cancelled) as e:
-        run.stop_reason = f"perspective synthesis: {e}"
+        run.status, run.stop_reason = "stopped", f"perspective synthesis: {e}"
         ctx.log.warning("Perspective synthesis stopped: %s", e)
         return None
     finally:
@@ -117,6 +124,14 @@ def parallel_map(fn, items: list, max_parallel: int) -> list:
         return [fn(x) for x in items]
     with ThreadPoolExecutor(max_workers=max_parallel) as pool:  # https://docs.python.org/3/library/concurrent.futures.html
         return list(pool.map(fn, items))
+
+
+def _record_perspective(run: FactCheckRun, result: CheckResult) -> None:
+    """Save a side-call result and refresh stale terminal state, leaving an active main loop in control."""
+    run.perspectives.append(result)
+    if run.status != "running":
+        run.status = "done" if result.summary else "error"
+        run.stop_reason = None if result.summary else "no parseable JSON summary"
 
 
 def _label(prefix: str, job) -> str:

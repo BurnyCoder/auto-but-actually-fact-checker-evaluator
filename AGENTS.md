@@ -8,27 +8,28 @@ Guidance for coding agents (Codex, Claude Code) and contributors. User-facing do
 ```bash
 uv sync                         # install (Python 3.13, .venv in repo)
 uv run pytest                   # offline suite (fake backend, no LLM/network call; must stay green)
-uv run pytest -m live           # real LLM/CLI calls (costs cents; needs .env keys, claude/codex logins)
+uv run pytest -m live           # paid LLM/CLI calls (variable cost; needs .env keys, claude/codex logins)
 uv run afc ui --no-browser      # Gradio UI on 127.0.0.1:7860
 uv run afc check FILE --preset NAME [--set dotted.key=value ...] [--iterations N]
 uv run afc bench --systems A.json B.json --n N --max-cost USD --out DIR [--exclude-from PILOT_DIR]
 uv run afc correct-eval --items-from ITEMS.json --system LOOP.json --judges J1.json J2.json --out DIR --max-cost USD  # Exp07
-uv run afc ai-errors build --out SCRATCH_DIR   # Exp08: fetch + inject (cents); never overwrite the frozen, QC-edited benchmarks/ai_errors_v1
+uv run afc ai-errors build --out SCRATCH_DIR   # Exp08: paid fetch + inject; never overwrite frozen benchmarks/ai_errors_v1
 uv run afc ai-errors run --system ARM.json --judges J1.json J2.json --out DIR --max-cost USD    # Exp08 forced-pass loop
-uv run afc spend                # billed spend so far vs SPEND_LIMIT_USD
-uv run --group docs python docs/scripts/take_screenshots.py --channel msedge   # README screenshots, one paid call (~$0.03)
+uv run afc spend                # recorded billed cost estimates vs SPEND_LIMIT_USD
+uv run --group docs python docs/scripts/take_screenshots.py --offline --channel msedge   # synthetic UI fixtures, no paid call
 ```
 
-After a UI layout change, rerun the screenshot script. It drives the real UI: the left column's `elem_id="afc-io"`
-and the widget labels it clicks are part of its contract.
+After a UI layout change, rerun the screenshot script in offline mode. It drives the real UI with synthetic
+responses; screenshot scores are not experimental evidence. The left column's `elem_id="afc-io"` and the widget
+labels it clicks are part of its contract.
 
 ## Architecture rules
 
 - `pipeline.py` is the single wrapper. It calls the phases in `phases/` (extract, check, synthesize, iterate).
   New behaviour goes into a phase or a backend, not into the UI.
 - Every LLM call in production code goes through `context.RunContext.call()`. Never call a backend directly (only
-  `tests/test_live.py` does, with its own budget check). That method is where logging, artifacts, the spend cap,
-  the per-run budget and Stop are enforced.
+  `tests/test_live.py` does, with its own budget check). That method handles logging, artifacts, soft budget checks
+  and cancellation. Do not describe recorded cost checks as a guarantee against overspending.
 - Backends follow one contract: `call(LLMRequest, logger) -> LLMResult`. Register each one in
   `backends/__init__.py:BACKENDS` and map it in `config.py` (`Kind` / `Provider` literals and the `(kind, provider)`
   `BACKENDS` table), or no step can select it. Agent CLIs must use `backends/subprocess_jsonl.run_agent`, which
@@ -61,6 +62,8 @@ and the widget labels it clicks are part of its contract.
 
 ## Budget rule for agents working here
 
-The cumulative billed spend recorded in `logs/spend.jsonl` must stay at or below `SPEND_LIMIT_USD` (default $10).
-For development and experiments, use only `gpt-6-luna` and `claude-haiku-5-5`. Check `uv run afc spend` before
-any paid run.
+Keep paid development within `SPEND_LIMIT_USD` (default $10), using only `gpt-6-luna` and `claude-haiku-5-5`.
+Check `uv run afc spend` before any paid run and leave headroom: estimates are recorded after calls, sequential
+and parallel calls can overshoot, and unknown costs contribute zero to totals. Subscription fees are excluded.
+Prefer offline tests for verification; see [cost controls](README.md#costs-and-safety) and the
+[independent verification record](reports/verification_2026-10-22.md).
