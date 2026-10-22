@@ -229,11 +229,11 @@ def figure(res: dict) -> None:
                     label=f"{a} prompt (n = {res['arms'][a]['n']})")
             ax.fill_between(xs, [ci(r)[0] for r in c], [ci(r)[1] for r in c], color=COLORS[a], alpha=0.15, lw=0)
     ref = res["validity"][PRIMARY]["original_mean_score"]
-    ax1.axhline(ref, ls="--", lw=1, color=COLORS["reference"], label="original passage (no errors)")
+    ax1.axhline(ref, ls="--", lw=1, color=COLORS["reference"], label="original reference passage")
     ax1.set_ylim(0, 102)
     ax1.set_ylabel(f"factual accuracy score, 0-100 ({PRIMARY} judge)")
     ax2.set_ylim(0, 1.02)
-    ax2.set_ylabel("injected errors fixed (1 / 0.5 / 0, mean)")
+    ax2.set_ylabel("weighted edit-fix score (1 / 0.5 / 0, mean)")
     for ax in (ax1, ax2):
         ax.set_xticks(xs)
         ax.set_xlabel("correction passes (0 = corrupted input)")

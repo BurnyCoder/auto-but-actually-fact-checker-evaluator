@@ -9,13 +9,13 @@ slider ranges (`ui.RANGES`).
 | field | values | meaning |
 |---|---|---|
 | `enabled` | bool (on) | skip the step. Extract off → whole text. Check off → only per-scientist calls run. Perspective off → no per-scientist calls (the UI's perspective buttons still run). Synthesize off → several results are merged deterministically, without a corrected whole text, so iteration stops. Repair off → no JSON repair. |
-| `kind` | `api` / `agent` (api) | one provider API request, or a CLI agent run |
+| `kind` | `api` / `agent` (api) | one API conversation turn (Anthropic may continue paused turns), or a CLI agent run |
 | `provider` | `openai` / `anthropic` (openai) | api+openai = Responses API, api+anthropic = Messages API, agent+openai = Codex, agent+anthropic = Claude Code |
 | `model` | any id | dropdown of `catalog.MODELS` with prices; custom ids allowed |
 | `effort` | none … max (low) | reasoning depth; Anthropic/Claude Code map none/minimal → low, and a model rejects levels it lacks (gpt-6-luna has no minimal) |
 | `web_search` | bool | enables the provider's search tool; also turns the "search the web" sentences of the prompt on or off |
 | `search_context_size` | low/medium/high (medium) | OpenAI search context size |
-| `max_searches` | 0–50 (5) | search cap (see [architecture](architecture.md#how-the-backends-map-the-settings)) |
+| `max_searches` | 0–50 (5) | API tool-call/use limit (Anthropic: per request, including continuations); an agent prompt instruction rather than enforced agent-wide cap (see [architecture](architecture.md#how-the-backends-map-the-settings)) |
 | `blocked_domains` | comma list (empty) | excluded from search: by the provider's domain filter for API steps, as a prompt instruction for agents |
 | `allow_subagents` | bool (off) | agents may spawn subagents. Subagent strategies require a Claude Code check agent. For Codex it only enables the `multi_agent` feature: in live tests with `gpt-6-luna` no sub-agent was ever spawned (Exp00) |
 | `max_subagents` | 1–30 (8) | upper bound stated to the orchestrating agent |
@@ -42,18 +42,20 @@ and `perspective`.
 | `custom_instructions` | appended after the sections |
 | `max_claims`, `max_parallel` | extraction cap, 1–50 (15); number of concurrent calls, 1–16 (4) |
 | `iterate_until_accurate`, `accuracy_threshold`, `max_iterations`, `stop_on_fixed_point` | iteration control: off, 90 % (0–100), 3 (1–20), on |
-| `max_cost_usd` | per-run budget, 0.01–10 (1.0). It counts billed and notional (subscription-agent) cost, unlike the global `SPEND_LIMIT_USD`, which counts billed cost only and applies on top |
+| `max_cost_usd` | per-run soft budget, 0.01–10 (1.0). Counts recorded billed and notional (subscription-agent) cost; the global `SPEND_LIMIT_USD` counts recorded billed cost only. Sequential and concurrent in-flight calls can overshoot |
 
 ## Scored conditions
 
-The 12 conditions and the meaning of each 0–100 % score are defined in `prompts/options.json["conditions"]`:
+The 12 conditions and the requested meaning of each 0–100 % score are defined in `prompts/options.json["conditions"]`.
+These are subjective model assessments, not validated measurements or calibrated probabilities. Optional fields
+can be missing from a response; the parser does not establish their factual correctness.
 
 | condition | section | score_pct means |
 |---|---|---|
 | omitted nuance, context and complexity | 04 | how much important nuance is omitted (0 = none) |
 | strengths and weaknesses · advantages and disadvantages · limitations and potentials · ups and downs · good and bad | 06 | 0 = only the negative pole, 100 = only the positive pole |
 | empiricist perspective · rationalist perspective | 07 | how well the claim holds up under each epistemology |
-| Bayesian perspective | 08 | posterior probability that the claim is true |
+| Bayesian perspective | 08 | subjective assessment of support under stated priors and evidence; not a computed or calibrated posterior |
 | frequentist perspective | 08 | support from frequentist evidence (significance, effect sizes, replication) |
 | predictive power · explanatory power | 10 | how many testable predictions · how much is explained with how few assumptions |
 
@@ -64,7 +66,7 @@ The 12 conditions and the meaning of each 0–100 % score are defined in `prompt
 | `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` | – | API keys (read with pydantic-settings, not exported to the process environment; passed to agent processes only with `AGENT_AUTH=api_key`) |
 | `ANTHROPIC_WORKSPACE_ID` | – | sent as `anthropic-workspace-id`; required for keys not scoped to a workspace |
 | `AGENT_AUTH` | `subscription` | `subscription` strips the keys from agent processes; `api_key` passes them (Codex receives `CODEX_API_KEY`) |
-| `SPEND_LIMIT_USD` | `10` | global cap on billed spend in `logs/spend.jsonl`, checked before every call (soft: in-flight parallel calls can overshoot; uncatalogued models count as $0 with a warning) |
+| `SPEND_LIMIT_USD` | `10` | soft limit on recorded billed cost estimates, checked before every call; even a sequential call can overshoot, and parallel calls can overshoot further. Unknown costs contribute zero with a warning; subscription fees are excluded |
 | `CLAUDE_BIN`, `CODEX_BIN` | PATH lookup | explicit `.exe` paths (`.cmd` shims are rejected) |
 | `LOGS_DIR`, `RUNS_DIR` | `logs`, `runs` | relative to the repo root |
 

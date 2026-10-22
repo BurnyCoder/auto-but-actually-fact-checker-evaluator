@@ -44,7 +44,8 @@ def parse_events(req: LLMRequest, events: list[dict], billed: bool) -> LLMResult
     result = next((e for e in reversed(events) if e.get("type") == "result"), None) or {}
     usage = result.get("modelUsage") or {}
     cached = sum(m.get("cacheReadInputTokens", 0) for m in usage.values())
-    tin = sum(m.get("inputTokens", 0) + m.get("cacheCreationInputTokens", 0) for m in usage.values()) + cached
+    written = sum(m.get("cacheCreationInputTokens", 0) for m in usage.values())
+    tin = sum(m.get("inputTokens", 0) for m in usage.values()) + cached + written
     tool_results = [json.dumps(b.get("content"), ensure_ascii=False) for e in events if e.get("type") == "user"
                     for b in (e.get("message") or {}).get("content", []) if isinstance(b, dict)
                     and b.get("type") == "tool_result"]  # WebSearch/WebFetch results carry the URLs
@@ -52,10 +53,11 @@ def parse_events(req: LLMRequest, events: list[dict], billed: bool) -> LLMResult
         f"{result.get('stop_reason') or result.get('subtype')}: {str(result.get('result', ''))[:300]}"
         if result else "no result event")
     return LLMResult(text=result.get("result") or "", backend="claude_code", model=req.model, input_tokens=tin,
-                     cached_input_tokens=cached, output_tokens=sum(m.get("outputTokens", 0) for m in usage.values()),
+                     cached_input_tokens=cached, cache_creation_input_tokens=written,
+                     output_tokens=sum(m.get("outputTokens", 0) for m in usage.values()),
                      web_searches=sum(m.get("webSearchRequests", 0) for m in usage.values()),
                      cost_usd=result.get("total_cost_usd"), billed=billed, error=error,
-                     sources=dedupe(urls_in("\n".join(tool_results))))
+                     sources=dedupe(urls_in("\n".join(tool_results + [result.get("result") or ""]))))
 
 
 def isolation_settings() -> dict:

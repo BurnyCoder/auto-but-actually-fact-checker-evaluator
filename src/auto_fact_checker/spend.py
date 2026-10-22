@@ -1,4 +1,4 @@
-"""Persistent spend ledger (logs/spend.jsonl) enforcing the global SPEND_LIMIT_USD cap.
+"""Persistent ledger of estimated spend and a pre-call check against SPEND_LIMIT_USD.
 
 Local: append one JSON line per LLM call; sum the billed costs; refuse new calls once the cap is reached.
 Global context: RunContext.call() (context.py) calls check_budget() before every LLM call and record() after it,
@@ -15,7 +15,7 @@ _LOCK = threading.Lock()  # parallel per-claim calls append from several threads
 
 
 class BudgetExceeded(RuntimeError):
-    """Raised before an LLM call that would push cumulative billed spend over the limit."""
+    """Raised when recorded known spend plus a supplied estimate reaches the admission limit."""
 
 
 def record(ledger: Path, cost_usd: float | None, billed: bool, label: str, **extra) -> None:
@@ -28,19 +28,28 @@ def record(ledger: Path, cost_usd: float | None, billed: bool, label: str, **ext
 
 
 def total_billed(ledger: Path) -> float:
-    """Sum of billed costs so far; unknown costs (None) count as 0 and a missing ledger means nothing spent."""
+    """Known billed estimates only; summary() separately exposes unknown-cost calls."""
+    return summary(ledger)["known_billed_usd"]
+
+
+def summary(ledger: Path) -> dict:
+    """Return the known estimate and count of billed calls missing a cost, not an invoice total."""
+    result = {"known_billed_usd": 0.0, "unknown_billed_calls": 0}
     if not ledger.exists():
-        return 0.0
+        return result
     with _LOCK:
         lines = ledger.read_text(encoding="utf-8").splitlines()
-    total = 0.0
     for line in filter(None, lines):
         try:
             e = json.loads(line)
         except json.JSONDecodeError:  # a line another process is still writing
             continue
-        total += (e.get("cost_usd") or 0.0) if e.get("billed") else 0.0
-    return total
+        if e.get("billed"):
+            if e.get("cost_usd") is None:
+                result["unknown_billed_calls"] += 1
+            else:
+                result["known_billed_usd"] += e["cost_usd"]
+    return result
 
 
 def check_budget(ledger: Path, limit_usd: float, estimate_usd: float = 0.0) -> float:

@@ -1,7 +1,7 @@
 """RunContext: the single choke point every LLM call of a run goes through.
 
-Local: turns (step, prompt, label) into an LLMRequest from the step's StepConfig, enforces the global spend cap and
-the per-run budget, honours the Stop button, logs the full prompt and output, writes per-call artifact files,
+Local: turns (step, prompt, label) into an LLMRequest from the step's StepConfig, checks recorded cost against the
+global and per-run limits, honours cooperative cancellation, logs full prompts/outputs, writes call artifacts,
 records spend and call bookkeeping.
 Global context: phases/*.py only ever call ctx.call(); pipeline.py opens one RunContext per batch of work on a
 FactCheckRun (a run can receive several batches: iterations, "One more iteration", perspective buttons).
@@ -32,18 +32,18 @@ _COUNTERS: dict[str, itertools.count] = {}  # run_id -> call numbering shared by
 class RunContext:
     """Per-batch execution context bound to one FactCheckRun and one FactCheckConfig."""
 
-    def __init__(self, run: FactCheckRun, cfg: FactCheckConfig, settings: Settings | None = None):
+    def __init__(self, run: FactCheckRun, cfg: FactCheckConfig, settings: Settings | None = None,
+                 cancel: threading.Event | None = None):
         self.run, self.cfg = run, cfg
         self.settings = settings or get_settings()
         self.dir = self.settings.runs_dir / run.run_id
         self.log = run_logger(run.run_id, "afc.pipeline")
-        self.cancel = CANCEL.setdefault(run.run_id, threading.Event())
+        self.cancel = cancel if cancel is not None else CANCEL.setdefault(run.run_id, threading.Event())
         with _H_LOCK:
             entry = _HANDLERS.get(run.run_id)
             if entry:
                 entry[1] += 1  # another batch of this run is active: keep its Stop flag as it is
             else:
-                self.cancel.clear()  # first active batch starts un-cancelled
                 _HANDLERS[run.run_id] = [attach_run_log(self.dir / "run.log", run.run_id), 1]
             self._counter = _COUNTERS.setdefault(run.run_id, itertools.count(len(run.calls) + 1))
 
@@ -84,7 +84,7 @@ class RunContext:
             res = LLMResult(backend=req.backend, model=req.model, error=f"{type(e).__name__}: {e}")
         log_block(self.log, f"OUTPUT #{n} {label}", res.text)
         if res.cost_usd is None and res.billed:
-            self.log.warning("No price for model %s: this call counts as $0 toward the budgets", res.model)
+            self.log.warning("Unknown or incomplete cost for model %s: excluded from known-cost totals", res.model)
         self.log.info("CALL #%d %s: %s/%s tokens in=%d out=%d searches=%d cost=%s billed=%s %.1fs error=%s "
                       "sources=%s", n, label, res.backend, res.model, res.input_tokens, res.output_tokens,
                       res.web_searches, f"${res.cost_usd:.5f}" if res.cost_usd is not None else "unknown",
@@ -114,6 +114,20 @@ class RunContext:
                     del _HANDLERS[self.run.run_id]
 
 
+def begin_batch(run_id: str) -> threading.Event:
+    """Capture cancellation at user submission; queued calls retain a stopped event when a new batch starts.
+
+    Replace, rather than clear, a stopped event so old queued work cannot restart. Concurrent active batches
+    share the same flag. Event semantics: https://docs.python.org/3/library/threading.html#event-objects
+    """
+    with _H_LOCK:
+        event = CANCEL.setdefault(run_id, threading.Event())
+        if event.is_set():
+            event = CANCEL[run_id] = threading.Event()
+        return event
+
+
 def stop_run(run_id: str) -> None:
     """Signal Stop to every running call of a run (CLI agents are killed by their watchdog)."""
-    CANCEL.setdefault(run_id, threading.Event()).set()
+    with _H_LOCK:
+        CANCEL.setdefault(run_id, threading.Event()).set()

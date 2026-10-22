@@ -4,6 +4,8 @@ Global context: if parsing fails, iteration, scoring and the benchmark lose thei
 the small deviations LLMs typically make (percent strings, trailing commas, string labels, several blocks).
 """
 
+import pytest
+
 from auto_fact_checker.schema import ClaimList, FactCheckSummary, parse_block
 
 
@@ -33,6 +35,15 @@ def test_missing_block_and_all_accurate():
     s = FactCheckSummary(claims=[{"claim": "a", "accuracy_pct": 95}, {"claim": "b", "accuracy_pct": None}])
     assert not s.all_accurate(90)  # a missing score fails the threshold
     assert not FactCheckSummary().all_accurate(90)  # no claims -> not "all accurate"
+
+
+@pytest.mark.parametrize("value", [None, float("nan"), float("inf"), float("-inf")])
+def test_missing_and_nonfinite_scores_never_pass_even_zero_threshold(value):
+    """Invalid model scores remain missing instead of becoming apparently certain verdicts."""
+    summary = FactCheckSummary(claims=[{"claim": "c", "accuracy_pct": value}])
+    assert summary.claims[0].accuracy_pct is None
+    assert not summary.all_accurate(0)
+    assert FactCheckSummary(claims=[{"claim": "c", "accuracy_pct": 0}]).all_accurate(0)
 
 
 def test_claim_list_accepts_strings_and_unfenced():
