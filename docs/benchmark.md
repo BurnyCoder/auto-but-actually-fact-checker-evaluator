@@ -1,7 +1,8 @@
 # Benchmark design and pre-registration
 
 This page was written **before** any paid benchmark call. Results go to [`reports/`](../reports). Any change to
-this plan made after seeing data is marked *post hoc* in the reports.
+this plan made after seeing data is marked *post hoc* in the reports. The only later edit to this page (commit
+`07e73ea`, after the Exp01 data) reworded the budget line; the plan did not change.
 
 ## Question
 
