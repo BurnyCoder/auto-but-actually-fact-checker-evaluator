@@ -1,8 +1,9 @@
 """Gradio UI: every FactCheckConfig field (per step and global) as a widget, presets, run controls and outputs.
 
 Local: widgets are generated from the pydantic field types (bool -> Checkbox, Literal -> Radio/Dropdown,
-int/float -> Slider, list[str] -> CheckboxGroup (+ "extra items" Textbox), str -> Textbox) so a new config field
-appears in the UI without UI code. Run / One more iteration are generator handlers that run the pipeline in a
+int/float with a RANGES entry -> Slider, list[str] -> CheckboxGroup (+ "extra items" Textbox), other -> Textbox).
+A new StepConfig field appears in every Steps tab without UI code; a new FactCheckConfig field must be added to one
+of the per-tab field tuples in build_ui (tests/test_ui.py checks that every field has a widget). Run / One more iteration are generator handlers that run the pipeline in a
 worker thread and stream progress (report, tables, live log) every second; Stop sets the run's cancel flag
 (agents are killed, OpenAI streams abandoned, no new calls start) and cancels the UI events.
 Global context: the UI only builds a FactCheckConfig and calls pipeline.run_fact_check / run_perspective /
@@ -49,8 +50,8 @@ LABELS = {"kind": "Call type: one API request or an agent (Codex / Claude Code)"
           "blocked_domains": "Blocked search domains (comma-separated)",
           "claim_strategy": "Claims: whole text / one subagent per claim / one separate call per claim",
           "scientist_strategy": "Scientists: in-prompt only / one subagent each / one separate call each",
-          "sections": "Prompt parts that go in (each sentence of the original prompt is a block)",
-          "conditions": "Scored conditions (score % + confidence %, only while their section is on)",
+          "sections": "Prompt parts that go in (01-20: the original prompt, sentence by sentence; 00, 21-23: added)",
+          "conditions": "Scored conditions (score %, + confidence % while block 23 is on; only while their section is on)",
           "score_all_labels": "Score EVERY selected verdict label for every claim (else only applicable ones)",
           "score_each_scientist": "Add a scored condition per named scientist (long output!)",
           "perspective_scientists": "Scientists for separate calls / subagents / perspective buttons"}
@@ -251,9 +252,9 @@ def build_ui() -> gr.Blocks:
                     with gr.Tab("Iterations"):
                         iter_df = gr.Dataframe()
                     with gr.Tab("Perspectives"):
-                        gr.Markdown("Each scientist button (Strategy tab, under *perspective scientists*) makes one "
-                                    "independent call with the Perspective step's settings; results are appended "
-                                    "to the Report tab.")
+                        gr.Markdown("Each scientist button (Strategy tab, under *Scientists for separate calls / "
+                                    "subagents / perspective buttons*) makes one independent call with the "
+                                    "Perspective step's settings; results are appended to the Report tab.")
                         target = gr.Dropdown(choices=[WHOLE_TEXT], value=WHOLE_TEXT, label="Evaluate",
                                              allow_custom_value=True)
                         with gr.Row():

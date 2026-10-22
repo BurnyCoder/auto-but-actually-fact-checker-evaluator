@@ -39,7 +39,7 @@ def test_trim_keeps_whole_sentences_within_budget():
     assert len(sources.split_sentences(sources.trim_sentences(PASSAGE, max_words=1))) == 3  # min_sentences floor
 
 
-def test_validate_keeps_only_exact_small_distinct_edits():
+def test_validate_keeps_only_small_distinct_edits_of_passage_sentences():
     e = lambda o, p: InjectedError(original_sentence=o, perturbed_sentence=p, false_fact="f", true_fact="t")  # noqa
     errors = [e("Not in the passage.", "x"),  # not a substring
               e("It used GPUs.", "It used GPUs."),  # unchanged

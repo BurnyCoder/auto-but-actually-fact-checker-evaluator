@@ -23,7 +23,7 @@ dependencies = [
 ]
 
 [project.scripts]
-# `uv run afc ...` is the single command-line entry point (ui | check | bench | spend), see src/auto_fact_checker/__main__.py
+# `uv run afc ...` is the single command-line entry point (ui | check | spend | bench | correct-eval | ai-errors), see src/auto_fact_checker/__main__.py
 afc = "auto_fact_checker.__main__:main"
 
 [build-system]
