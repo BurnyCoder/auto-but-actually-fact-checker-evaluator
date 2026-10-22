@@ -166,9 +166,10 @@ class FactCheckConfig(BaseModel):
             raise ValueError("subagent strategies need a Claude Code check agent (kind='agent', provider='anthropic') "
                              "with allow_subagents=true; Codex cannot load named subagent definitions")
         if not check.enabled and not (self.scientist_strategy == "separate_call_per_scientist"
-                                      and self.perspective_scientists):
-            raise ValueError("with the check step disabled, use separate_call_per_scientist with at least one "
-                             "perspective scientist (otherwise nothing would run)")
+                                      and self.perspective_scientists and self.steps["perspective"].enabled):
+            raise ValueError("with the check step disabled, enable the perspective step and use "
+                             "separate_call_per_scientist with at least one perspective scientist "
+                             "(otherwise nothing would run)")
         return self
 
     @property

@@ -69,7 +69,7 @@ class RunContext:
             raise spend.BudgetExceeded(f"per-run budget max_cost_usd=${self.cfg.max_cost_usd} reached")
         req = self.request(step, prompt, label, agents)
         n = next(self._counter)
-        stem = self.dir / "calls" / f"{n:03d}_{re.sub(r'[^A-Za-z0-9_.-]+', '_', label)}"
+        stem = self.dir / "calls" / f"{n:03d}_{re.sub(r'[^A-Za-z0-9_-]+', '_', label)}"  # no dots: with_suffix below
         stem.parent.mkdir(parents=True, exist_ok=True)
         stem.with_suffix(".prompt.md").write_text(prompt, encoding="utf-8")
         if agents:  # subagent definitions passed to `claude --agents`

@@ -110,6 +110,22 @@ def test_perspective_buttons_and_synthesis(fake):
     assert merged.step == "synthesize" and fake.requests[-1].label == "perspectives/synthesize"
 
 
+def test_call_artifacts_keep_labels_with_dots(fake, settings):
+    """A label such as "perspective/W. V. Quine" must not be cut at its dots by Path.with_suffix."""
+    cfg = C.FactCheckConfig()
+    run = pipeline.run_fact_check("Text", cfg)
+    pipeline.run_perspective(run, "W. V. Quine", run.current_text, cfg)
+    names = {p.name for p in (settings.runs_dir / run.run_id / "calls").iterdir()}
+    assert {f"002_perspective_W_V_Quine.{ext}" for ext in ("prompt.md", "output.md", "result.json")} <= names
+
+
+def test_disabled_perspective_step_skips_per_scientist_calls(fake):
+    cfg = C.FactCheckConfig(scientist_strategy="separate_call_per_scientist",
+                            perspective_scientists=["Karl Popper"], steps=steps(perspective={"enabled": False}))
+    pipeline.run_fact_check("Text", cfg)
+    assert [r.label for r in fake.requests] == ["iter1/check/claim1"]
+
+
 def test_failed_extraction_does_not_duplicate_the_text(fake):
     fake.__init__(extract=())  # extractor returns no claims -> whole text is the single target
     cfg = C.FactCheckConfig(claim_strategy="separate_call_per_claim")
