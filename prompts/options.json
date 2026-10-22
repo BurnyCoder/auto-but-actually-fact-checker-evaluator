@@ -46,7 +46,7 @@
     {"name": "good and bad", "section": "06_strengths_weaknesses", "score": "0 = only bad, 100 = only good"},
     {"name": "empiricist perspective", "section": "07_empiricist_rationalist", "score": "how well the claim holds up given the empirical evidence"},
     {"name": "rationalist perspective", "section": "07_empiricist_rationalist", "score": "how well the claim holds up under logical, a priori analysis"},
-    {"name": "Bayesian perspective", "section": "08_bayesian_frequentist", "score": "posterior probability that the claim is true given reasonable priors and the evidence"},
+    {"name": "Bayesian perspective", "section": "08_bayesian_frequentist", "score": "subjective Bayesian-style assessment of support under stated priors and evidence; not a computed or calibrated posterior probability"},
     {"name": "frequentist perspective", "section": "08_bayesian_frequentist", "score": "how well the claim is supported by frequentist evidence (significance, effect sizes, replication, error rates)"},
     {"name": "predictive power", "section": "10_predictive_power", "score": "how many precise, testable predictions the claim makes"},
     {"name": "explanatory power", "section": "10_predictive_power", "score": "how much the claim explains, compressed into how few assumptions"}

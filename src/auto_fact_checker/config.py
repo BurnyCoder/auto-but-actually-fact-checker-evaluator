@@ -152,8 +152,8 @@ class FactCheckConfig(BaseModel):
     custom_instructions: str = ""  # appended after the selected sections
     max_claims: int = 15  # cap for claim extraction
     max_parallel: int = 4  # concurrent calls in per-claim / per-scientist strategies
-    iterate_until_accurate: bool = False  # re-check the corrected text until every claim passes the threshold
-    accuracy_threshold: int = 90  # % accuracy every claim must reach to stop iterating
+    iterate_until_accurate: bool = False  # re-check corrections until model-rated scores or another stop condition apply
+    accuracy_threshold: int = 90  # model-reported percentage every returned claim must reach
     max_iterations: int = 3
     stop_on_fixed_point: bool = True  # stop when the corrected text no longer changes
     max_cost_usd: float = 1.0  # per-run budget (the global SPEND_LIMIT_USD cap applies on top)

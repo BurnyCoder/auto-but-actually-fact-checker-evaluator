@@ -1,7 +1,8 @@
 # Answer key for `examples/`
 
 The example texts mix accurate claims with planted errors, overclaims and contested statements. This key gives
-the intended verdict for each claim, with sources, so outputs can be checked qualitatively.
+source-based interpretations for qualitative checking, not an exhaustive or infallible ground truth. The original
+inputs and historical binary labels are retained; the qualifications below were updated on 2026-10-22.
 
 ## `ai_research.md`
 
@@ -19,16 +20,16 @@ the intended verdict for each claim, with sources, so outputs can be checked qua
 | claim | intended verdict | source |
 |---|---|---|
 | Chinese Room (1980) "proves" no program can ever understand language | date accurate; "proves" is overstated, and the argument is contested (systems reply, robot reply, …) | Searle 1980, *Behavioral and Brain Sciences* 3(3); [SEP: The Chinese Room Argument](https://plato.stanford.edu/entries/chinese-room/) |
-| Turing test (1950) "widely accepted by philosophers as a sufficient test for consciousness" | inaccurate: Turing proposed the imitation game for "Can machines think?"; it is not widely accepted as a test of consciousness | Turing 1950, *Mind* 59(236); [SEP: The Turing Test](https://plato.stanford.edu/entries/turing-test/) |
-| LLMs are "just stochastic parrots that cannot reason" | contested opinion presented as fact | Bender et al. 2021 (FAccT) and the ensuing debate |
-| next-token training implies no internal world models | non sequitur, with counter-evidence of learned world representations | Li et al. 2023, [arXiv:2210.13382](https://arxiv.org/abs/2210.13382); Gurnee & Tegmark 2023, [arXiv:2310.02207](https://arxiv.org/abs/2310.02207) |
-| hard problem formulated by David Chalmers in the 1990s | accurate (Chalmers 1995, *Journal of Consciousness Studies* 2(3)) | [SEP: Consciousness](https://plato.stanford.edu/entries/consciousness/) |
+| Turing test (1950) "widely accepted by philosophers as a sufficient test for consciousness" | unsupported consensus claim: Turing proposed the imitation game in a discussion of whether machines can think; the paper does not establish philosophical consensus or sufficiency for consciousness | Turing 1950, [Computing Machinery and Intelligence](https://doi.org/10.1093/mind/LIX.236.433); [SEP: The Turing Test](https://plato.stanford.edu/entries/turing-test/) |
+| LLMs are "just stochastic parrots that cannot reason" | contested generalization; the cited critique does not prove universal inability to reason | Bender et al. 2021, [FAccT paper](https://doi.org/10.1145/3442188.3445922) |
+| next-token training implies no internal world models | the implication does not follow: Li et al. study board-state representations in a model trained on synthetic Othello moves; Gurnee & Tegmark study spatial/temporal representations in Llama-2. Neither demonstrates a complete general world model | [Li et al.](https://arxiv.org/abs/2210.13382); [Gurnee & Tegmark](https://arxiv.org/abs/2310.02207) |
+| hard problem formulated by David Chalmers in the 1990s | accurate (Chalmers 1995, *Journal of Consciousness Studies* 2(3)) | [Chalmers: Facing Up to the Problem of Consciousness](https://consc.net/papers/facing.html) |
 
 ## `ai_engineering.md`
 
 | claim | intended verdict | source |
 |---|---|---|
-| bfloat16 halves activation memory vs float32 and keeps float32's exponent range | accurate: 16 vs 32 bits, same 8-bit exponent | Kalamkar et al. 2019, [arXiv:1905.12322](https://arxiv.org/abs/1905.12322) |
+| bfloat16 halves activation memory vs float32 and keeps float32's exponent range | qualified: one BF16 element uses 16 rather than 32 bits and has an 8-bit exponent. Total activation memory need not halve: mixed-precision execution can retain FP32 tensors/operations and other storage | Kalamkar et al. 2019, [arXiv:1905.12322](https://arxiv.org/abs/1905.12322) |
 | RAG "completely eliminates" hallucinations | inaccurate: retrieval reduces but does not eliminate hallucination | Shuster et al. 2021, [arXiv:2104.07567](https://arxiv.org/abs/2104.07567); Lewis et al. 2020, [arXiv:2005.11401](https://arxiv.org/abs/2005.11401) |
 | LoRA "updates all of a model's weights" | inaccurate: LoRA freezes the pretrained weights and trains low-rank adapter matrices | Hu et al. 2021, [arXiv:2106.09685](https://arxiv.org/abs/2106.09685) |
 | FlashAttention makes exact attention linear in time | inaccurate: still quadratic FLOPs; it cuts memory reads/writes, and its memory footprint is linear in sequence length | Dao et al. 2022, [arXiv:2205.14135](https://arxiv.org/abs/2205.14135) |
