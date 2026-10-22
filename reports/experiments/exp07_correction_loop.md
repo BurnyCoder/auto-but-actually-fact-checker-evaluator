@@ -2,7 +2,8 @@
 
 **Pre-registration:** [`docs/correction_eval.md`](../../docs/correction_eval.md). It was committed (PR #14) before
 any Exp07 call, together with the analysis script
-[`reports/scripts/analyze_correction.py`](../scripts/analyze_correction.py).
+[`reports/scripts/analyze_correction.py`](../scripts/analyze_correction.py). The script's only later change (commit
+`a8916a0`, after the Codex data) leaves arms with fewer than 10 items out of the figure; no statistic changed.
 **Data:**
 - `reports/results/exp07_correction_codex/`
 - `reports/results/exp07_correction_claude/`
@@ -33,10 +34,11 @@ according to independent, gold evidence?
 
 ## Results — Codex loop (n = 100)
 
-**Judge validity (gate: ≥ 85% on originals, where truth is known)**
+**Judge validity (gate: ≥ 85% on originals, where truth is known; checked from the script's output)**
 - Haiku: **93%** [86, 97], gate passed.
 - Luna: 83% [74, 89], below the gate; it is used only as the secondary judge.
-- The judges agree on 73% of 331 judged texts, Cohen's κ = 0.47 (moderate).
+- The judges agree on 73% of 331 judged texts, Cohen's κ = 0.47 ("moderate" in the Landis & Koch 1977 scale,
+  *Biometrics* 33(1):159–174).
 
 | measure (primary judge) | result |
 |---|---|
@@ -47,7 +49,7 @@ according to independent, gold evidence?
 | harm rate (correct originals now incorrect) | 10 / 49 = **20%** [11, 34] |
 | answer correct, by gold class | true claims 38 / 54 = 70%; false claims 24 / 46 = 52% |
 | passes | 1 pass: 10, 2: 66, 3: 15, 4: 5, 5: 1, 6: 2, 8: 1 (none reached 20, none stopped on a fixed point) |
-| cost | $0.18 billed (judges and JSON repair); $6.04 notional for the Codex agent (subscription); 456 searches; 0 leak flags |
+| cost | $0.18 billed (judges; the JSON repair step billed nothing); $5.86 notional for the Codex agent (subscription; $6.04 with the judges); 456 searches; 0 leak flags |
 
 **Robustness** (post hoc, Luna as judge):
 - H1 Δ = +0.24 [+0.13, +0.35]; Luna rates fewer originals correct (37%), hence the larger gain.
@@ -60,7 +62,8 @@ The conclusions hold under either judge.
 **Trajectory** ([`fig3_correction_loop.png`](../figures/fig3_correction_loop.png); the latest proposed correction,
 carried forward after an item stops):
 - The loop's own rating of the text it checks jumps from 0.45 to about 0.93 after the first pass and stays at
-  0.91–0.95.
+  0.91–0.95. This line covers only items still looping (n = 100, 90, 24, 9, 4, 3, 1, 1 for passes 1–8), so from
+  pass 3 on it rests on 24 items or fewer.
 - Gold-evidence correctness rises from 0.49 to 0.61 after the first correction, then *drifts down* to about 0.50
   as further rewrites are proposed.
 
@@ -74,8 +77,9 @@ carried forward after an item stops):
    answers are right.
 3. **Looping beyond the first correction does not help** (H3 null). The extra passes mostly rewrite rather than
    repair. Clinical and causal claims drift into hedged or narrower statements, e.g. "Having a main partner worsens
-   HIV outcomes" ended after 6 passes as a description of one 2021 survey. The loop's own score climbs (18 → 95)
-   because a hedged statement is hard to dispute, while it stops answering the original question.
+   HIV outcomes" ended after 6 passes as a description of two observational studies (a 2021 survey and a clinic
+   study) plus caveats. The loop's own score climbs (18 → 95), plausibly because a hedged statement is hard to
+   dispute, while the text stops answering the original question.
 4. **The loop also harms, because the checker is sceptical of true claims.**
    - 1 in 5 originally correct texts was made incorrect.
    - All 10 harmed items are true claims that pass 1 wrongly scored 35–80%.
@@ -100,7 +104,7 @@ not converge:
 - That judging was re-done from the saved `runs/<id>/run.json` with the same functions and judges. The record is
   marked `recovered`.
 
-| claim (gold) | passes | self-rating per pass | stop | loop answer judged correct (Luna / Haiku) | all produced texts judged correct (Luna / Haiku) | notional cost |
+| claim (gold) | passes | self-rating per pass | stop | loop answer judged correct (Luna / Haiku) | all produced texts judged correct (Luna / Haiku) | notional cost (with billed judges) |
 |---|---|---|---|---|---|---|
 | train-278 ComYMV "2140 bp" (false) | 20 | 5, 85, then 50–75 | none (limit reached, never self-labelled) | ✓ / ✓ | 17 / 21, 6 / 21 | $2.41 |
 | train-815 RIM1 → IME1 RNA (true) | 20 | 60, 35, then 55–75 | none (limit reached, never self-labelled) | ✓ / ✓ | 16 / 21, 20 / 21 | $2.27 |
@@ -113,7 +117,7 @@ not converge:
 - Neither loop's stopping signal tracks truth.
 - The two judges disagree sharply on these long, multi-sentence rewrites (κ = 0.11 across 43 texts).
 - The arm's primary judge (Luna, cross-family) misjudged the true original (validity 2/3).
-- Cost: $0.03 billed (judges), $4.70 notional, 174 searches.
+- Cost: $0.03 billed (judges), $4.67 notional for the agents ($4.70 with the judges), 174 searches.
 
 ## Post-hoc comparisons on the same 100 claims (decided after Exp07; exploratory)
 
@@ -179,8 +183,8 @@ correct verdicts vs the share of correct output texts). They are shown on the sa
 
 ## Learnings
 
-- A self-assessed stopping rule (`iterate_until_accurate`) measures how persuaded the model is by its own
-  correction, not correctness. Use at most one correction pass, or an independent check, before calling a text
+- A self-assessed stopping rule (`iterate_until_accurate`) reflects the model's rating of its own correction and
+  does not track gold correctness. Use at most one correction pass, or an independent check, before calling a text
   "verified".
 - The pre-registered `same_question` criterion was necessary: without it, hedged non-answers would have counted as
   correct.

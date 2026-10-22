@@ -18,7 +18,7 @@ Code agent, so no comparison isolates "agent vs API call".
 
 ## Results (paired on the same 40 items)
 
-| system | balanced accuracy on these 40 | F − system [95% paired bootstrap CI] | McNemar b / c, p | Δ AUROC (F − system) [95% CI] |
+| system | balanced accuracy on these 40 | F − system [95% paired bootstrap CI] | McNemar b / c, p (b = only the row's system right, c = only F right) | Δ AUROC (F − system) [95% CI] |
 |---|---|---|---|---|
 | F Claude Code agent (Haiku) | 0.797 | – | – | – |
 | A minimal, no search (Luna) | 0.825 | −0.028 [−0.177, +0.123] | 6 / 4, 0.75 | +0.073 [−0.033, +0.217] |
@@ -28,7 +28,8 @@ Code agent, so no comparison isolates "agent vs API call".
 
 F's own metrics:
 - accuracy 0.775 [Wilson 0.625, 0.877]
-- **AUROC 0.962**, the highest of all systems; Brier 0.161
+- AUROC 0.962 on these 40 claims: above A (0.889), D (0.934) and E (0.917), below B (0.978) and C (0.992) on the
+  same claims; Brier 0.161
 - SUPPORT recall **0.65**, CONTRADICT recall 0.94; median score 55 for SUPPORT vs 9 for CONTRADICT
 - 2.05 searches per claim
 - about 11.4k output tokens per claim (agent turns included); median 55 s per claim
@@ -36,12 +37,12 @@ F's own metrics:
 
 ## Interpretation
 
-- **It ranks well but is sceptical.** The Haiku agent orders claims almost perfectly (AUROC 0.962) but puts true
-  claims low: 8 of 23 SUPPORT claims scored below 50. The pre-registered 50% threshold therefore costs it
+- **It ranks well but is sceptical.** The Haiku agent orders claims well (AUROC 0.962, though B and C rank the same
+  40 claims better) but puts true claims low: 8 of 23 SUPPORT claims scored below 50. The pre-registered 50% threshold therefore costs it
   accuracy. A threshold tuned on held-out data would likely help. That was not done, since it would be tuning on
   the evaluation set.
-- **F is worse than C here**, the only nominally significant comparison (−0.138, p = 0.031). It is 1 of 12
-  post-hoc comparisons and confounded by the model, so it is not a finding.
+- **F is worse than C here**, the only nominally significant comparison (−0.138, p = 0.031). It is 1 of 9
+  post-hoc comparisons (18 post-hoc tests counting Δ AUROC) and confounded by the model, so it is not a finding.
 - **Refusals.** Two biomedical claims triggered Anthropic's bio-safety refusal ("Haiku 5.5 can't help with this").
   - On a re-run, one succeeded (correctly) and one was refused again. It is scored wrong under the
     pre-registered rule.

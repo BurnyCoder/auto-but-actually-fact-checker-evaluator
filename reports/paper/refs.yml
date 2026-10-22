@@ -53,9 +53,10 @@ factcheckbench:
   url: https://arxiv.org/abs/2311.09000
 openfactcheck:
   type: article
-  title: "OpenFactCheck: A Unified Framework for Factuality Evaluation of LLMs"
-  author: ["Wang, Yuxia", "others"]
-  date: 2024
+  title: "OpenFactCheck: Building, Benchmarking Customized Fact-Checking Systems and Evaluating the Factuality of Claims and LLMs"
+  author: ["Wang, Yuxia", "Wang, Minghan", "Iqbal, Hasan", "Georgiev, Georgi", "Geng, Jiahui", "Nakov, Preslav"]
+  date: 2025
+  parent: {type: proceedings, title: "COLING 2025"}
   url: https://arxiv.org/abs/2405.05583
 mcnemar:
   type: article

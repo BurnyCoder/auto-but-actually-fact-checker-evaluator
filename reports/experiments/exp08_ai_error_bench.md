@@ -33,7 +33,8 @@ correction several times make the text better than running it once? Does a long 
   - absurd overclaim: 5
   - wrong person/organisation: 4
 - One `gpt-6-luna` call proposed each passage's errors; code validated them.
-- I read all 48 as word diffs and edited 6 (log in the dataset README). Examples: 2012 → 2022, 175 billion →
+- The AI coding agent that builds this repository (not a human) read all 48 as word diffs and edited 6: 4 repairs
+  and 2 type relabels (log in the dataset README). Examples of injected errors: 2012 → 2022, 175 billion →
   175 million parameters, 28.4 → 284 BLEU, CIFAR-10 → CIFAR-100, "does not inherently make them better" →
   "inherently makes them better".
 
@@ -68,13 +69,14 @@ correction several times make the text better than running it once? Does a long 
 | Spearman ρ (k, corrupted-input score) | −0.81 (p = 3 × 10⁻¹⁰) | −0.92 (p = 2 × 10⁻¹⁷) |
 | test–retest: the same corrupted text judged in both arms, mean \|Δ\| | 3.9 points | 4.5 points |
 
-**Gate:** originals ≥ 90 and corrupted-input fix rate ≤ 0.2. Both held.
+**Gate:** originals ≥ 90 and corrupted-input fix rate ≤ 0.2. Both held (checked from the `validity` fields of
+`ai_errors_analysis.json`; the script does not apply the gate itself).
 
 **Further checks:**
 - A deterministic number check (true number present ∧ false number absent) agrees with Haiku's per-error status on
   85% of 140 number-error states (κ = 0.66).
-- The judges rank texts similarly (Spearman 0.70 over 232 texts) but Haiku is much harsher: a mean gap of 13.9
-  points, largest on corrupted text.
+- The judges rank texts similarly (Spearman 0.70 over 232 texts) but Haiku is much harsher: a mean absolute
+  difference of 13.9 points (Haiku 13.7 points lower on average), largest on corrupted text.
 
 ## Results
 
@@ -85,13 +87,13 @@ correction several times make the text better than running it once? Does a long 
 
 | primary judge (Haiku) | naive prompt | rigorous prompt |
 |---|---|---|
-| score: corrupted input → pass 1 → 2 → 3 → 4 | 38.6 → **90.4** → 89.3 → 88.7 → 89.4 | 40.0 → **85.7** → 84.4 → 85.3 → 86.2 |
+| score: corrupted input → pass 1 → 2 → 3 → 4 | 38.6 → **90.4** → 89.4 → 88.7 → 89.4 | 40.0 → **85.7** → 84.4 → 85.4 → 86.2 |
 | injected errors fixed (mean of 1 / 0.5 / 0), pass 1 → 4 | 0.958 → 0.969 | 0.969 → **0.896** |
 | fully corrected errors, pass 1 → 4 (of 48) | 44 → 45 | 45 → **38** |
 | introduced errors per passage, pass 1 → 4 | 0.40 → 0.40 | 0.70 → 0.45 |
 | self-rated accuracy of the text checked, pass 1 → 4 | 68 → 98 | 64 → 96 |
 | time / output tokens per pass | 18 s / 1.5k | 110 s / 18k |
-| notional cost per passage (4 passes) | $0.096 | $0.137 |
+| notional agent cost per passage (4 passes; with billed judges) | $0.093 ($0.096) | $0.132 ($0.137) |
 
 **H3 — one pass helps a lot (supported in both arms).**
 - *Naive:* corrupted input → pass 1 Δ = **+51.8 [+34.1, +68.9]**, Wilcoxon p = 0.0007.
@@ -152,14 +154,14 @@ correction several times make the text better than running it once? Does a long 
 - All 20 passages were rewritten in every pass in both arms.
 - This is the same hedging drift as in Exp07, now measured per fact.
 
-**2. Most "introduced errors" are not errors.**
-I checked every statement the primary judge flagged after pass 1 (8 naive, 14 rigorous) against the primary
-paper. Sources are in `exp08_posthoc.py`.
+**2. None of the "introduced errors" is clearly an error.**
+The AI coding agent checked every statement the primary judge flagged after pass 1 (8 naive, 14 rigorous) against
+the primary paper. Sources are in `exp08_posthoc.py`.
 
 | flagged statements (pass 1, n = 22) | count | examples |
 |---|---|---|
-| genuinely false | **1** | AlexNet "500,000 neurons" (paper: 650,000) |
-| true per the primary source, absent from or conflicting with the reference | **12** | "10.9 points" ahead of the runner-up (26.2 − 15.3; Wikipedia: "more than 10.8"); the Transformer paper's Results section says **41.0** BLEU while its abstract says 41.8; parsing F1 91.3 / 92.7; ResNet's CIFAR-10 nets have **110 and 1202** layers (abstract: "100 and 1000"); Chinchilla is *not* uniformly better (it loses on 4 MMLU and 4 BIG-bench tasks); self-attention is permutation-*equivariant* |
+| genuinely false | **0** | – |
+| true per the primary source, absent from or conflicting with the reference | **13** | AlexNet "500,000 neurons" (the NeurIPS abstract page says 500,000, the PDF and Wikipedia 650,000; first classified as false, corrected 2026-10-22); "10.9 points" ahead of the runner-up (26.2 − 15.3; Wikipedia: "more than 10.8"); the Transformer paper's Results section says **41.0** BLEU while its abstract says 41.8; parsing F1 91.3 / 92.7; ResNet's CIFAR-10 nets have **110 and 1202** layers (abstract: "100 and 1000"); Chinchilla is *not* uniformly better (it loses on 4 MMLU and 4 BIG-bench tasks); self-attention is permutation-*equivariant* |
 | hedge or scope qualification of a reference claim | 9 | "does not establish general superiority", "attention weights do not measure token importance" |
 
 The corrector, using primary sources, sometimes found inconsistencies in the source passages themselves. The
@@ -178,25 +180,34 @@ errors.
    - the text grows 62% longer
    - the loop's self-rating stays at 96%
 
-   Iteration never re-introduced a false fact. The cost is information loss, not new falsehoods.
+   No fixed injected error ever reverted to its false value; the measured loss is hedging and deletion. Statements
+   the judge flagged as introduced after pass 1 were audited (none clearly false); those after passes 2–4 were not.
 3. **The naive prompt is at least as good and far cheaper** (H2). This agrees with Exp02 (SciFact verdicts): the
    long rigorous prompt adds cost, not accuracy. Here it also adds text that a reference-based judge penalises.
 4. **Clean text is never left alone.** All 4 controls were rewritten in every pass, and their reference-based
-   score fell 8–15 points. But the audit (post hoc) suggests the "harm" is mostly true additions and hedges, not
+   score fell 8–15 points. But the audit (post hoc, pass 1) suggests the "harm" is true additions and hedges, not
    false statements.
 5. **Measurement caveat.** The holistic score measures faithfulness to the original passage, not truth.
    - Correctors with web search add true, more precise details and get penalised for it.
-   - The per-error fix score is the cleaner measure. It gives the same answer: one pass ≈ 0.96, more passes ≤ that.
+   - The per-error fix score is the cleaner measure. It gives the same answer: one pass ≈ 0.96–0.97; after four
+     passes 0.969 (naive, +0.01) and 0.896 (rigorous, −0.07).
 
 ## Deviations from the pre-registration
 
 **Dataset construction (all before any correction data):**
 - Near-copied sentences (similarity ≥ 0.9) are snapped to the passage's own sentence.
-- 6 of 48 injected edits were repaired in manual QC, as planned.
+- 6 of 48 injected edits were edited in QC, as planned: 4 repaired, 2 relabelled.
 - Error-type labels were normalised.
 
-**Analysis:** the smoke test (1 passage × 2 arms) is reported nowhere in the results; it only checked the pipeline.
-No other deviations.
+**Analysis:**
+- The smoke test (1 passage × 2 arms) is reported nowhere in the results; it only checked the pipeline.
+- The pre-registered fix rate by k was computed (`ai_errors_analysis.json` → `by_k`) without the cluster-bootstrap
+  CIs and is not reported here. Fix rates by error type have cluster CIs in `by_error_type` but are listed below
+  without them.
+- The validity gate was checked separately against the script's output (the script reports the inputs, not the
+  verdict).
+- Post-hoc audit: the AlexNet "500,000 neurons" statement was first classified as false and reclassified on
+  2026-10-22 as a primary-source inconsistency (see the audit table).
 
 ## Limitations
 
@@ -209,8 +220,11 @@ No other deviations.
   from first principles.
 - **Same model family.** `gpt-6-luna` both injected and corrected the errors, which could make the edits easier
   for it to spot.
-- **Reference-based judging penalises true additions** (post-hoc audit above). The holistic score is a lower bound
-  on real-world accuracy, and the rigorous arm, which writes more, is penalised more.
+- **Reference-based judging penalises true additions** (post-hoc audit above). The holistic score likely
+  underestimates accuracy when correctors add true details, and the rigorous arm, which writes more, is penalised
+  more. The judge can also miss errors, so the score is not a strict bound either way.
+- **QC and audit by an AI agent.** The dataset QC and the introduced-error audit were done by the AI coding agent
+  that builds this repository, not by a human expert.
 - **One corrector run per arm**, with no corrector test–retest; one model at low effort.
 - **Crude hedge count.** The hedge-word count is a fixed 8-word list.
 
@@ -218,7 +232,7 @@ No other deviations.
 
 - Run one correction pass. Further passes are not neutral: with a long rigorous prompt they trade specific
   correct facts for hedges while the self-rating says 96%.
-- A reference-based judge must be audited. Here 21 of 22 "introduced errors" after pass 1 were true statements
-  or hedges.
-- Injecting errors with an LLM needs a manual QC step: 6 of 48 edits were incoherent, multi-fact, or still true
-  ("more than seven" → "more than three orders of magnitude").
+- A reference-based judge must be audited. Here all 22 "introduced errors" after pass 1 were true statements
+  (13, one of them matching only part of the primary source) or hedges (9).
+- Injecting errors with an LLM needs a QC step: 4 of 48 edits were incoherent, multi-fact or still true ("more than
+  seven" → "more than three orders of magnitude"), and 2 more had the wrong error-type label.
