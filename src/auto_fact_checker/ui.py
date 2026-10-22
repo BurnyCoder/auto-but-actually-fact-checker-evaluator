@@ -42,7 +42,7 @@ SHIPPED_PRESETS = {p for p in list_presets() if re.match(r"L\d_", p)}  # repo pr
 RANGES = {"max_searches": (0, 50, 1), "max_subagents": (1, 30, 1), "max_turns": (0, 300, 1),
           "timeout_s": (60, 7200, 60), "max_claims": (1, 50, 1), "max_parallel": (1, 16, 1),
           "accuracy_threshold": (0, 100, 1), "max_iterations": (1, 20, 1), "max_cost_usd": (0.01, 10.0, 0.01)}
-LABELS = {"kind": "Call type: one API request or an agent (Codex / Claude Code)",
+LABELS = {"kind": "Call type: API conversation turn or an agent (Codex / Claude Code)",
           "provider": "Provider (OpenAI preferred)", "effort": "Depth: reasoning effort",
           "web_search": "Allow web search", "allow_subagents": "Agent may spawn subagents",
           "prompt_template": "Prompt template (files in prompts/<step>/)",
