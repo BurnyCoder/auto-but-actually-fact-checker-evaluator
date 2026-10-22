@@ -29,20 +29,23 @@ VERBATIM = [
     "Quote directly from sources in your findings.",
     "Write a list of all issues in the overall text, that you found, in one sentence, at the end.",
 ]
+# Names whose spelling options.json corrects; original_prompt.md keeps the user's spelling verbatim.
+SPELLING = {"Terence Tao": "Terrence Tao", "John von Neumann": "John Von Neumann"}
 
 
 def all_on() -> C.FactCheckConfig:
     return C.FactCheckConfig(sections=C.section_ids())  # every section, defaults for lists, check step searches
 
 
-def test_default_prompt_expresses_the_original_prompt():
+def test_all_on_prompt_expresses_the_original_prompt():
     prompt = P.build_prompt(all_on(), "check", "TEXT")
     for sentence in VERBATIM:
         assert sentence in ORIGINAL and sentence in prompt, sentence  # verbatim in both
     opts = C.options()
     for key in ("degrees", "verdict_labels", "styles", "scientists"):
         for item in opts[key]:
-            assert item in ORIGINAL and item in prompt, item  # every list item of the original survives
+            assert SPELLING.get(item, item) in ORIGINAL and item in prompt, item  # every original list item survives
+    assert set(SPELLING) <= set(opts["scientists"])  # the corrected spellings are the ones used
     assert "by searching the web and using reputable scientific sources" in prompt
     assert "You are professional NeurIPS reviewer." in prompt  # all-on includes the optional role
 
