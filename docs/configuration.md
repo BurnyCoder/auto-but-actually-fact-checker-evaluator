@@ -18,7 +18,7 @@ slider ranges (`ui.RANGES`).
 | `max_searches` | 0–50 (5) | API tool-call/use limit (Anthropic: per request, including continuations); an agent prompt instruction rather than enforced agent-wide cap (see [architecture](architecture.md#how-the-backends-map-the-settings)) |
 | `blocked_domains` | comma list (empty) | excluded from search: by the provider's domain filter for API steps, as a prompt instruction for agents |
 | `allow_subagents` | bool (off) | agents may spawn subagents (Claude Code `Agent` tool; Codex `multi_agent` without `--ephemeral`, which breaks `spawn_agent`). Always on for the check step under a subagent strategy |
-| `max_subagents` | 1–30 (8) | upper bound stated to the orchestrating agent; for Codex also `agents.max_concurrent_threads_per_session` (with the default, 2 of 6 parallel spawns failed) |
+| `max_subagents` | 1–30 (8) | upper bound stated to the orchestrating agent; for Codex also `agents.max_concurrent_threads_per_session` (at Codex's default, 3 and 2 spawns failed in [matrix rows c7 and c12](../reports/verification_2026-10-28_subagents.md)) |
 | `max_turns` | 0–300 (0 = unlimited; `null` in JSON) | Claude Code `--max-turns` |
 | `timeout_s` | 60–7200 s (900) | agents: wall-clock limit, the process tree is killed; API calls: SDK request timeout |
 | `prompt_template` | file in `prompts/<step>/` | e.g. `check/rigorous_sections.md`, `minimal_baseline.md`, `neurips_review.md`; `extract/claimify.md`, `simple_list.md` |
@@ -33,6 +33,16 @@ and `perspective`.
 |---|---|
 | `claim_strategy` | `whole_text` (default) · `subagent_per_claim` (check must be an agent: Claude Code or Codex) · `separate_call_per_claim` (extract → one check per claim → synthesis) |
 | `scientist_strategy` | `none` (default; scientists only named in-prompt, via section 11) · `subagent_per_scientist` (check must be an agent) · `separate_call_per_scientist` (one perspective call per scientist per target) |
+| `perspective_scientists` | scientists for the per-scientist strategies and the UI's perspective buttons (Karl Popper, Richard Feynman, Andrew Gelman) |
+| `sections` | which prompt blocks go in (24 sections; NeurIPS role off by default). Templates without `sections_text` (`check/minimal_baseline.md`, `extract/*`, `repair/repair_json.md`) use them only for the JSON-contract fields |
+| `conditions` | which scored conditions are requested (only while their section is on) |
+| `score_all_labels` | score every selected label per claim (default), or only those that apply |
+| `score_each_scientist` | off by default; add one scored "<scientist>'s standards" condition per named scientist |
+| `verdict_labels`, `degrees`, `styles`, `claim_types`, `scientists` | the lists rendered into the sections; extendable |
+| `custom_instructions` | appended after the sections |
+| `max_claims`, `max_parallel` | extraction cap, 1–50 (15); number of concurrent calls, 1–16 (4) |
+| `iterate_until_accurate`, `accuracy_threshold`, `max_iterations`, `stop_on_fixed_point` | iteration control: off, 90 % (0–100), 3 (1–20), on |
+| `max_cost_usd` | per-run soft budget, 0.01–10 (1.0). Counts recorded billed and notional (subscription-agent) cost; the global `SPEND_LIMIT_USD` counts recorded billed cost only. Sequential and concurrent in-flight calls can overshoot |
 
 In the UI, an edit that would make the configuration invalid adjusts the conflicting setting instead and shows a
 note (`config.fix_combination`). The setting you just edited is never changed:
@@ -43,16 +53,6 @@ note (`config.fix_combination`). The setting you just edited is never changed:
   nothing to run re-enables the check step.
 
 The CLI and presets are not adjusted: they get the validation error.
-| `perspective_scientists` | scientists for the per-scientist strategies and the UI's perspective buttons (Karl Popper, Richard Feynman, Andrew Gelman) |
-| `sections` | which prompt blocks go in (24 sections; NeurIPS role off by default) |
-| `conditions` | which scored conditions are requested (only while their section is on) |
-| `score_all_labels` | score every selected label per claim (default), or only those that apply |
-| `score_each_scientist` | off by default; add one scored "<scientist>'s standards" condition per named scientist |
-| `verdict_labels`, `degrees`, `styles`, `claim_types`, `scientists` | the lists rendered into the sections; extendable |
-| `custom_instructions` | appended after the sections |
-| `max_claims`, `max_parallel` | extraction cap, 1–50 (15); number of concurrent calls, 1–16 (4) |
-| `iterate_until_accurate`, `accuracy_threshold`, `max_iterations`, `stop_on_fixed_point` | iteration control: off, 90 % (0–100), 3 (1–20), on |
-| `max_cost_usd` | per-run soft budget, 0.01–10 (1.0). Counts recorded billed and notional (subscription-agent) cost; the global `SPEND_LIMIT_USD` counts recorded billed cost only. Sequential and concurrent in-flight calls can overshoot |
 
 ## Scored conditions
 

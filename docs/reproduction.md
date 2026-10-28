@@ -1,7 +1,7 @@
 # Reproduce the saved analyses
 
-The [verification record](../reports/verification_2026-10-22.md) distinguishes historical primary results from
-dated corrections and post-hoc sensitivity analyses. These commands use committed records and do not call models.
+The [verification record](../reports/verification_2026-10-28.md) recomputes the primary results from these records
+and lists dated corrections and post-hoc sensitivity analyses. These commands use committed records and do not call models.
 Run from the repository root after the [README setup](../README.md#quick-start):
 
 ```bash
@@ -29,7 +29,7 @@ judgments, and Figure 4 labels partial-credit scores.
 | Exp07 verdict/correction comparison | `compare_verdict_correction.py` uses saved item judgments | Its cost/time comparison also requires the referenced ignored `runs/` artifacts |
 | Exp08 primary scores, 47-annotation sensitivity, sourced reassessment | Frozen dataset, per-state judgments and provenance JSON | `exp08_posthoc.py` marks per-pass timing/cost unavailable if referenced local runs are missing |
 | Exp00 example-key scoring | Summary in the experiment report | `score_examples.py` requires ignored `runs/` files; historical labels have dated qualifications in the answer key |
-| Local $7.35 aggregate | Dated verification report only | `logs/spend.jsonl` is private and not published |
+| Local ledger totals ($7.35 by 2026-10-22, $7.55 by 2026-10-28) | Dated verification record only | `logs/spend.jsonl` is private and not published |
 
 The screenshot command requires installed Edge. Alternatively omit `--channel msedge` after
 `uv run --group docs playwright install chromium`. Screenshot responses are synthetic fixtures, not measured
