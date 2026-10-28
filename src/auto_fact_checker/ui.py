@@ -350,8 +350,9 @@ def build_ui() -> gr.Blocks:
         outputs = [run_id, status, report, claims_df, labels_df, cond_df, corrected, issues, iter_df, calls_df,
                    log_box, raw, target]
 
-        # Editing a coupled setting adjusts the others so every reachable widget state is a valid configuration
-        # (.input fires only on user edits, not on these programmatic updates or preset loads, so it cannot loop).
+        # Editing a coupled setting adjusts the others so every reachable widget state is a valid configuration.
+        # .input/.select fire only on user edits, not on these programmatic updates or preset loads, so they cannot
+        # loop; dropdowns use .select because their .input fired twice per pick (two notes) in Gradio 6.
         def on_coupled(changed, *vals):
             new, notes = fix_values(knobs, changed, vals)
             for note in notes:
@@ -360,7 +361,7 @@ def build_ui() -> gr.Blocks:
 
         for path in COUPLED:
             comp = next(k.comp for k in knobs if k.path == path and not k.extra)
-            comp.input(partial(on_coupled, path), comps, comps)
+            (comp.select if isinstance(comp, gr.Dropdown) else comp.input)(partial(on_coupled, path), comps, comps)
 
         example.input(lambda name: (ROOT / "examples" / f"{name}.md").read_text(encoding="utf-8"), example, text)
 

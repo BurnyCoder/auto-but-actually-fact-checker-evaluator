@@ -217,9 +217,10 @@ def fix_combination(data: dict, changed: tuple) -> list[str]:
         if info and info.provider != sc["provider"]:
             if changed == ("steps", name, "model"):
                 sc["provider"] = info.provider
+                notes.append(f"{name} step: provider set to {info.provider} for {sc['model']}")
             else:
                 sc["model"] = catalog.DEFAULT_MODEL[sc["provider"]]
-            notes.append(f"{name} step: {sc['model']} is a {sc['provider']} model, so provider and model now match")
+                notes.append(f"{name} step: model set to {sc['model']}, the {sc['provider']} default")
     check, persp = steps["check"], steps["perspective"]
     if _runs_nothing(check["enabled"], data["scientist_strategy"], data["perspective_scientists"], persp["enabled"]):
         if changed == ("steps", "check", "enabled"):
