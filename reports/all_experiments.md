@@ -45,7 +45,7 @@ in [`results/`](results). Every number here comes from `results/scifact_analysis
     0.958–0.969. Whole-text scores rose from about 40 to 86–90 (Δ +46 to +52, p < 0.001).
   - **No further mean-score gain was detected** in either arm (rigorous Δ +0.45 [−4.6, +4.8]). Under the rigorous prompt they
     eroded fixes (fix rate −0.067 [−0.117, −0.022]). Post hoc: the lost fixes were hedged or dropped correct facts,
-    and the pass-4 text was 62% longer than the original reference on average.
+    and the pass-4 text was 61% longer than the original reference on average.
   - **The naive arm had a higher observed mean** (pass 1: 90.4 vs 85.7, Δ −4.65 [−10.2, +1.8], Wilcoxon p = 0.017)
     at 1/6 of the time. Equivalence and noninferiority were not established.
   - Clean controls were always rewritten.
@@ -96,7 +96,7 @@ reasoning effort low. Each takes one claim as input and returns a 0–100 accura
 | E | Codex CLI agent | full rigorous | live web search (≤3 stated in prompt) | first 40 of the same items | 40 | 0.876 | 0.917 | 0.113 | $0 billed ($0.91 notional) | post hoc (Exp04) |
 | F | Claude Code agent, **claude-haiku-5-5** | full rigorous | WebSearch/WebFetch (≤3 stated in prompt) | same 40 items | 40 | 0.797 | 0.962 | 0.161 | $0 billed ($1.27 notional) | post hoc (Exp05) |
 
-| comparison | n | Δ balanced accuracy [95% CI] | McNemar b / c, p | Δ AUROC [95% CI] | reading |
+| comparison | n | Δ balanced accuracy [95% CI] | McNemar b / c, p | Δ AUROC [95% CI] (post hoc addition¹) | reading |
 |---|---|---|---|---|---|
 | B − A | 200 | +0.110 [+0.062, +0.160] | 3 / 25, 2.7 × 10⁻⁵ | +0.099 [+0.052, +0.150] | H1 supported (pre-registered primary) |
 | C − A | 200 | +0.135 [+0.086, +0.186] | 2 / 29, 4.6 × 10⁻⁷ | +0.112 [+0.065, +0.163] | search alone helps (pre-registered) |
@@ -106,6 +106,9 @@ reasoning effort low. Each takes one claim as input and returns a 0–100 accura
 | B − D | 200 | +0.100 [+0.055, +0.148] | 2 / 22, 3.6 × 10⁻⁵ | +0.053 [+0.021, +0.089] | search helps under the full prompt too (post hoc) |
 | E − A / B / C | 40 | +0.051 / −0.029 / −0.059, every CI spans 0 | 2/4 · 2/1 · 3/1 | – | no detected difference at n = 40; no equivalence test (post hoc) |
 | F − A / B / C / E | 40 | −0.028 / −0.109 / −0.138 [−0.250, −0.045] / −0.079 | 6/4 · 7/2 · 6/0 (p = 0.031) · 7/3 | +0.073 / −0.017 / −0.031 / +0.045 | Claude agent: sceptical; ranks above A and E, below B and C; vs C nominal only (1 of 18 post-hoc tests; model confound) |
+
+¹ The pre-registration (`378c59b`) lists AUROC only as a per-system secondary metric; the paired Δ AUROC bootstrap
+was added after the data (commit `c15c0cb`), so every Δ AUROC interval is post hoc.
 
 ## Correction loop (Exp07, pre-registered)
 
@@ -165,11 +168,14 @@ runs on the keyed texts agreed with the answer key on all 42 claim verdicts; the
   than repair (hedging, question drift).
 - **No extra gain detected beyond one pass** (post hoc, Exp07). A single agent pass with web search has the same
   observed correctness as the loop (Δ 0.00, CI [−0.06,+0.06]); the loop costs 2.5× more in estimated notional usage.
-- **Iteration erodes annotated specifics** (Exp08). One pass fully corrects 44/48 or 45/48 annotated edits. Further passes with
+- **Iteration with the rigorous prompt erodes annotated specifics** (Exp08; the naive arm did not: per-passage fix
+  rate +0.006 [0.000, +0.019]). One pass fully corrects 44/48 or 45/48 annotated edits. Further passes with
   the rigorous prompt never change a fully corrected annotation to uncorrected in the stored judgments, but they hedge or drop restored
   facts (45 → 38 fully corrected) while the self-rating stays at 96%.
 - **Reference-based judging needs validation** (Exp08, post hoc). Some flagged additions are supported; others
-  are source conflicts (Transformer 41.0 vs 41.8 BLEU, AlexNet 500,000 vs 650,000 neurons) or unresolved claims.
+  are source conflicts (Transformer EN–FR BLEU: 41.0 in the arXiv v7 §6.1 prose, 41.8 in its abstract and Table 2,
+  41.1 in the [NeurIPS abstract](https://papers.nips.cc/paper_files/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html);
+  AlexNet 500,000 vs 650,000 neurons) or unresolved claims.
 - **Verdict scores exceeded correction scores in Exp07's setting.** The checker reached about 0.92 balanced
   accuracy on original claims and the evidence judge reached 0.93, while that judge accepted 62% of returned
   corrections. These metrics use different targets and denominators and do not establish general task difficulty.
@@ -187,8 +193,9 @@ runs on the keyed texts agreed with the answer key on all 42 claim verdicts; the
 
 ## Spend
 
-The local `logs/spend.jsonl` contains 2,953 entries and **$7.34726649 in known billed estimates** as checked on
-2026-10-22. One billed entry has unknown cost. This is not a provider-invoice total; subscription fees and
+The local `logs/spend.jsonl` contained 2,953 entries and **$7.34726649 in known billed estimates** as checked on
+2026-10-22, and 3,004 entries and $7.55085675 on 2026-10-28. One billed entry has unknown cost. OpenAI cache writes
+were not priced before 2026-10-28, which understates the historical OpenAI API estimates by at most $0.17. This is not a provider-invoice total; subscription fees and
 unrecorded usage are excluded. The $10 setting is a soft recorded-cost control. Raw logs and runs are ignored
 by Git; committed summaries and per-item predictions support only the analyses described in the
-[verification record](verification_2026-10-22.md).
+[verification record](verification_2026-10-28.md).
