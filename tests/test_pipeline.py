@@ -4,6 +4,8 @@ Global context: pipeline.run_fact_check() is what the UI's Run / One more iterat
 benchmark call, so these offline tests (fake backend from conftest.py) cover the behaviour users rely on.
 """
 
+import pytest
+
 from auto_fact_checker import config as C
 from auto_fact_checker import pipeline, spend
 
@@ -80,14 +82,17 @@ def test_per_claim_times_per_scientist(fake):
     assert persona_prompt.startswith("You are Judea Pearl.")
 
 
-def test_subagent_strategy_passes_agents(fake):
+@pytest.mark.parametrize("provider,backend", [("anthropic", "claude_code"), ("openai", "codex")])
+def test_subagent_strategy_passes_agents(fake, provider, backend):
     cfg = C.FactCheckConfig(claim_strategy="subagent_per_claim", scientist_strategy="subagent_per_scientist",
-                            steps=steps(check={"kind": "agent", "provider": "anthropic",
-                                               "model": "claude-haiku-5-5", "allow_subagents": True}))
+                            steps=steps(check={"kind": "agent", "provider": provider,
+                                               "model": C.catalog.DEFAULT_MODEL[provider]}))
     pipeline.run_fact_check("Some text.", cfg)
     req = fake.requests[0]
-    assert req.backend == "claude_code" and set(req.agents) == {"claim-checker", "scientist-perspective"}
-    assert req.max_budget_usd and req.max_budget_usd <= cfg.max_cost_usd
+    assert req.backend == backend and set(req.agents) == {"claim-checker", "scientist-perspective"}
+    assert req.allow_subagents  # implied by the strategy, even with the step's checkbox off
+    if backend == "claude_code":
+        assert req.max_budget_usd and req.max_budget_usd <= cfg.max_cost_usd
 
 
 def test_iterate_until_accurate_stops_at_threshold(fake):
