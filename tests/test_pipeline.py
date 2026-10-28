@@ -91,6 +91,7 @@ def test_subagent_strategy_passes_agents(fake, provider, backend):
     req = fake.requests[0]
     assert req.backend == backend and set(req.agents) == {"claim-checker", "scientist-perspective"}
     assert req.allow_subagents  # implied by the strategy, even with the step's checkbox off
+    assert req.max_subagents == cfg.steps["check"].max_subagents  # Codex thread cap follows the stated limit
     if backend == "claude_code":
         assert req.max_budget_usd and req.max_budget_usd <= cfg.max_cost_usd
 
