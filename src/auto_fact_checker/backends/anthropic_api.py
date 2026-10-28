@@ -7,6 +7,8 @@ docs state structured outputs are incompatible with citations (always on for web
 https://platform.claude.com/docs/en/build-with-claude/structured-outputs); the pipeline parses the JSON block from
 the text instead. Docs: web search https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool ;
 pause_turn https://platform.claude.com/docs/en/agents-and-tools/tool-use/server-tools ;
+effort levels https://platform.claude.com/docs/en/build-with-claude/effort ; cache usage fields (cache_read_input_tokens,
+cache_creation.ephemeral_5m/1h_input_tokens) https://platform.claude.com/docs/en/build-with-claude/prompt-caching ;
 streaming helpers https://github.com/anthropics/anthropic-sdk-python/blob/main/helpers.md#streaming-responses
 """
 

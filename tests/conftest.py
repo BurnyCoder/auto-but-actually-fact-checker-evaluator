@@ -2,7 +2,8 @@
 
 Global context: lets the whole pipeline (every strategy, iteration, repair, budget and logging path) run offline;
 the fake replaces all four entries of backends.BACKENDS, so no network call or CLI process is ever made.
-Gradio's telemetry and version check (api.gradio.app) are switched off before the UI tests build gr.Blocks:
+Gradio's version check (api.gradio.app/pkg-version) and its usage telemetry (sent via huggingface_hub to
+huggingface.co/api/telemetry; gradio/analytics.py in 6.30) are switched off before the UI tests build gr.Blocks:
 https://www.gradio.app/guides/environment-variables (GRADIO_ANALYTICS_ENABLED)
 """
 

@@ -78,7 +78,7 @@ def test_random_widget_edits_never_produce_an_error(demo):
 
 def test_preview_shows_each_call_type():
     l3 = ui.preview(C.load_preset("L3_agent_subagents_claude"), "TEXT")
-    assert "SUBAGENTS (--agents JSON)" in l3 and "claim-checker" in l3
+    assert "SUBAGENTS (Claude Code --agents JSON / Codex roles)" in l3 and "claim-checker" in l3
     l5 = ui.preview(C.load_preset("L5_per_claim_x_scientist_calls"), "TEXT")
     assert "EXTRACT" in l5 and "PERSPECTIVE (Karl Popper)" in l5 and "<document_context>" in l5
     off = C.apply_overrides(C.load_preset("L5_per_claim_x_scientist_calls"), ["steps.perspective.enabled=false"])

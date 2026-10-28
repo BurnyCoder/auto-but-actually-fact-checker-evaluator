@@ -1,7 +1,8 @@
 """Phase: fact-check one target (whole text or one claim), optionally from one scientist's perspective.
 
 Global context: the core call of every strategy. step="check" uses the check StepConfig (and, with subagent
-strategies, the Claude Code --agents definitions); step="perspective" uses the perspective StepConfig with a persona
+strategies, the subagent definitions: Claude Code --agents or Codex roles); step="perspective" uses the perspective
+StepConfig with a persona
 (separate_call_per_scientist strategy and the UI's per-scientist buttons). The answer's JSON block is parsed (and
 repaired if needed) into a FactCheckSummary.
 """
