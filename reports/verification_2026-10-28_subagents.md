@@ -39,8 +39,9 @@ worked, so Codex logs cannot show delegation. Only spawn failures are visible.
 
 - **Codex roles:** Codex runs subagent strategies with one named role per `prompts.build_agents` definition
   (`backends/codex.py`). `--ephemeral` is dropped when subagents are allowed.
-  `agents.max_concurrent_threads_per_session` is set to the step's `max_subagents`: with the default, 2 of 6
-  parallel spawns failed with "agent thread limit reached" (rows c7 and c12 below).
+  `agents.max_concurrent_threads_per_session` is set to the step's `max_subagents`: with the default, 3 (row c7) and 2
+  (row c12) parallel spawns failed with "agent thread limit reached". Codex logs no successful spawn attempts,
+  so the share that failed is unknown (corrected 2026-10-28; earlier text said "2 of 6").
 - **Validator:** subagent strategies need only `kind="agent"`; the strategy implies `allow_subagents`.
 - **UI:** `config.fix_combination` changes the conflicting setting, never the one just edited, and shows a note.
   - Model ↔ provider.

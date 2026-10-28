@@ -12,8 +12,11 @@ Global context: the UI only builds a FactCheckConfig and calls pipeline.run_fact
 synthesize_perspectives; everything shown comes from render.py.
 Gradio docs: Blocks https://www.gradio.app/docs/gradio/blocks ; streaming generators
 https://www.gradio.app/guides/streaming-outputs ; State https://www.gradio.app/guides/state-in-blocks ;
-dynamic render https://www.gradio.app/guides/dynamic-apps-with-render-decorator ; cancels
-https://www.gradio.app/docs/gradio/button#event-listeners
+dynamic render https://www.gradio.app/guides/dynamic-apps-with-render-decorator ; event-listener options
+(queue=False for Stop, concurrency_limit) https://www.gradio.app/docs/gradio/button#event-listeners ; queue and
+default_concurrency_limit https://www.gradio.app/guides/queuing ; Dataframe (wrap, max_height, column_widths)
+https://www.gradio.app/docs/gradio/dataframe ; CheckboxGroup (show_select_all, .select/.input)
+https://www.gradio.app/docs/gradio/checkboxgroup
 """
 
 import json
@@ -206,7 +209,8 @@ def preview(cfg: FactCheckConfig, text: str) -> str:
     if cfg.steps["check"].enabled:
         parts.append(("CHECK", build_prompt(cfg, "check", target, context=context)))
     if cfg.uses_subagents:
-        parts.append(("SUBAGENTS (--agents JSON)", json.dumps(build_agents(cfg), indent=1, ensure_ascii=False)))
+        parts.append(("SUBAGENTS (Claude Code --agents JSON / Codex roles)",
+                      json.dumps(build_agents(cfg), indent=1, ensure_ascii=False)))
     if (cfg.scientist_strategy == "separate_call_per_scientist" and cfg.perspective_scientists
             and cfg.steps["perspective"].enabled):  # same condition as pipeline.run_iteration
         parts.append((f"PERSPECTIVE ({cfg.perspective_scientists[0]})",

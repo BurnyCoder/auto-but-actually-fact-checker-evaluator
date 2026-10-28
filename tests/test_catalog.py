@@ -28,6 +28,17 @@ def test_long_tier_also_raises_the_cached_rate():
     assert catalog.cost_usd("claude-haiku-5-5", 200_000, 0, cached_input_tokens=200_000) == pytest.approx(0.2 * 0.05)
 
 
+def test_cache_writes_priced_per_provider_and_ttl():
+    # OpenAI GPT-5.6+: 30m/12h writes cost 1.25x/2.5x input (pricing page: gpt-6-luna $0.125/$0.25 per 1M)
+    assert catalog.cost_usd("gpt-6-luna", 200_000, 0, cache_write_short_tokens=100_000,
+                            cache_write_long_tokens=100_000) == pytest.approx(0.1 * 0.125 + 0.1 * 0.25)
+    # Anthropic: 5m/1h writes cost 1.25x/2x input (Haiku 5.5: $0.125/$0.20 per 1M)
+    assert catalog.cost_usd("claude-haiku-5-5", 20_000, 0, cache_write_short_tokens=10_000,
+                            cache_write_long_tokens=10_000) == pytest.approx(0.01 * 0.125 + 0.01 * 0.20)
+    # Models before GPT-5.6 have "no additional cache-write charge": writes cost ordinary input
+    assert catalog.cost_usd("gpt-5.4-mini", 100_000, 0, cache_write_short_tokens=100_000) == pytest.approx(0.075)
+
+
 def test_haiku_long_context_tier():
     short = catalog.cost_usd("claude-haiku-5-5", 100_000, 0)  # at the 100K threshold: base tier
     long = catalog.cost_usd("claude-haiku-5-5", 100_001, 0)  # above it: $0.50/1M for the whole request

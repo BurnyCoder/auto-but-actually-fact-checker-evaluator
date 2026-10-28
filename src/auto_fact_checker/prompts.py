@@ -4,8 +4,9 @@ Local: renders prompts/ files with Jinja2. Sections (prompts/sections/NN_*.md) a
 into toggles; list-valued parts (verdict labels, scientists, ...) come from the config; every step has a folder of
 templates (prompts/<step>/*.md) and the selected template wraps the rendered sections, the input text and the JSON
 output contract (prompts/json_summary.md).
-Global context: phases/*.py call build_prompt() for every LLM call and the Claude Code backend writes
-build_agents() to an --agents file, so the UI's prompt toggles, template dropdowns and override boxes all act here.
+Global context: phases/*.py call build_prompt() for every LLM call, and build_agents() definitions become a
+Claude Code --agents file or Codex roles, so the UI's prompt toggles, template dropdowns and override boxes all act
+here.
 Jinja2 docs: https://jinja.palletsprojects.com/en/stable/api/ (Environment, FileSystemLoader, StrictUndefined,
 trim_blocks/lstrip_blocks whitespace control) and https://jinja.palletsprojects.com/en/stable/templates/#include
 """
@@ -79,7 +80,7 @@ def build_prompt(cfg: FactCheckConfig, step: str, text: str, *, context: str | N
 
 
 def build_agents(cfg: FactCheckConfig) -> dict[str, dict]:
-    """Claude Code --agents JSON: subagent definitions for the chosen subagent strategies.
+    """Subagent definitions for the chosen strategies (Claude Code --agents JSON; codex.py makes each a role).
 
     Format (description, prompt, tools/disallowedTools, model): https://code.claude.com/docs/en/sub-agents
     Omitting "tools" makes subagents inherit the main agent's tools (incl. WebSearch/WebFetch).

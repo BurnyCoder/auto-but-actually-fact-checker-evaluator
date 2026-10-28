@@ -10,7 +10,7 @@
   #v(4pt)
   Libor Burian — independent researcher
   #v(2pt)
-  #text(9pt)[October 2026 · code and result records: #link("https://github.com/BurnyCoder/auto-fact-checker")]
+  #text(9pt)[October 2026 · code and result records: #link("https://github.com/BurnyCoder/auto-but-actually-fact-checker-evaluator")]
 ]
 
 #block(inset: (x: 1.2cm))[
@@ -23,7 +23,7 @@
   0.755, Δ = +0.110 [95% CI +0.062, +0.160], exact McNemar p = 2.7×10⁻⁵. A pre-registered ablation found a gain
   from search with the minimal prompt, which reached 0.890. The rigorous prompt added no
   detectable accuracy given search (Δ = −0.025 [−0.061, +0.010], p = 0.27) while producing 8.5× more output tokens.
-  Post hoc, the full prompt without search had no detectable verdict gain (0.765 vs 0.755), although its AUROC was higher (+0.047 [+0.013, +0.082]). A correction-loop evaluation raised judge-assessed correctness from 49% to 62%, while the loop labelled every answer correct. On 20 AI-research passages with 48 annotated edits, one pass fully corrected 44/48 or 45/48 edits per the judge; half-credit weighted scores were 0.958–0.969. Three further passes had no detectable mean-score gain (rigorous Δ +0.45 [−4.6, +4.8]) and reduced the rigorous arm's weighted fix score (−0.067 [−0.117, −0.022]). The naive arm had a higher observed mean at one sixth of the runtime; equivalence was not established. A dated reassessment identifies one ambiguous injected edit and unresolved source claims. All verdict and corrector systems use `gpt-6-luna` except the Claude Haiku agent arms; the
+  Post hoc, the full prompt without search had no detectable verdict gain (0.765 vs 0.755), although its AUROC was higher (+0.047 [+0.013, +0.082]). A correction-loop evaluation raised judge-assessed correctness from 49% to 62%, while the loop labelled every answer correct. On 20 AI-research passages with 48 annotated edits, one pass fully corrected 44/48 or 45/48 edits per the judge; half-credit weighted scores were 0.958–0.969. Three further passes had no detectable mean-score gain (rigorous Δ +0.45 [−4.6, +4.8]) and reduced the rigorous arm's per-passage fix rate (−0.067 [−0.117, −0.022]). The naive arm had a higher observed mean at one sixth of the runtime; equivalence was not established. A dated reassessment identifies one ambiguous injected edit and unresolved source claims. All verdict and corrector systems use `gpt-6-luna` except the Claude Haiku agent arms; the
   benchmarks are short SciFact claims and 20 AI-research passages.
 ]
 
@@ -81,7 +81,7 @@ costs are recorded after calls, sequential or parallel calls can overshoot, and 
 
 = Evaluation design (pre-registered)
 
-The design (#link("https://github.com/BurnyCoder/auto-fact-checker/blob/main/docs/benchmark.md")[docs/benchmark.md])
+The design (#link("https://github.com/BurnyCoder/auto-but-actually-fact-checker-evaluator/blob/main/docs/benchmark.md")[docs/benchmark.md])
 was committed before any paid call.
 
 *Data.* SciFact @scifact claims whose evidence labels are all SUPPORT or all CONTRADICT; NEI and conflicting
@@ -97,7 +97,7 @@ but excluded from the main evaluation.
 - C: minimal prompt with B's search
 
 *Metrics.* Primary: balanced accuracy, compared with an exact McNemar test @mcnemar @dietterich and a 95%
-paired-bootstrap CI over 10,000 resamples @bergkirkpatrick. Secondary: accuracy with Wilson CI, macro-F1, AUROC,
+paired-bootstrap CI over 10,000 resamples @bergkirkpatrick @efron. Secondary: accuracy with Wilson CI @wilson, macro-F1, AUROC,
 Brier score. Historical Brier calculations use accuracy scores divided by 100 as probability proxies; those
 degree-of-accuracy scores are not established calibrated probabilities, and confidence calibration was not tested.
 
@@ -208,7 +208,7 @@ refused. A self-assessed stopping rule does not track gold correctness (Fig. 3).
   caption: [Exp07: the loop's rating versus judge correctness of its latest proposed text. Proposals carry forward after stopping; judged n = 100 at k = 0,1 and 99 at k = 2–8 because one judgment is missing. These proposals can differ from returned answers, whose correctness is 62/100. Self-ratings cover only active items (n = 100,90,24,9,4,3,1,1).])
 
 *Obviously wrong AI-research text (Exp08, pre-registered).* We built a benchmark
-(#link("https://github.com/BurnyCoder/auto-fact-checker/tree/main/benchmarks/ai_errors_v1")[ai_errors_v1]) in the
+(#link("https://github.com/BurnyCoder/auto-but-actually-fact-checker-evaluator/tree/main/benchmarks/ai_errors_v1")[ai_errors_v1]) in the
 spirit of synthetic perturbation @factcc.
 - *Passages:* 10 Wikipedia leads and 10 arXiv abstracts about AI research, with k ∈ {0, …, 5} injected one-fact
   edits intended as errors (48 in total, e.g. 2012 → 2022, 28.4 → 284 BLEU) and 4 no-injection controls.
@@ -227,20 +227,20 @@ spirit of synthetic perturbation @factcc.
     [pass 4 − pass 1 (95% CI)], [−1.0 [−6.8, +5.3]], [+0.45 [−4.6, +4.8]],
     [weighted fix score, pass 1 → pass 4], [0.958 → 0.969], [0.969 → 0.896],
     [fully corrected edits, pass 1], [44/48 (91.7%)], [45/48 (93.8%)],
-    [words (original 157), pass 1 → pass 4], [150 → 191], [176 → 254],
+    [words (corrupted input 157), pass 1 → pass 4], [151 → 191], [176 → 254],
     [time / output tokens per pass], [18 s / 1.5k], [110 s / 18k],
   ),
   caption: [Exp08: one correction pass vs. four (primary judge `claude-haiku-5-5`, scored against the original passage).])
 
 *Results.*
 - *One pass* raised the score by +51.8 [+34.1, +68.9] (naive) and +45.8 [+28.8, +61.9] (rigorous), Wilcoxon
-  p < 0.001.
+  signed-rank @wilcoxon p < 0.001.
 - *Passes 2–4* had no detectable mean-score effect in either arm or under either judge; the intervals permit
   both improvement and harm.
 - *Erosion under the rigorous prompt:* the per-passage fix rate fell by 0.067 [0.022, 0.117] (6 of 16 passages
   worse, none better, p = 0.015). In the saved judgments, none of the fully corrected annotations became
-  uncorrected; 7 lost full credit through hedging or deletion. At pass 4, mean passage length was 62% above
-  the original reference length, and the loop's mean self-rating stayed near 96%.
+  uncorrected; 7 lost full credit through hedging or deletion. At pass 4, mean passage length was 61% above
+  the original reference length (254 vs 157 words), and the loop's mean self-rating stayed near 96%.
 - *Prompt:* the rigorous prompt scored lower than the naive one after pass 1 (−4.65 [−10.2, +1.8], 16 of 20
   passages worse, Wilcoxon p = 0.017).
 - *Clean controls* were rewritten in every pass by both arms.
@@ -280,7 +280,8 @@ validation of both the original reference and the proposed errors.
 - *Contamination and gold semantics.* SciFact may occur in undisclosed pretraining data; its labels are relative
   to supplied evidence abstracts, sometimes more than one. Reference and judge errors prevent a demonstrated
   lower bound on real-world correctness.
-- *Leakage.* Host blocking and URL flagging (0 flags except one benign flag in F) cannot exclude unknown mirrors.
+- *Leakage.* Host blocking and URL flagging (0 flags except one benign flag in F and one benign flag, an iGEM
+  wiki page on github.com, in the exploratory Exp07 Claude arm) cannot exclude unknown mirrors.
 - *Post-hoc arms* (D, E, F) are exploratory. E and F have n = 40 and are underpowered.
 - *Agent isolation.* With subscription authentication, Codex agents still load the user's global AGENTS.md; only a
   counter-instruction is applied.
@@ -305,13 +306,15 @@ Exp08 arm lost weighted edit-fix score. These findings do not establish equivale
 across tasks, or the correctness of the judges themselves. Validation of labels, conditions and confidence
 scores requires independent annotated evidence.
 
-*Cost and reproducibility.* The local ledger contains \$7.34726649 in known billed estimates across 2,953 entries,
-with one billed entry of unknown cost; this is not a provider-invoice total and excludes subscription fees.
+*Cost and reproducibility.* As of 2026-10-22, the local ledger contained \$7.34726649 in known billed estimates
+across 2,953 entries (\$7.55085675 across 3,004 entries by 2026-10-28), with one billed entry of unknown cost; this
+is not a provider-invoice total and excludes subscription fees. OpenAI cache writes were not priced before
+2026-10-28, which understates the historical OpenAI API estimates by at most \$0.17.
 Commands, configurations, result records, analysis scripts and preregistrations are published. Raw `runs/` and
 `logs/` are ignored by Git; some timing, cost and Exp00 checks require those local artifacts. The dated
-#link("https://github.com/BurnyCoder/auto-fact-checker/blob/main/reports/verification_2026-10-22.md")[verification record]
-documents the supported recomputations and remaining limitations. Raw evidence and primary numerical results
-were preserved during the 2026-10-22 corrections.
+#link("https://github.com/BurnyCoder/auto-but-actually-fact-checker-evaluator/blob/main/reports/verification_2026-10-28.md")[verification record]
+documents an independent recomputation of every reported number and the remaining limitations. Raw evidence and
+primary numerical results were preserved during the 2026-10-22 and 2026-10-28 corrections.
 
 #bibliography("refs.yml", style: "ieee")
 
@@ -346,3 +349,8 @@ System configurations are JSON files in `configs/bench/`:
 
 The defaults are in `src/auto_fact_checker/config.py`. Blocked hosts: huggingface.co, github.com,
 githubusercontent.com, kaggle.com, paperswithcode.com, allenai.org.
+
+= AI statement
+
+Claude Code (Anthropic's AI coding agent) wrote this codebase and this paper, executing an exact specification
+provided by a human (Libor Burian). Human cleanup and rewriting of the code and text are in progress.
