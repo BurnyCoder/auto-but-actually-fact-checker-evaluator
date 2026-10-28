@@ -104,6 +104,32 @@ Each edit below showed one note and no "Invalid configuration" pop-up:
 
 The model dropdown's `.input` fired twice per pick, which showed duplicate notes, so it uses `.select` instead.
 
+## Follow-up: settings fuzz
+
+A scratch script made random widget edits from every preset through the UI handlers:
+- **Edits:** coupled edits went through `fix_values`; every state then went through `cfg_from` and `preview`.
+- **Offline runs:** every 10th state also ran the pipeline, the perspective button and perspective synthesis with
+  the test `FakeBackend`.
+
+First pass (1,800 states, 180 runs): no validation errors. All 60 errors came from deliberately broken prompt
+overrides (`{{ nope }}`, `{% if %}`):
+- Preview showed a raw Jinja exception.
+- A run failed only when the broken step was reached, after earlier calls.
+- The perspective buttons raised the exception directly.
+
+`FactCheckConfig` now renders each override once during validation. The UI then reports
+`steps.<step>.prompt_override: <error>` before any call.
+
+Second pass (4,500 states, 445 runs): 0 errors. The only messages were the 74 intended ones for broken overrides.
+
+A seeded version is in `tests/test_ui.py::test_random_widget_edits_never_produce_an_error`.
+
+In the preview pane:
+- All 7 presets loaded and previewed without an error.
+- A broken override showed the named error.
+- A run started from the UI with "one subagent per claim" (default check step, so a Codex agent) ended `done`
+  with no call errors. It used subscription auth, so nothing was billed.
+
 ## Limitations
 
 - Codex delegation in the matrix runs is inferred, not observed: there were no spawn failures and the lead
