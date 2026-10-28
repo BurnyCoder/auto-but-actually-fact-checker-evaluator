@@ -17,8 +17,8 @@ slider ranges (`ui.RANGES`).
 | `search_context_size` | low/medium/high (medium) | OpenAI search context size |
 | `max_searches` | 0–50 (5) | API tool-call/use limit (Anthropic: per request, including continuations); an agent prompt instruction rather than enforced agent-wide cap (see [architecture](architecture.md#how-the-backends-map-the-settings)) |
 | `blocked_domains` | comma list (empty) | excluded from search: by the provider's domain filter for API steps, as a prompt instruction for agents |
-| `allow_subagents` | bool (off) | agents may spawn subagents. Subagent strategies require a Claude Code check agent. For Codex it only enables the `multi_agent` feature: in live tests with `gpt-6-luna` no sub-agent was ever spawned (Exp00) |
-| `max_subagents` | 1–30 (8) | upper bound stated to the orchestrating agent |
+| `allow_subagents` | bool (off) | agents may spawn subagents (Claude Code `Agent` tool; Codex `multi_agent` without `--ephemeral`, which breaks `spawn_agent`). Always on for the check step under a subagent strategy |
+| `max_subagents` | 1–30 (8) | upper bound stated to the orchestrating agent; for Codex also `agents.max_concurrent_threads_per_session` (with the default, 2 of 6 parallel spawns failed) |
 | `max_turns` | 0–300 (0 = unlimited; `null` in JSON) | Claude Code `--max-turns` |
 | `timeout_s` | 60–7200 s (900) | agents: wall-clock limit, the process tree is killed; API calls: SDK request timeout |
 | `prompt_template` | file in `prompts/<step>/` | e.g. `check/rigorous_sections.md`, `minimal_baseline.md`, `neurips_review.md`; `extract/claimify.md`, `simple_list.md` |
@@ -31,8 +31,18 @@ and `perspective`.
 
 | field | meaning |
 |---|---|
-| `claim_strategy` | `whole_text` (default) · `subagent_per_claim` (check must be a Claude Code agent with `allow_subagents`) · `separate_call_per_claim` (extract → one check per claim → synthesis) |
-| `scientist_strategy` | `none` (default; scientists only named in-prompt, via section 11) · `subagent_per_scientist` · `separate_call_per_scientist` (one perspective call per scientist per target) |
+| `claim_strategy` | `whole_text` (default) · `subagent_per_claim` (check must be an agent: Claude Code or Codex) · `separate_call_per_claim` (extract → one check per claim → synthesis) |
+| `scientist_strategy` | `none` (default; scientists only named in-prompt, via section 11) · `subagent_per_scientist` (check must be an agent) · `separate_call_per_scientist` (one perspective call per scientist per target) |
+
+In the UI, an edit that would make the configuration invalid adjusts the conflicting setting instead and shows a
+note (`config.fix_combination`). The setting you just edited is never changed:
+- Picking a subagent strategy makes the check step an agent. Switching the check step back to an API call maps
+  subagent strategies to their separate-call equivalents.
+- Picking a catalogued model selects its provider. Picking a provider selects its default model.
+- Unticking the check step switches on one separate perspective call per scientist. Any edit that would leave
+  nothing to run re-enables the check step.
+
+The CLI and presets are not adjusted: they get the validation error.
 | `perspective_scientists` | scientists for the per-scientist strategies and the UI's perspective buttons (Karl Popper, Richard Feynman, Andrew Gelman) |
 | `sections` | which prompt blocks go in (24 sections; NeurIPS role off by default) |
 | `conditions` | which scored conditions are requested (only while their section is on) |
