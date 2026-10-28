@@ -4,6 +4,9 @@ Global context: the UI must expose every FactCheckConfig knob (per step and glob
 otherwise "modes are presets over granular settings" would silently drop settings.
 """
 
+import random
+
+import gradio as gr
 import pytest
 
 from auto_fact_checker import config as C
@@ -42,6 +45,35 @@ def test_coupled_edit_adjusts_the_other_widgets(demo):
     cfg = ui.cfg_from(knobs, new)
     assert notes and cfg.claim_strategy == "subagent_per_claim" and cfg.steps["check"].kind == "agent"
     assert all(any(k.path == p for k in knobs) for p in ui.COUPLED)  # every coupled setting has a widget
+
+
+def _random_value(knob, rng):
+    """A value the user could set in this widget (benign free text; broken overrides are tested in test_config)."""
+    c = knob.comp
+    if isinstance(c, gr.Checkbox):
+        return rng.random() < 0.5
+    if isinstance(c, gr.Slider):
+        return c.minimum + rng.randint(0, int(round((c.maximum - c.minimum) / c.step))) * c.step
+    if isinstance(c, (gr.Radio, gr.Dropdown, gr.CheckboxGroup)):
+        opts = ui._ids(c.choices)
+        return rng.sample(opts, rng.randint(0, len(opts))) if isinstance(c, gr.CheckboxGroup) else rng.choice(opts)
+    return rng.choice(["", "Ada Lovelace; Someone Else" if knob.extra else "a.com, b.org"
+                       if knob.path[-1] == "blocked_domains" else "Check {{ text }}"
+                       if knob.path[-1] == "prompt_override" else "Be terse."])
+
+
+def test_random_widget_edits_never_produce_an_error(demo):
+    """Random edit sequences from every preset, handled like the UI does, always give a valid, previewable config
+    (a scratch fuzz of 4,500 such states found only broken prompt overrides, now rejected with a clear message)."""
+    knobs, rng = demo.afc_knobs, random.Random(0)
+    for start in [None, *C.list_presets()] * 6:
+        vals = ui.values_from(knobs, C.load_preset(start) if start else C.FactCheckConfig())
+        for _ in range(10):
+            i = rng.randrange(len(knobs))
+            vals[i] = _random_value(knobs[i], rng)
+            if knobs[i].path in ui.COUPLED and not knobs[i].extra:
+                vals = ui.fix_values(knobs, knobs[i].path, vals)[0]  # the .input/.select handler
+            ui.preview(ui.cfg_from(knobs, vals), "TEXT")  # what Preview / Run / Save validate
 
 
 def test_preview_shows_each_call_type():
