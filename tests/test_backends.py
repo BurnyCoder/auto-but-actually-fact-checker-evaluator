@@ -97,8 +97,10 @@ def test_codex_cmd_flags(tmp_path):
 
 def test_codex_subagent_roles(tmp_path):
     """Claude-style --agents definitions become Codex roles: `-c agents.<name>.*` plus one TOML layer per role."""
-    agents = {"claim-checker": {"description": "Checks one claim.", "prompt": 'Say "hi" — Gödel\nthen stop',
-                                "model": "inherit", "disallowedTools": ["WebSearch", "WebFetch"]}}
+    prompt = 'Say "hi" — Gödel 🙂\x7f\nthen stop'  # TOML forbids a raw U+007F; emoji must stay valid UTF-8
+    agents = {"claim-checker": {"description": "Checks one claim.", "prompt": prompt,
+                                "model": "inherit", "disallowedTools": ["WebSearch", "WebFetch"]},
+              "odd": {"description": "Del\x7fchar", "prompt": "p"}}
     cmd = codex._build(req(backend="codex", web_search=True, effort="low", allow_subagents=True, agents=agents,
                            max_subagents=6), "codex.exe", tmp_path)
     assert "--ephemeral" not in cmd  # spawn_agent fails with "no rollout found" in ephemeral sessions (live spike)
@@ -107,9 +109,12 @@ def test_codex_subagent_roles(tmp_path):
     role = tmp_path / "agents" / "claim-checker.toml"
     assert f"agents.claim-checker.config_file={json.dumps(role.as_posix())}" in cmd
     assert 'agents.claim-checker.description="Checks one claim."' in cmd
+    odd = next(c for c in cmd if c.startswith("agents.odd.description="))
+    assert tomllib.loads(odd.replace("agents.odd.description", "d", 1)) == {"d": "Del\x7fchar"}  # `-c` is TOML
     assert tomllib.loads(role.read_text(encoding="utf-8")) == {
-        "developer_instructions": 'Say "hi" — Gödel\nthen stop', "model": "gpt-6-luna",
-        "model_reasoning_effort": "low", "web_search": "disabled"}  # "inherit" -> the lead agent's model
+        "developer_instructions": f"{codex.DEVELOPER_NOTE}\n\n{prompt}",  # subagents get the AGENTS.md note too
+        "model": "gpt-6-luna", "model_reasoning_effort": "low",
+        "web_search": "disabled"}  # "inherit" -> the lead agent's model
 
 
 def test_codex_parse_events():
