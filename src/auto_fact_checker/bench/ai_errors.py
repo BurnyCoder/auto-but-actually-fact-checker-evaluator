@@ -149,7 +149,7 @@ def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(prog="afc ai-errors")
     sub = ap.add_subparsers(dest="cmd", required=True)
     b = sub.add_parser("build", help="fetch passages, inject errors, write DIR/dataset.jsonl")
-    b.add_argument("--out", default="benchmarks/ai_errors_v1")
+    b.add_argument("--out", required=True, help="new directory; never the frozen benchmarks/ai_errors_v1")
     b.add_argument("--injector", default="configs/bench/judge_luna.json", help="config of the injecting call")
     b.add_argument("--seed", type=int, default=0)
     r = sub.add_parser("run", help="correct every passage with one system and judge every pass")
