@@ -4,6 +4,8 @@ Global context: FactCheckConfig is the single source of truth for every run (UI,
 pin down its defaults, the (kind, provider) -> backend mapping and the preset round-trip the UI relies on.
 """
 
+import itertools
+
 import pytest
 from pydantic import ValidationError
 
@@ -27,12 +29,65 @@ def test_backend_mapping():
 
 
 def test_subagent_strategy_requires_agent_check_step():
-    with pytest.raises(ValidationError, match="subagent"):
+    with pytest.raises(ValidationError, match="separate_call_per_claim"):
         C.FactCheckConfig(claim_strategy="subagent_per_claim")  # default check step is an API call -> impossible
-    steps = C.default_steps()
-    steps["check"] = C.StepConfig(kind="agent", provider="anthropic", model="claude-haiku-5-5", allow_subagents=True)
-    cfg = C.FactCheckConfig(steps=steps, claim_strategy="subagent_per_claim", scientist_strategy="subagent_per_scientist")
-    assert cfg.uses_subagents  # derived flag used by the pipeline and the prompt builder
+    for provider, model in C.catalog.DEFAULT_MODEL.items():  # Claude Code and Codex; allow_subagents is implied
+        steps = C.default_steps()
+        steps["check"] = C.StepConfig(kind="agent", provider=provider, model=model)
+        cfg = C.FactCheckConfig(steps=steps, claim_strategy="subagent_per_claim",
+                                scientist_strategy="subagent_per_scientist")
+        assert cfg.uses_subagents  # derived flag used by the pipeline and the prompt builder
+
+
+EDITED = [("claim_strategy",), ("scientist_strategy",), ("perspective_scientists",), ("steps", "check", "kind"),
+          ("steps", "check", "provider"), ("steps", "check", "model"), ("steps", "check", "enabled"),
+          ("steps", "perspective", "enabled")]
+
+
+def _get(data: dict, path: tuple):
+    for key in path:
+        data = data[key]
+    return data
+
+
+@pytest.mark.parametrize("edited", EDITED)
+def test_fix_combination_makes_every_combination_valid_and_keeps_the_edit(edited):
+    """The UI calls fix_combination after each edit, so no widget state can produce an 'Invalid configuration'."""
+    for cs, ss, kind, provider, model, check_on, persp_on, scientists in itertools.product(
+            ["whole_text", "subagent_per_claim", "separate_call_per_claim"],
+            ["none", "subagent_per_scientist", "separate_call_per_scientist"], ["api", "agent"],
+            ["openai", "anthropic"], ["gpt-6-luna", "claude-haiku-5-5"], [True, False], [True, False],
+            [[], ["Karl Popper"]]):
+        data = C.FactCheckConfig().model_dump()
+        data.update(claim_strategy=cs, scientist_strategy=ss, perspective_scientists=scientists)
+        data["steps"]["check"].update(kind=kind, provider=provider, model=model, enabled=check_on)
+        data["steps"]["perspective"]["enabled"] = persp_on
+        before = _get(data, edited)
+        C.fix_combination(data, edited)
+        C.FactCheckConfig.model_validate(data)  # never raises
+        assert _get(data, edited) == before  # the fix changes another setting, never the one just edited
+
+
+def test_fix_combination_directions():
+    data = C.FactCheckConfig().model_dump() | {"claim_strategy": "subagent_per_claim"}
+    assert C.fix_combination(data, ("claim_strategy",)) and data["steps"]["check"]["kind"] == "agent"
+    data["steps"]["check"]["kind"] = "api"  # switching back to an API call drops the subagents instead
+    C.fix_combination(data, ("steps", "check", "kind"))
+    assert data["claim_strategy"] == "separate_call_per_claim" and data["steps"]["check"]["kind"] == "api"
+    data = C.FactCheckConfig().model_dump()
+    data["steps"]["check"]["model"] = "claude-haiku-5-5"  # picking a Claude model selects its provider
+    C.fix_combination(data, ("steps", "check", "model"))
+    assert data["steps"]["check"]["provider"] == "anthropic"
+    data["steps"]["check"]["provider"] = "openai"  # picking a provider selects its default model
+    C.fix_combination(data, ("steps", "check", "provider"))
+    assert data["steps"]["check"]["model"] == C.catalog.DEFAULT_MODEL["openai"]
+    data["steps"]["check"]["enabled"] = False  # check off -> perspective-only run
+    C.fix_combination(data, ("steps", "check", "enabled"))
+    assert data["scientist_strategy"] == "separate_call_per_scientist" and data["steps"]["perspective"]["enabled"]
+    data["scientist_strategy"] = "none"  # leaving perspective-only mode turns the check back on
+    C.fix_combination(data, ("scientist_strategy",))
+    assert data["steps"]["check"]["enabled"]
+    assert C.fix_combination(C.FactCheckConfig().model_dump(), ("claim_strategy",)) == []  # valid: no change
 
 
 def test_preset_round_trip_and_partial_merge(tmp_path):
@@ -63,10 +118,6 @@ def test_settings_resolve_relative_dirs(monkeypatch):
 def test_typos_and_impossible_combinations_are_rejected():
     with pytest.raises(ValidationError):
         C.apply_overrides(C.FactCheckConfig(), ["steps.check.modle=gpt-6.1-sol"])  # typo -> error, not defaults
-    with pytest.raises(ValidationError, match="Claude Code"):
-        steps = C.default_steps()
-        steps["check"] = C.StepConfig(kind="agent", provider="openai", allow_subagents=True)  # Codex
-        C.FactCheckConfig(steps=steps, claim_strategy="subagent_per_claim")
     with pytest.raises(ValidationError, match="nothing would run"):
         steps = C.default_steps()
         steps["check"] = C.StepConfig(enabled=False)
