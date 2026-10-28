@@ -47,7 +47,7 @@ sequenceDiagram
 | `web_search` | `web_search` tool | `web_search_20260318` tool | WebSearch/WebFetch allowed, else `--disallowedTools` | `-c web_search="live"` / `"disabled"` |
 | `max_searches` | `max_tool_calls` | `max_uses` per request, including continuations | stated in the prompt | stated in the prompt |
 | `blocked_domains` | `filters.blocked_domains` | `blocked_domains` | stated in the prompt | stated in the prompt |
-| `allow_subagents` | n/a | n/a | allow the `Agent` tool; `--agents` file for strategies | `--enable multi_agent` |
+| `allow_subagents` | n/a | n/a | allow the `Agent` tool; `--agents` file for strategies | `--enable multi_agent`, no `--ephemeral`, `-c agents.max_concurrent_threads_per_session=<max_subagents>`; strategies add one role per definition (`-c agents.<name>.description` + a TOML `config_file` with `developer_instructions`, `model`, `web_search`) |
 | `max_turns` | n/a | n/a | `--max-turns` | n/a |
 | cost | estimated from reported tokens and search calls | estimated from reported tokens and search calls | CLI-reported `total_cost_usd` | estimated from reported tokens and observed search calls |
 
@@ -55,7 +55,9 @@ Budget checks use costs already recorded; they do not reserve the next call's ma
 call can overshoot, and concurrent calls can overshoot further. Unknown costs contribute zero to totals, so these
 are not invoice reconciliations. Returned source URLs support best-effort leakage checks, not a complete record
 of every page consulted or of pretraining exposure. Delegation settings permit/request subagents; they do not
-prove that the agent spawned one. See the [verification record](../reports/verification_2026-10-22.md).
+prove that the agent spawned one. Claude Code logs each spawn as an `Agent`/`Task` tool call. `codex exec --json`
+(0.165) emits only `wait` collab events with empty receivers, even for spawns that worked, so its logs cannot show
+delegation. See the [verification record](../reports/verification_2026-10-22.md).
 
 Anthropic input totals include uncached input, cache reads and cache writes. Supported write TTLs are priced
 separately; missing TTL/usage details leave cost unknown. Codex exposes aggregated usage rather than a per-request
@@ -69,7 +71,9 @@ Agent isolation:
 - **Codex:** `--ignore-user-config --ignore-rules --ephemeral --skip-git-repo-check`, with the `computer_use`,
   browser, apps, plugins and hooks features disabled, and a `developer_instructions` note telling the agent to ignore
   coding/project instructions from AGENTS.md files. With `AGENT_AUTH=api_key`, `CODEX_HOME` is an empty temporary
-  directory, so the global `~/.codex/AGENTS.md` is not loaded.
+  directory, so the global `~/.codex/AGENTS.md` is not loaded. When subagents are allowed, `--ephemeral` is
+  dropped: `spawn_agent` fails with "no rollout found for thread id" without a session rollout. Those runs leave
+  rollout files in `CODEX_HOME`.
 - **Both:** a fresh temporary working directory per call. With `AGENT_AUTH=subscription`, `ANTHROPIC_API_KEY`,
   `ANTHROPIC_AUTH_TOKEN`, `OPENAI_API_KEY` and `CODEX_API_KEY` are removed from the child environment.
 
