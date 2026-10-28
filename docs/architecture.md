@@ -33,7 +33,7 @@ sequenceDiagram
   P->>E: claim_strategy == separate_call_per_claim
   E->>X: extract prompt
   P->>C: parallel_map over (target × [general check] + perspective scientists)
-  C->>X: check prompt (+ --agents for subagent strategies)
+  C->>X: check prompt (+ subagent definitions: Claude Code --agents / Codex roles)
   C->>X: repair prompt (only if the JSON summary is missing, repair is on and the call did not fail)
   P->>S: per target (when >1 result), then the whole text (when >1 target)
   S->>X: merge prompt (+ repair prompt under the same rule)
@@ -47,7 +47,7 @@ sequenceDiagram
 | `web_search` | `web_search` tool | `web_search_20260318` tool | WebSearch/WebFetch allowed, else `--disallowedTools` | `-c web_search="live"` / `"disabled"` |
 | `max_searches` | `max_tool_calls` | `max_uses` per request, including continuations | stated in the prompt | stated in the prompt |
 | `blocked_domains` | `filters.blocked_domains` | `blocked_domains` | stated in the prompt | stated in the prompt |
-| `allow_subagents` | n/a | n/a | allow the `Agent` tool; `--agents` file for strategies | `--enable multi_agent`, no `--ephemeral`, `-c agents.max_concurrent_threads_per_session=<max_subagents>`; strategies add one role per definition (`-c agents.<name>.description` + a TOML `config_file` with `developer_instructions`, `model`, `web_search`) |
+| `allow_subagents` | n/a | n/a | allow the `Agent` tool; `--agents` file for strategies | `--enable multi_agent`, no `--ephemeral`, `-c agents.max_concurrent_threads_per_session=<max_subagents>`; strategies add one role per definition (`-c agents.<name>.description` + a TOML `config_file` with `developer_instructions` (prefixed with the AGENTS.md note), `model`, `model_reasoning_effort`, `web_search`) |
 | `max_turns` | n/a | n/a | `--max-turns` | n/a |
 | cost | estimated from reported tokens and search calls | estimated from reported tokens and search calls | CLI-reported `total_cost_usd` | estimated from reported tokens and observed search calls |
 
@@ -57,10 +57,12 @@ are not invoice reconciliations. Returned source URLs support best-effort leakag
 of every page consulted or of pretraining exposure. Delegation settings permit/request subagents; they do not
 prove that the agent spawned one. Claude Code logs each spawn as an `Agent`/`Task` tool call. `codex exec --json`
 (0.165) emits only `wait` collab events with empty receivers, even for spawns that worked, so its logs cannot show
-delegation. See the [verification record](../reports/verification_2026-10-22.md).
+delegation. See the [subagent record](../reports/verification_2026-10-28_subagents.md) and the
+[verification record](../reports/verification_2026-10-28.md).
 
-Anthropic input totals include uncached input, cache reads and cache writes. Supported write TTLs are priced
-separately; missing TTL/usage details leave cost unknown. Codex exposes aggregated usage rather than a per-request
+Anthropic and OpenAI input totals include uncached input, cache reads and cache writes. Write TTLs are priced
+per model (Anthropic 5m/1h: 1.25×/2× input; OpenAI GPT-5.6+ 30m/12h: 1.25×/2.5×, the default 30m when no split is
+reported); a missing Anthropic TTL breakdown or missing usage leaves cost unknown. Codex exposes aggregated usage rather than a per-request
 invoice, so catalog-based estimates cannot reconstruct every context tier or discount. Interrupted streams retain
 available text with unknown cost. The UI, CLI and ledger distinguish known totals from unknown-cost calls.
 
@@ -73,7 +75,8 @@ Agent isolation:
   coding/project instructions from AGENTS.md files. With `AGENT_AUTH=api_key`, `CODEX_HOME` is an empty temporary
   directory, so the global `~/.codex/AGENTS.md` is not loaded. When subagents are allowed, `--ephemeral` is
   dropped: `spawn_agent` fails with "no rollout found for thread id" without a session rollout. Those runs leave
-  rollout files in `CODEX_HOME`.
+  rollout files in the real `CODEX_HOME` in subscription mode; in `api_key` mode the temporary home is deleted after
+  the call. Subagent roles carry the same `developer_instructions` note.
 - **Both:** a fresh temporary working directory per call. With `AGENT_AUTH=subscription`, `ANTHROPIC_API_KEY`,
   `ANTHROPIC_AUTH_TOKEN`, `OPENAI_API_KEY` and `CODEX_API_KEY` are removed from the child environment.
 

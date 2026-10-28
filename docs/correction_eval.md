@@ -108,9 +108,22 @@ All of these use the primary judge, items with non-missing verdicts, and
   and recorded-URL flags do not exclude unrecorded sources, mirrors or memorized labels.
 - **Pretraining contamination** may make corrections easier for both arms.
 
+## Amendment log
+
+The pre-registered version is commit `f681d49` (permalink below). Later edits, none marked inline, from
+`git log -- docs/correction_eval.md`:
+- `c2feabd` (2026-10-22): judge output described as three decision fields plus `verdict` and `explanation`; noted
+  that the script reports judge accuracy but does not apply the 85 % gate.
+- `141ba36` (2026-10-22): budget line put in the past tense and called a soft control. "Gold evidence is one
+  abstract" became "the supplied abstract(s)", and the original sentence "That makes the judge conservative and
+  biases H1 *against* the loop" was replaced by "no net bias direction … is established". The leakage threat
+  (originally: dataset hosts "are blocked and flagged") now says filters and flags do not exclude unrecorded
+  sources. Added the clarification below.
+- 2026-10-28: this log ([verification record](../reports/verification_2026-10-28.md)).
+
 ## Methodological clarification — 2026-10-22
 
-The [original committed plan](https://github.com/BurnyCoder/auto-fact-checker/blob/f681d49/docs/correction_eval.md)
+The [original committed plan](https://github.com/BurnyCoder/auto-but-actually-fact-checker-evaluator/blob/f681d49/docs/correction_eval.md)
 is preserved as the historical specification. The “falsified” criterion means the support rule was not met;
 nonsignificance does not prove no effect ([ASA statement](https://doi.org/10.1080/00031305.2016.1154108)).
 Five of the 100 stored claims have multiple evidence abstracts; “one abstract” was an inaccurate simplification.
