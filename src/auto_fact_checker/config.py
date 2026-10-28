@@ -14,6 +14,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
+from jinja2 import TemplateError
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -182,6 +183,14 @@ class FactCheckConfig(BaseModel):
             raise ValueError("with the check step disabled, enable the perspective step and use "
                              "separate_call_per_scientist with at least one perspective scientist "
                              "(otherwise nothing would run)")
+        for name, sc in self.steps.items():  # a broken override would otherwise fail mid-run, after paid calls
+            if sc.prompt_override.strip():
+                from .prompts import build_prompt  # lazy: prompts.py imports this module
+                try:  # render once with every variable set, as the pipeline would
+                    build_prompt(self, name, "TEXT", context="CONTEXT", persona="Karl Popper", report="REPORT",
+                                 reports=[{"source": "check", "text": "REPORT"}])
+                except TemplateError as e:  # syntax errors and unknown variables (StrictUndefined)
+                    raise ValueError(f"steps.{name}.prompt_override: {e}") from None
         return self
 
     @property
