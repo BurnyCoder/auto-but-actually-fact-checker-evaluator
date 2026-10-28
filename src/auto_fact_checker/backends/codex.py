@@ -41,14 +41,21 @@ def role_file(workdir: Path, name: str) -> Path:
     return workdir / "agents" / f"{name}.toml"
 
 
+def toml_str(value: str) -> str:
+    """TOML basic string (https://toml.io/en/v1.0.0#string): JSON's escapes are valid TOML escapes, but TOML also
+    forbids a raw U+007F, which json.dumps(ensure_ascii=False) leaves unescaped."""
+    return json.dumps(value, ensure_ascii=False).replace("\x7f", "\\u007F")
+
+
 def role_toml(agent: dict, req: LLMRequest) -> str:
-    """Codex role layer for one Claude-style agent definition; json.dumps output is a valid TOML basic string
-    (https://toml.io/en/v1.0.0#string). "inherit" pins the lead agent's model (an omitted model can vary)."""
+    """Codex role layer for one Claude-style agent definition. The role's developer_instructions start with
+    DEVELOPER_NOTE, so subagents get the AGENTS.md note too. "inherit" pins the lead agent's model (an omitted
+    model can vary)."""
     search = "disabled" if "WebSearch" in agent.get("disallowedTools", []) or not req.web_search else "live"
     model = req.model if agent.get("model", "inherit") == "inherit" else agent["model"]
-    keys = {"developer_instructions": agent["prompt"], "model": model, "model_reasoning_effort": req.effort,
-            "web_search": search}
-    return "".join(f"{k} = {json.dumps(v, ensure_ascii=False)}\n" for k, v in keys.items())
+    keys = {"developer_instructions": f"{DEVELOPER_NOTE}\n\n{agent['prompt']}", "model": model,
+            "model_reasoning_effort": req.effort, "web_search": search}
+    return "".join(f"{k} = {toml_str(v)}\n" for k, v in keys.items())
 
 
 def build_cmd(req: LLMRequest, exe: str, workdir: Path) -> list[str]:
@@ -61,13 +68,15 @@ def build_cmd(req: LLMRequest, exe: str, workdir: Path) -> list[str]:
            "--skip-git-repo-check",  # the temp dir is no git repo
            "--dangerously-bypass-approvals-and-sandbox",  # agents run free (user requirement)
            "--json", "--color", "never", "-C", str(workdir)]
-    if req.allow_subagents:  # with the default cap, 2 of 6 parallel spawns failed: "agent thread limit reached"
+    # Default cap: 3 and 2 spawns failed ("agent thread limit reached") in rows c7/c12, none after raising it
+    # (reports/verification_2026-10-28_subagents.md)
+    if req.allow_subagents:
         cmd += ["-c", f"agents.max_concurrent_threads_per_session={req.max_subagents}"]
     else:  # keep no session files; spawn_agent needs them ("no rollout found for thread id", 2026-10-28)
         cmd.append("--ephemeral")
     for name, agent in (req.agents or {}).items():  # named roles the lead agent spawns by agent_type
-        cmd += ["-c", f"agents.{name}.description={json.dumps(agent['description'], ensure_ascii=False)}",
-                "-c", f"agents.{name}.config_file={json.dumps(role_file(workdir, name).as_posix())}"]
+        cmd += ["-c", f"agents.{name}.description={toml_str(agent['description'])}",
+                "-c", f"agents.{name}.config_file={toml_str(role_file(workdir, name).as_posix())}"]
     for feature in ISOLATION_FEATURES:
         cmd += ["--disable", feature]
     cmd += ["--enable" if req.allow_subagents else "--disable", "multi_agent"]  # Codex subagents

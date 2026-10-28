@@ -25,7 +25,7 @@ class LLMRequest(BaseModel):
     max_searches: int = 5
     blocked_domains: list[str] = Field(default_factory=list)
     allow_subagents: bool = False
-    max_subagents: int = 8  # Codex: concurrent subagent thread cap (its default let only 4 of 6 spawns start)
+    max_subagents: int = 8  # Codex: concurrent subagent thread cap (at its default, some parallel spawns failed)
     agents: dict | None = None  # subagent definitions (Claude Code --agents / Codex roles) for subagent strategies
     max_turns: int | None = None
     max_budget_usd: float | None = None  # per-call cap passed to Claude Code --max-budget-usd
@@ -42,7 +42,7 @@ class LLMResult(BaseModel):
     model: str
     input_tokens: int = 0  # total known input, including cache reads and writes
     cached_input_tokens: int = 0
-    cache_creation_input_tokens: int = 0  # Anthropic reports cache writes separately from input_tokens
+    cache_creation_input_tokens: int = 0  # cache writes (Anthropic: outside input_tokens; OpenAI: a subset of it)
     output_tokens: int = 0  # incl. reasoning tokens
     web_searches: int = 0
     cost_usd: float | None = None  # None = unknown price or incomplete usage; a number is an estimate

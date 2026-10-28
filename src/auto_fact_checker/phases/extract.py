@@ -1,7 +1,8 @@
 """Phase: extract self-contained claims from the whole text (used by the separate_call_per_claim strategy).
 
 Global context: pipeline.run_iteration() fans the extracted claims out to one check call each; the default
-template is a Claimify-style selection/disambiguation/decomposition prompt (prompts/extract/claimify.md).
+template is a single-call prompt inspired by Claimify's selection/disambiguation/decomposition stages
+(prompts/extract/claimify.md; Metropolitansky & Larson 2025, https://arxiv.org/abs/2502.10855).
 """
 
 from ..config import FactCheckConfig

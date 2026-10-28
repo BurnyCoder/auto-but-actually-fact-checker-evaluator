@@ -13,7 +13,7 @@ uv run afc ui --no-browser      # Gradio UI on 127.0.0.1:7860
 uv run afc check FILE --preset NAME [--set dotted.key=value ...] [--iterations N]
 uv run afc bench --systems A.json B.json --n N --max-cost USD --out DIR [--exclude-from PILOT_DIR]
 uv run afc correct-eval --items-from ITEMS.json --system LOOP.json --judges J1.json J2.json --out DIR --max-cost USD  # Exp07
-uv run afc ai-errors build --out SCRATCH_DIR   # Exp08: paid fetch + inject; never overwrite frozen benchmarks/ai_errors_v1
+uv run afc ai-errors build --out SCRATCH_DIR   # Exp08: free fetch + paid injection; --out is required, never the frozen benchmarks/ai_errors_v1
 uv run afc ai-errors run --system ARM.json --judges J1.json J2.json --out DIR --max-cost USD    # Exp08 forced-pass loop
 uv run afc spend                # recorded billed cost estimates vs SPEND_LIMIT_USD
 uv run --group docs python docs/scripts/take_screenshots.py --offline --channel msedge   # synthetic UI fixtures, no paid call
@@ -39,9 +39,10 @@ labels it clicks are part of its contract.
   to one of the per-tab field tuples in `ui.build_ui` (`tests/test_ui.py` fails until it is). Numbers become
   sliders only with a `ui.RANGES` entry; add a label in `ui.LABELS` when needed. Modes are presets in
   `configs/presets/*.json`; never hard-code a mode.
-- Prompt text lives in `prompts/`. The exceptions are short generated instructions: the agent search note and
-  subagent descriptions in `prompts.py`, `codex.DEVELOPER_NOTE` and the per-scientist condition in
-  `config.active_conditions`. For new prompt text:
+- Prompt text lives in `prompts/`. The exceptions are short generated instructions: the agent search note,
+  subagent descriptions and the persona placeholder in `prompts.py`, `codex.DEVELOPER_NOTE`, the error-type list
+  `bench/ai_errors.TYPES` (rendered into `prompts/bench/inject_errors.md`) and the per-scientist condition in
+  `FactCheckConfig.active_conditions()`. For new prompt text:
   - a new toggleable block is a new `sections/NN_name.md`
   - a new scored condition is an entry in `options.json["conditions"]`, tied to its section
   - a new template is a new `.md` in the step folder
@@ -53,10 +54,10 @@ labels it clicks are part of its contract.
 ## Conventions
 
 - Use uv for everything (`uv add`, `uv run`). Configuration comes from `.env`; never commit it.
-- Log through `logging.getLogger("afc.<module>")` or the run's `ctx.log`. Long text goes through
-  `logs.log_block`, which never truncates.
-- Comments: every module docstring states the local purpose and the global context, and links its sources (docs,
-  papers). Line comments explain why.
+- Log through the run's `ctx.log` (the `afc.pipeline` adapter) or, outside a run, `logging.getLogger("afc.<module>")`.
+  Long text goes through `logs.log_block`, which never truncates.
+- Comments: every module docstring states the local purpose and the global context, and links the sources (docs,
+  papers) it builds on. Line comments explain why.
 - Tests come first, offline, using `tests/conftest.py::FakeBackend`. Live tests get `@pytest.mark.live`.
 - Git: feature branch, then a PR, then `gh pr merge --merge --delete-branch`. One commit per functional unit.
 
@@ -66,4 +67,4 @@ Keep paid development within `SPEND_LIMIT_USD` (default $10), using only `gpt-6-
 Check `uv run afc spend` before any paid run and leave headroom: estimates are recorded after calls, sequential
 and parallel calls can overshoot, and unknown costs contribute zero to totals. Subscription fees are excluded.
 Prefer offline tests for verification; see [cost controls](README.md#costs-and-safety) and the
-[independent verification record](reports/verification_2026-10-22.md).
+[independent verification record](reports/verification_2026-10-28.md).

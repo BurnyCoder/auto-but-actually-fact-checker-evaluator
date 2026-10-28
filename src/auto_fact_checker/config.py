@@ -28,7 +28,8 @@ STEPS = ("extract", "check", "perspective", "synthesize", "repair")  # pipeline 
 Kind = Literal["api", "agent"]  # api = one provider API request; agent = Codex / Claude Code CLI agent run
 Provider = Literal["openai", "anthropic"]
 Effort = Literal["none", "minimal", "low", "medium", "high", "xhigh", "max"]  # reasoning depth, mapped per backend;
-# a model rejects levels it lacks (gpt-6-luna: none/low/medium/high/xhigh/max, no "minimal"; see its model page)
+# a model rejects levels it lacks (gpt-6-luna: none/low/medium/high/xhigh/max, no "minimal":
+# https://developers.openai.com/api/docs/models/gpt-6-luna)
 BACKENDS = {("api", "openai"): "openai_api", ("api", "anthropic"): "anthropic_api",
             ("agent", "openai"): "codex", ("agent", "anthropic"): "claude_code"}
 DEFAULT_BLOCKED = []  # domains blocked from web search by default (benchmarks add dataset hosts)
@@ -99,7 +100,7 @@ class StepConfig(BaseModel):
     blocked_domains: list[str] = Field(default_factory=lambda: list(DEFAULT_BLOCKED))
     allow_subagents: bool = False  # agents only: may the agent spawn subagents (Claude Code Agent tool / Codex
     # spawn_agent); always on for the check step under a subagent strategy
-    max_subagents: int = 8  # upper bound stated to the orchestrating agent
+    max_subagents: int = 8  # upper bound stated to the orchestrating agent; Codex: also its concurrent-thread cap
     max_turns: int | None = None  # Claude Code --max-turns (None = unlimited)
     timeout_s: int = 900  # agents: wall-clock limit (process tree killed); API calls: SDK request timeout
     prompt_template: str = ""  # file name inside prompts/<step>/ ; "" = the step's default template

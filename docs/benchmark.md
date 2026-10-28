@@ -1,8 +1,8 @@
 # Benchmark design and pre-registration
 
 This page was written **before** any paid benchmark call. Results go to [`reports/`](../reports). Any change to
-this plan made after seeing data is marked *post hoc* in the reports. The only later edit to this page (commit
-`07e73ea`, after the Exp01 data) reworded the budget line; the plan did not change.
+this plan made after seeing data is marked *post hoc* in the reports. Every later edit to this page is listed in
+the [amendment log](#amendment-log); none changed the question, data, systems, primary metric or analysis.
 
 ## Question
 
@@ -12,7 +12,7 @@ claims more accurately than a simple single LLM call?
 ## Data
 
 - **Dataset:** SciFact claims (Wadden et al., 2020, [arXiv:2004.14974](https://arxiv.org/abs/2004.14974)), loaded
-  from the [HF parquet export](https://huggingface.co/datasets/allenai/scifact). They are expert-written
+  from the [HF parquet export](https://huggingface.co/datasets/allenai/scifact/tree/refs%2Fconvert%2Fparquet). They are expert-written
   biomedical claims labelled against a paper abstract.
 - **Labels:** binary. SUPPORT = true and CONTRADICT = false. Claims labelled NEI and claims with conflicting
   evidence labels are dropped. NEI only means "this abstract does not address the claim", which is undefined for
@@ -90,9 +90,21 @@ uv run afc bench --systems configs/bench/baseline.json configs/bench/full_single
   --n N --seed 0 --exclude-from reports/results/exp01_pilot --max-cost 5 --out reports/results/exp01
 ```
 
+## Amendment log
+
+The pre-registered version is commit `378c59b` (permalink below). Later edits, from `git log -- docs/benchmark.md`:
+- `07e73ea` (2026-10-17, after the Exp01 data): budget line reworded ("a hard $10 cap" → "the $10 cap … checked
+  before every call").
+- `c2feabd` (2026-10-22): added a sentence claiming `07e73ea` was the only later edit (replaced by this log).
+- `141ba36` (2026-10-22), without inline markers: the pilot sentence (originally: the pilot items are "never
+  analysed for accuracy"), the contamination threat (originally: SciFact "is probably in the model's training
+  data, which affects both systems") and the label-semantics threat ("one abstract" → "the cited evidence
+  abstract(s)"); added the clarification below.
+- 2026-10-28: this log ([verification record](../reports/verification_2026-10-28.md)).
+
 ## Methodological clarification — 2026-10-22
 
-The [original committed plan](https://github.com/BurnyCoder/auto-fact-checker/blob/378c59b/docs/benchmark.md)
+The [original committed plan](https://github.com/BurnyCoder/auto-but-actually-fact-checker-evaluator/blob/378c59b/docs/benchmark.md)
 remains the historical specification. Its “falsified” rule above means the prespecified support criterion was
 not met; a confidence interval containing zero does not establish equality or absence of an effect
 ([ASA statement](https://doi.org/10.1080/00031305.2016.1154108)). No primary metric or historical result was changed.

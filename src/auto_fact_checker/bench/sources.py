@@ -16,7 +16,8 @@ import time
 import urllib.parse
 import urllib.request
 
-UA = "auto-fact-checker/0.1 (research benchmark; https://github.com/BurnyCoder/auto-fact-checker)"  # Wikimedia UA policy
+# Identifies the client with a contact URL, as https://foundation.wikimedia.org/wiki/Policy:User-Agent_policy asks
+UA = "auto-fact-checker/0.1 (research benchmark; https://github.com/BurnyCoder/auto-but-actually-fact-checker-evaluator)"
 ARXIV_DELAY_S = 3  # arXiv API terms: one connection, >= 3 s between requests
 SENT = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9\"'(\[])")  # split after . ! ? followed by an uppercase/digit start
 

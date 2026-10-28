@@ -154,7 +154,8 @@ they are not reported as inferential evidence here. Passing the gate does not va
 - The 7 lost fixes all went corrected → *partially*: the true fact was hedged or deleted. Example: "experiments on
   two machine translation tasks" disappears; "Transformers are based on multi-head attention" becomes "commonly
   use attention … alongside feed-forward layers".
-- The passage grows **157 → 176 → 207 → 234 → 254 words** (+62%). Naive: 157 → 150 → 168 → 181 → 191.
+- The passage grows **157 → 176 → 207 → 234 → 254 words** (+62% over the corrupted input, +61% over the original
+  references, which average 157.45 words). Naive: 157 → 151 → 168 → 181 → 191.
 - Counts of 8 hedge words rise 10 → 56 (naive 10 → 41).
 - All 20 passages were rewritten in every pass in both arms.
 - This is the same hedging drift as in Exp07, now measured per fact.
@@ -172,7 +173,7 @@ reassessment below distinguishes supported details from source conflicts and unr
 2. **No detectable mean-score gain from further passes** (H1, both prompts, both judges). Under the rigorous
    prompt the stored annotations show loss of specificity:
    - correct facts restored in pass 1 are hedged or dropped later (fix rate −0.067)
-   - the pass-4 text is 62% longer than the original reference on average
+   - the pass-4 text is 61% longer than the original reference on average
    - the loop's self-rating stays at 96%
 
    No fully corrected annotation was subsequently scored uncorrected. This describes judge classifications,

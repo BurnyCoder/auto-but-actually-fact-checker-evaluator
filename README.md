@@ -101,9 +101,9 @@ To rebuild the saved statistics, figures, PDF and offline screenshots, follow
 ¹ Wilson interval of accuracy, which equals balanced accuracy here because the sample is exactly 100 / 100.
 
 On a 40-claim subset (post hoc), agents running the full prompt had these point estimates:
-- Codex: balanced accuracy 0.876
-- Claude Code with Haiku: 0.797. Its AUROC of 0.962 is above A, D and E but below B (0.978) and C (0.992) on the
-  same 40 claims.
+- E, Codex: balanced accuracy 0.876
+- F, Claude Code with Haiku: 0.797. Its AUROC of 0.962 is above A, D and E but below B (0.978) and C (0.992) on
+  the same 40 claims.
 
 - **Search-enabled configurations scored higher in this experiment.** B − A = +0.110 [+0.062, +0.160]
   (McNemar p = 2.7 × 10⁻⁵); C − A = +0.135.
@@ -124,30 +124,33 @@ Treat the loop's "accurate" label as a claim to verify, not a verification.
 The benchmark has 20 Wikipedia/arXiv AI-research passages with 48 annotated edits. A Codex agent with web search was
 forced through 4 passes and scored 0–100 against the original passage:
 
-| prompt | reference-judge score: corrupted → pass 1 → pass 4 | mean per-passage fix score, pass 1 → 4¹ |
+| prompt | reference-judge score: corrupted → pass 1 → pass 4 | weighted edit-fix score (48 edits), pass 1 → 4¹ |
 |---|---|---|
 | naive ("Fact-check the following text.") | 38.6 → **90.4** → 89.4 | 0.96 → 0.97 |
 | full rigorous prompt | 40.0 → **85.7** → 86.2 | 0.97 → **0.90** |
 
-¹ Fix scores give 1 for restored facts and 0.5 for partial fixes. At pass 1, the judge marked **44/48** naive-arm
-and **45/48** rigorous-arm edits fully corrected; error-weighted scores including partial credit were **0.958**
-and **0.969**. These are different aggregations, not percentages of fully corrected errors.
+¹ Each annotated edit scores 1 when the original fact is restored and 0.5 for a partial fix, averaged over all 48
+edits (pass 1: **0.958** naive, **0.969** rigorous). At pass 1 the judge marked **44/48** and **45/48** edits fully
+corrected. The pre-registered per-passage fix rate (mean over the 16 passages with edits) fell under the rigorous
+prompt, 0.978 → 0.911 (Δ −0.067 [−0.117, −0.022]), and stayed 0.972 → 0.978 under the naive one.
 
 - One pass increased reference-judge scores; passes 2–4 had no detectable additional holistic-score benefit.
-- Under the rigorous prompt, the per-passage fix score decreased; post hoc inspection associated lost credit with
-  hedged or dropped facts. Pass-4 texts were 62% longer than the original references on average.
+- Under the rigorous prompt, the fix scores decreased; post hoc inspection associated lost credit with hedged or
+  dropped facts. Rigorous pass-4 texts were 61% longer than the original references on average.
 - These comparisons do not establish equivalence or general superiority of either prompt. Reference errors and an
   ambiguous injected label limit interpretation; see the [frozen dataset errata](benchmarks/ai_errors_v1/README.md#errata-2026-10-22).
 
-As of 2026-10-22, the local ledger contains **$7.35 in known API cost estimates**, one billed entry with unknown
-cost, and excludes subscription fees. It is not a reconciled provider invoice. Sources and independent checks are
-in [`reports/verification_2026-10-22.md`](reports/verification_2026-10-22.md).
+As of 2026-10-22, the local ledger contained **$7.35 in known API cost estimates** (2,953 entries); by 2026-10-28
+it held $7.55 (3,004 entries). One billed entry has unknown cost, and subscription fees are excluded. It is not a
+reconciled provider invoice; OpenAI cache-write charges were not priced before 2026-10-28, which understates the
+historical OpenAI API estimates by at most $0.17. Sources and independent checks are in
+[`reports/verification_2026-10-28.md`](reports/verification_2026-10-28.md).
 
 ## Quick start
 
 ```bash
-git clone https://github.com/BurnyCoder/auto-fact-checker && cd auto-fact-checker
-uv sync                      # creates .venv with Python 3.13 and the runtime dependencies (+ --group docs/paper)
+git clone https://github.com/BurnyCoder/auto-but-actually-fact-checker-evaluator auto-fact-checker && cd auto-fact-checker
+uv sync                      # creates .venv with Python 3.13, the runtime deps and the dev group (+ --group docs/paper)
 cp .env.example .env         # then put your OPENAI_API_KEY / ANTHROPIC_API_KEY in .env
 uv run afc ui                # opens http://127.0.0.1:7860
 ```
@@ -238,7 +241,8 @@ claim × scientist calls. You can save your own.
 **Iteration**: stop on a self-rated threshold or other stopping condition, plus **One more iteration**.
 
 **Prompt preview**: configured extract, check and perspective prompts (for the first perspective scientist), and
-the `--agents` JSON. Extracted-claim placeholders are marked illustrative; their runtime text is not yet known.
+the subagent definitions (Claude Code `--agents` JSON; Codex gets one role per definition). Extracted-claim
+placeholders are marked illustrative; their runtime text is not yet known.
 
 **Logging**:
 - Timestamped `logs/<time>.log` and terminal output in real time.
@@ -264,8 +268,8 @@ Python 3.13 and [uv](https://docs.astral.sh/uv/) ·
 [Anthropic Python SDK](https://github.com/anthropics/anthropic-sdk-python) ·
 [Claude Code](https://code.claude.com/docs/en/headless) and [Codex CLI](https://learn.chatgpt.com/docs/non-interactive-mode) ·
 pydantic / pydantic-settings · Jinja2 · json-repair · psutil ·
-pandas + pyarrow (SciFact parquet) · scikit-learn · statsmodels · SciPy · pytest ·
-matplotlib and [Typst](https://typst.app/) (report figures and paper, `--group paper`) ·
+pandas + pyarrow (SciFact parquet) · scikit-learn · statsmodels · SciPy (report scripts) · pytest ·
+matplotlib (dev and `--group paper`) and [Typst](https://typst.app/) (report figures and paper, `--group paper`) ·
 [Playwright](https://playwright.dev/python/) (README screenshots only, `--group docs`).
 
 ## What happens when you run it
@@ -307,9 +311,10 @@ flowchart LR
   CLI[__main__.py afc check / bench] --> CFG
   CFG --> PIPE[pipeline.py<br/>run_fact_check / run_iteration]
   PIPE --> EX[phases/extract] & CH[phases/check] & SY[phases/synthesize] & IT[phases/iterate]
-  CH --> RP[phases/check.summarize_output<br/>+ repair step]
+  CH & SY --> RP[phases/check.summarize_output<br/>+ repair step]
   EX & CH & SY & RP --> PR[prompts.py<br/>sections + options + templates]
   EX & CH & SY & RP --> CTX[context.RunContext.call<br/>logs · artifacts · budget · Stop]
+  JUDGE[bench/judge.py<br/>Exp07/Exp08 judges] --> CTX
   CTX --> REG[backends registry]
   REG --> OA[openai_api<br/>Responses + web_search]
   REG --> AA[anthropic_api<br/>Messages + web_search]
@@ -329,7 +334,8 @@ More detail is in [`docs/architecture.md`](docs/architecture.md). Every setting 
 - The catalog records `gpt-6-luna` and `claude-haiku-5-5` at $0.10/$0.50 per 1M input/output tokens, plus
   $0.01 per hosted web search. Search fees can dominate short calls. These are catalog estimates, not guarantees
   about invoices or the cheapest available model; see [`catalog.py`](src/auto_fact_checker/catalog.py) for sources
-  and the [verification report](reports/verification_2026-10-22.md) for the check date and limits.
+  and the [verification report](reports/verification_2026-10-28.md) for the check date and limits. Cache reads
+  and writes are priced per model (OpenAI GPT-5.6+ writes: 1.25× input for the default 30-minute TTL).
 - Agents run **without permission prompts or a sandbox**, as the project specifies
   (`--dangerously-skip-permissions`, `--dangerously-bypass-approvals-and-sandbox`). The measures that are not
   sandboxing:
@@ -337,17 +343,21 @@ More detail is in [`docs/architecture.md`](docs/architecture.md). Every setting 
   - Claude Code loads only project settings (`--setting-sources project`), so your user settings and the plugins
     they enable are skipped. It also gets `--strict-mcp-config` (no MCP servers), `--disable-slash-commands`, and a
     `--settings` file that excludes CLAUDE.md/AGENTS.md files and turns auto-memory off. Organization-managed
-    settings and CLAUDE.md still apply.
+    settings and CLAUDE.md still apply; on a machine with an organization
+    [`managed-mcp.json`](https://code.claude.com/docs/en/managed-mcp), `--strict-mcp-config` makes Claude Code
+    exit at startup.
   - Codex gets `--ignore-user-config` (no `config.toml`), `--ignore-rules`, and its desktop/browser-control,
     apps, plugins and hooks features off. Your global `~/.codex/AGENTS.md` is only excluded in `AGENT_AUTH=api_key`
-    mode (empty `CODEX_HOME`). In both modes a developer instruction tells the agent to ignore coding, git and
-    project-setup instructions from AGENTS.md files.
+    mode (empty `CODEX_HOME`). In both modes a developer instruction, also prepended to every subagent role, tells
+    the agent to ignore coding, git and project-setup instructions from AGENTS.md files.
   - API keys are stripped in subscription mode
-  - the checked text is wrapped in tags; the default templates also tell the model to treat it as data
-    (`check/minimal_baseline.md`, `extract/simple_list.md` and `repair/repair_json.md` only wrap it)
+  - the checked text is wrapped in tags; the default extract, check, perspective and synthesize templates also tell
+    the model to treat it as data (`check/minimal_baseline.md` and `extract/simple_list.md` only wrap it; the
+    default `repair/repair_json.md` wraps the model's own report without that instruction)
   - soft budget checks and backend-specific timeouts apply
-  - the UI only listens on 127.0.0.1. Gradio's telemetry and version check contact api.gradio.app unless you set
-    `GRADIO_ANALYTICS_ENABLED=False` in the environment (the test suite does)
+  - the UI only listens on 127.0.0.1. Gradio 6.30 checks for updates at api.gradio.app and sends usage telemetry
+    through `huggingface_hub` to huggingface.co unless you set `GRADIO_ANALYTICS_ENABLED=False` in the environment
+    (the test suite does; see `gradio/analytics.py`)
 
   Web pages or the text being checked can still contain prompt injections aimed at an agent that has shell access.
   Do not run agent steps on machines holding secrets you cannot risk.
@@ -362,10 +372,11 @@ src/auto_fact_checker/
   pipeline.py (the wrapper)  phases/  backends/  bench/  ui.py  __main__.py
 examples/       AI research / philosophy / engineering texts with planted errors (answer key: docs/examples.md)
 benchmarks/     ai_errors_v1/: frozen Exp08 dataset (Wikipedia + arXiv passages with injected errors)
-docs/           architecture, configuration, the three pre-registrations (benchmark.md, correction_eval.md,
-                ai_error_bench.md), example answer key; images/ (UI screenshots) and scripts/take_screenshots.py
-                which makes them
-reports/        experiment reports, all_experiments.md, paper/
+docs/           architecture, configuration, reproduction, the three pre-registrations (benchmark.md,
+                correction_eval.md, ai_error_bench.md), example answer key; images/ (UI screenshots) and
+                scripts/take_screenshots.py (+ offline_ui.py synthetic responses) which makes them
+reports/        experiment reports, all_experiments.md, verification records, paper/, results/ (raw records and
+                derived JSON), scripts/ (analyses), figures/
 tests/          offline pytest suite (fake backend) + live tests (`-m live`)
 ```
 
@@ -378,8 +389,10 @@ uv run pytest -m live    # real calls to gpt-6-luna / claude-haiku-5-5 / claude 
 
 ## Data and licences
 
-SciFact (Wadden et al., 2020) is CC BY-NC 2.0 ([dataset card](https://huggingface.co/datasets/allenai/scifact)) and
-is downloaded at run time from the
+SciFact (Wadden et al., 2020): its [Hugging Face card](https://huggingface.co/datasets/allenai/scifact) lists
+CC BY-NC 2.0, while the upstream [LICENSE.md](https://github.com/allenai/scifact/blob/master/LICENSE.md) releases
+the claims and evidence annotations under CC BY 4.0 and the S2ORC-derived corpus abstracts under ODC-By 1.0. It is
+downloaded at run time from the
 [Hugging Face parquet export](https://huggingface.co/datasets/allenai/scifact/tree/refs%2Fconvert%2Fparquet). Claim extraction
 is a single-call adaptation inspired by [Claimify](https://arxiv.org/html/2502.10855v2): unlike the paper, this prompt
 also retains opinions and keeps a likely interpretation of unresolved ambiguity with a note. It does not implement

@@ -27,11 +27,12 @@ def build_cmd(req: LLMRequest, exe: str, agents_file: Path | None) -> list[str]:
            "--no-session-persistence",
            "--setting-sources", "project",  # do not load the user's ~/.claude settings into fact-check agents
            "--strict-mcp-config", "--disable-slash-commands"]  # no MCP servers / skills from the user's setup
-    deny = ([] if req.web_search else ["WebSearch", "WebFetch"]) + ([] if req.allow_subagents else ["Agent", "Task"])  # tool renamed Task->Agent in 2.1.63
-    if deny:
-        cmd += ["--disallowedTools", ",".join(deny)]  # one comma-separated value (flag is variadic)
+    # The subagent tool was renamed Task -> Agent in v2.1.63 (sub-agents docs); deny both names.
+    deny = ([] if req.web_search else ["WebSearch", "WebFetch"]) + ([] if req.allow_subagents else ["Agent", "Task"])
+    if deny:  # `claude --help` (v2.1.312): "Comma or space-separated list of tool names to deny"
+        cmd += ["--disallowedTools", ",".join(deny)]  # one comma-separated value (the flag is variadic)
     if agents_file:
-        cmd += ["--agents", str(agents_file)]  # with -p, --agents accepts a file path
+        cmd += ["--agents", str(agents_file)]  # `claude --help`: with --print, the path to a file holding the JSON
     if req.max_turns:
         cmd += ["--max-turns", str(req.max_turns)]
     if req.max_budget_usd:
@@ -63,11 +64,12 @@ def parse_events(req: LLMRequest, events: list[dict], billed: bool) -> LLMResult
 def isolation_settings() -> dict:
     """--settings content that keeps the user's memory files out of fact-check agents.
 
-    `--setting-sources project` does not stop ~/.claude/CLAUDE.md from loading (our live canary test answered YES),
-    but `claudeMdExcludes` applies at every settings layer incl. --settings:
-    https://code.claude.com/docs/en/memory#exclude-specific-claude-md-files (patterns match absolute paths);
-    --settings is the "Command line" layer: https://code.claude.com/docs/en/settings#settings-precedence.
-    Managed (organization) CLAUDE.md files cannot be excluded this way.
+    `--setting-sources project` does not stop ~/.claude/CLAUDE.md from loading (our live canary test answered YES).
+    `claudeMdExcludes` (https://code.claude.com/docs/en/memory#exclude-specific-claude-md-files, patterns match
+    absolute paths) is documented for the user/project/local/managed settings files; that it also works from the
+    --settings "Command line" layer (https://code.claude.com/docs/en/settings#settings-precedence) is verified
+    only empirically, by tests/test_live.py::test_isolation_canary. Managed (organization) CLAUDE.md files cannot
+    be excluded this way.
     """
     home = Path.home() / ".claude"
     explicit = [str(home / "CLAUDE.md"), (home / "CLAUDE.md").as_posix(), str(home / "rules"), (home / "rules").as_posix()]

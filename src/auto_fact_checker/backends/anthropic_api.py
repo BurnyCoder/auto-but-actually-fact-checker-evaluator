@@ -7,6 +7,8 @@ docs state structured outputs are incompatible with citations (always on for web
 https://platform.claude.com/docs/en/build-with-claude/structured-outputs); the pipeline parses the JSON block from
 the text instead. Docs: web search https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool ;
 pause_turn https://platform.claude.com/docs/en/agents-and-tools/tool-use/server-tools ;
+effort levels https://platform.claude.com/docs/en/build-with-claude/effort ; cache usage fields (cache_read_input_tokens,
+cache_creation.ephemeral_5m/1h_input_tokens) https://platform.claude.com/docs/en/build-with-claude/prompt-caching ;
 streaming helpers https://github.com/anthropics/anthropic-sdk-python/blob/main/helpers.md#streaming-responses
 """
 
@@ -85,7 +87,7 @@ def run(client, req: LLMRequest, log: logging.Logger | logging.LoggerAdapter,
         result.output_tokens += u.output_tokens
         result.web_searches += n
         cost = (catalog.cost_usd(req.model, total, u.output_tokens, read, n,
-                                cache_write_5m_tokens=short, cache_write_1h_tokens=long)
+                                cache_write_short_tokens=short, cache_write_long_tokens=long)
                 if written == short + long else None)  # Missing TTL information cannot produce an exact estimate.
         result.cost_usd = result.cost_usd + cost if result.cost_usd is not None and cost is not None else None
         result.sources = dedupe(result.sources)

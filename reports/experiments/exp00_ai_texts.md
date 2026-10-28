@@ -3,7 +3,7 @@
 **Type:** functional / qualitative validation. This is not a benchmark: the three texts were written for this
 project by the AI coding agent that builds it, and their errors are planted and well known.
 **Date:** 2026-10-17 · **Models:** `gpt-6-luna` (OpenAI API and Codex), `claude-haiku-5-5` (Claude Code)
-· **Billed cost:** about $0.53 for the runs below, plus about $0.02 for the UI checks.
+· **Billed cost:** about $0.52 for the runs below, plus about $0.02 for the UI checks.
 
 ## Question
 

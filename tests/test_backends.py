@@ -97,8 +97,10 @@ def test_codex_cmd_flags(tmp_path):
 
 def test_codex_subagent_roles(tmp_path):
     """Claude-style --agents definitions become Codex roles: `-c agents.<name>.*` plus one TOML layer per role."""
-    agents = {"claim-checker": {"description": "Checks one claim.", "prompt": 'Say "hi" — Gödel\nthen stop',
-                                "model": "inherit", "disallowedTools": ["WebSearch", "WebFetch"]}}
+    prompt = 'Say "hi" — Gödel 🙂\x7f\nthen stop'  # TOML forbids a raw U+007F; emoji must stay valid UTF-8
+    agents = {"claim-checker": {"description": "Checks one claim.", "prompt": prompt,
+                                "model": "inherit", "disallowedTools": ["WebSearch", "WebFetch"]},
+              "odd": {"description": "Del\x7fchar", "prompt": "p"}}
     cmd = codex._build(req(backend="codex", web_search=True, effort="low", allow_subagents=True, agents=agents,
                            max_subagents=6), "codex.exe", tmp_path)
     assert "--ephemeral" not in cmd  # spawn_agent fails with "no rollout found" in ephemeral sessions (live spike)
@@ -107,9 +109,12 @@ def test_codex_subagent_roles(tmp_path):
     role = tmp_path / "agents" / "claim-checker.toml"
     assert f"agents.claim-checker.config_file={json.dumps(role.as_posix())}" in cmd
     assert 'agents.claim-checker.description="Checks one claim."' in cmd
+    odd = next(c for c in cmd if c.startswith("agents.odd.description="))
+    assert tomllib.loads(odd.replace("agents.odd.description", "d", 1)) == {"d": "Del\x7fchar"}  # `-c` is TOML
     assert tomllib.loads(role.read_text(encoding="utf-8")) == {
-        "developer_instructions": 'Say "hi" — Gödel\nthen stop', "model": "gpt-6-luna",
-        "model_reasoning_effort": "low", "web_search": "disabled"}  # "inherit" -> the lead agent's model
+        "developer_instructions": f"{codex.DEVELOPER_NOTE}\n\n{prompt}",  # subagents get the AGENTS.md note too
+        "model": "gpt-6-luna", "model_reasoning_effort": "low",
+        "web_search": "disabled"}  # "inherit" -> the lead agent's model
 
 
 def test_codex_parse_events():
@@ -142,6 +147,17 @@ def test_openai_parse_response():
     assert res.text == "hi" and res.web_searches == 1  # only "search" actions are billed tool calls
     assert res.sources == ["https://a.org", "https://b.org", "https://c.org"]
     assert res.cost_usd == pytest.approx((1000 * 0.10 + 100 * 0.50) / 1e6 + 0.01)
+
+
+@pytest.mark.parametrize("split, expected", [
+    (NS(ttl_30m_tokens=3000, ttl_12h_tokens=4000), 4000 * .10 + 1000 * .01 + 3000 * .125 + 4000 * .25),
+    (None, 4000 * .10 + 1000 * .01 + 7000 * .125)])  # no split: the default "30m" TTL applies
+def test_openai_cache_writes_are_priced(split, expected):
+    """Example from the prompt-caching guide: 12,000 input = 4,000 ordinary + 1,000 cached + 7,000 written."""
+    details = NS(cached_tokens=1000, cache_write_tokens=7000, cache_write_tokens_details=split)
+    usage = NS(input_tokens=12_000, output_tokens=0, input_tokens_details=details)
+    res = openai_api.parse_response(req(), NS(output=[], output_text="", usage=usage))
+    assert res.cache_creation_input_tokens == 7000 and res.cost_usd == pytest.approx(expected / 1e6)
 
 
 # ---------- Anthropic Messages API ----------

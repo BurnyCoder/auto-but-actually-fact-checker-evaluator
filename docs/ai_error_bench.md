@@ -1,8 +1,9 @@
 # Exp08 pre-registration — does iterative correction fix obviously wrong AI-research text?
 
 Written and committed **before** the dataset was built and before any Exp08 correction or judge call. Results go to
-`reports/experiments/exp08_ai_error_bench.md`. Anything decided after seeing data is marked *post hoc*. Wording
-that was corrected later to match the code, without changing the plan, is marked *(clarified 2026-10-22)*.
+`reports/experiments/exp08_ai_error_bench.md`. Anything decided after seeing data is marked *post hoc*. Every
+later edit is listed in the [amendment log](#amendment-log); only some carry an inline *(clarified 2026-10-22)*
+marker.
 
 ## Why
 
@@ -182,9 +183,22 @@ uv run afc ai-errors run --system configs/bench/ai_rigorous_codex.json --judges 
 uv run --group paper python reports/scripts/analyze_ai_errors.py
 ```
 
+## Amendment log
+
+The pre-registered version is commit `a2b7759` (permalink below). Later edits, from
+`git log -- docs/ai_error_bench.md`:
+- `c2feabd` (2026-10-22): marked inline: the seeded k shuffle, "3 attempts, not 3 retries", QC by the AI coding
+  agent. Unmarked: the near-copy snapping note, "the gate below is checked from its output", and the reproduce
+  command (`--out benchmarks/ai_errors_v1` → `SCRATCH_DIR`).
+- `141ba36` (2026-10-22): the "Why" section rewritten without a marker (the original summarised Exp07 as "one
+  agent correction pass gave the whole gain" and called the original passage "the ground truth" with "known
+  errors"); the power-analysis wording (marked); the null-H1 interpretation (points to the clarification below);
+  "Cap" → "Recorded-cost controls" without a marker; added the clarification below.
+- 2026-10-28: this log ([verification record](../reports/verification_2026-10-28.md)).
+
 ## Methodological clarification — 2026-10-22
 
-The [original committed plan](https://github.com/BurnyCoder/auto-fact-checker/blob/a2b7759/docs/ai_error_bench.md)
+The [original committed plan](https://github.com/BurnyCoder/auto-but-actually-fact-checker-evaluator/blob/a2b7759/docs/ai_error_bench.md)
 and its decision rules remain the historical record. “Falsified” above denotes failure to meet the support
 criterion; neither nonsignificance nor the planned detectable effect size proves equality or excludes larger
 effects ([ASA statement](https://doi.org/10.1080/00031305.2016.1154108)). The bootstrap interval estimates a mean

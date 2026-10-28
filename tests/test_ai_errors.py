@@ -7,6 +7,8 @@ against the original passage; these offline tests (fake backend, canned API resp
 
 import json
 
+import pytest
+
 from auto_fact_checker import config as C
 from auto_fact_checker.bench import ai_errors, sources
 from auto_fact_checker.bench.judge import judge_reference
@@ -86,6 +88,13 @@ def test_build_injects_seeded_errors(fake, settings, tmp_path, monkeypatch):
         assert len(r["errors"]) == r["k"] and (r["perturbed"] == r["original"]) == (r["k"] == 0)
         assert all(e["perturbed_sentence"] in r["perturbed"] for e in r["errors"])
     assert len(ai_errors.load(tmp_path / "dataset.jsonl")) == 4
+
+
+def test_build_requires_explicit_out(capsys):
+    """A bare `afc ai-errors build` must not default to (and overwrite) the frozen benchmarks/ai_errors_v1."""
+    with pytest.raises(SystemExit):
+        ai_errors.main(["build"])
+    assert "--out" in capsys.readouterr().err
 
 
 def test_forced_passes_record_states_and_judgements(fake, settings):

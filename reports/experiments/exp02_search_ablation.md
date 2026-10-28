@@ -20,7 +20,7 @@ labelled exploratory.
 | system | balanced accuracy | accuracy [95% Wilson CI] | SUPPORT recall | CONTRADICT recall | AUROC | Brier | mean searches | cost |
 |---|---|---|---|---|---|---|---|---|
 | A simple call | 0.755 | 0.755 [0.691, 0.809] | 0.79 | 0.72 | 0.844 | 0.165 | 0 | $0.063 |
-| C simple + search | **0.890** | 0.890 [0.839, 0.926] | 0.85 | 0.93 | 0.956 | 0.087 | 1.03 | $2.30 |
+| C simple + search | **0.890** | 0.890 [0.839, 0.926] | 0.85 | 0.93 | 0.956 | 0.087 | 1.04 | $2.30 |
 | B full prompt + search | 0.865 | 0.865 [0.811, 0.906] | 0.85 | 0.88 | 0.944 | 0.101 | 1.17 | $2.97 |
 
 | comparison | Δ balanced accuracy [95% paired bootstrap CI] | discordant: only the subtracted system right / only the first-named right | exact McNemar p |
@@ -47,7 +47,7 @@ labelled exploratory.
   "No accuracy gain on SciFact" is therefore not "no value". It is evidence that, for the binary-verdict part of
   the job, no positive effect of the extra instructions was detected in this sample.
 - **A plausible mechanism (untested).** Spreading the output budget across 57 scored dimensions may dilute
-  attention to the core verdict. B used slightly more searches (1.17 vs 1.03), so less search was not the cause.
+  attention to the core verdict. B used slightly more searches (1.17 vs 1.04), so less search was not the cause.
 
 ## Learnings
 

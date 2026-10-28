@@ -33,7 +33,7 @@ def build_kwargs(req: LLMRequest) -> dict:
 
 
 def parse_response(req: LLMRequest, r) -> LLMResult:
-    """Map a Response to LLMResult; only 'search' actions are billed tool calls (open_page/find_in_page are not)."""
+    """Map a Response to LLMResult; counts 'search' actions as billed tool calls (the docs list only those)."""
     calls = [o for o in r.output if o.type == "web_search_call"]
     searches = sum(1 for c in calls if getattr(c.action, "type", None) == "search")
     urls = []
@@ -46,12 +46,20 @@ def parse_response(req: LLMRequest, r) -> LLMResult:
                      if a.type == "url_citation"]  # inline citations
     u = r.usage
     tin, tout = getattr(u, "input_tokens", None), getattr(u, "output_tokens", None)
-    cached = getattr(getattr(u, "input_tokens_details", None), "cached_tokens", None)
+    details = getattr(u, "input_tokens_details", None)
+    cached = getattr(details, "cached_tokens", None)
+    # Reads and writes are subsets of input_tokens; writes split by TTL, and requests that set no
+    # prompt_cache_options (as here) use the default "30m"
+    # (https://developers.openai.com/api/docs/guides/prompt-caching).
+    written = getattr(details, "cache_write_tokens", 0) or 0
+    split = getattr(details, "cache_write_tokens_details", None)
+    w12h = getattr(split, "ttl_12h_tokens", 0) or 0
     # Usage is optional in the response schema; preserve available text and expose an incomplete estimate.
-    cost = catalog.cost_usd(req.model, tin, tout, cached, searches) if None not in (tin, tout, cached) else None
+    cost = (catalog.cost_usd(req.model, tin, tout, cached, searches, cache_write_short_tokens=written - w12h,
+                             cache_write_long_tokens=w12h) if None not in (tin, tout, cached) else None)
     return LLMResult(text=r.output_text or "", backend="openai_api", model=req.model, input_tokens=tin or 0,
-                     cached_input_tokens=cached or 0, output_tokens=tout or 0, web_searches=searches, cost_usd=cost,
-                     sources=dedupe(urls))
+                     cached_input_tokens=cached or 0, cache_creation_input_tokens=written, output_tokens=tout or 0,
+                     web_searches=searches, cost_usd=cost, sources=dedupe(urls))
 
 
 def call(req: LLMRequest, log: logging.Logger | logging.LoggerAdapter) -> LLMResult:

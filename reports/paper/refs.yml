@@ -47,8 +47,9 @@ veriscore:
 fire:
   type: article
   title: "FIRE: Fact-checking with Iterative Retrieval and Verification"
-  author: ["Xie, Zhuohan", "others"]
-  date: 2024
+  author: ["Xie, Zhuohan", "Xing, Rui", "Wang, Yuxia", "others"]
+  date: 2025
+  parent: {type: proceedings, title: "Findings of NAACL 2025"}
   url: https://arxiv.org/abs/2411.00784
 claimify:
   type: article
@@ -126,3 +127,24 @@ settransformer:
   date: 2019
   parent: {type: proceedings, title: "ICML 2019"}
   url: https://arxiv.org/abs/1810.00825
+efron:
+  type: book
+  title: "An Introduction to the Bootstrap"
+  author: ["Efron, Bradley", "Tibshirani, Robert J."]
+  date: 1993
+  publisher: "Chapman & Hall/CRC"
+  url: https://doi.org/10.1201/9780429246593
+wilson:
+  type: article
+  title: "Probable Inference, the Law of Succession, and Statistical Inference"
+  author: ["Wilson, Edwin B."]
+  date: 1927
+  parent: {type: periodical, title: "Journal of the American Statistical Association", volume: 22}
+  url: https://doi.org/10.1080/01621459.1927.10502953
+wilcoxon:
+  type: article
+  title: "Individual Comparisons by Ranking Methods"
+  author: ["Wilcoxon, Frank"]
+  date: 1945
+  parent: {type: periodical, title: "Biometrics Bulletin", volume: 1}
+  url: https://doi.org/10.2307/3001968
