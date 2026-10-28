@@ -49,7 +49,8 @@ H1 counts as supported only if all three hold:
 
 **H1 is supported:** all three criteria are met.
 
-As a secondary metric, AUROC also improved: Δ = +0.099 [+0.052, +0.150] (paired bootstrap, 2,000 resamples).
+As a secondary metric, AUROC also improved: Δ = +0.099 [+0.052, +0.150] (paired bootstrap, 2,000 resamples). The
+pre-registration lists AUROC only per system; this paired Δ AUROC interval is a post hoc addition.
 
 **Sensitivity analyses:**
 - Dropping parse failures (pre-registered) changes nothing: there were none.
@@ -73,8 +74,9 @@ against 80 vs 15 for A. A has a large cluster of CONTRADICT claims scored 65–9
 - B's gain comes mostly from CONTRADICT claims (recall 0.72 → 0.88). These are SciFact's expert negations of
   abstract sentences, which a model without retrieval tends to accept as plausible.
 - **This experiment cannot say whether the gain comes from the prompt or from search**, because B changes both.
-  Exp02 (pre-registered) and Exp03 (post hoc) separate them. The answer is that search explains essentially all of
-  it.
+  Exp02 (pre-registered) and Exp03 (post hoc) separate them. Their point estimates attribute the gain to search
+  (C − A +0.135, B − D +0.100); a prompt effect of up to about +5 points is not excluded (D − A +0.010
+  [−0.026, +0.047], B − C −0.025 [−0.061, +0.010]).
 - The observed discordance ψ = 0.14 with δ = 0.11 implies the design had well over 80% power for an effect of
   this size. This is stated for context, not to interpret the significant result.
 

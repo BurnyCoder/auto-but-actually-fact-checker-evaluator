@@ -2,9 +2,9 @@
 
 **Pre-registration:** [`docs/correction_eval.md`](../../docs/correction_eval.md). It was committed (PR #14) before
 any Exp07 call, together with the analysis script
-[`reports/scripts/analyze_correction.py`](../scripts/analyze_correction.py). The script's only later change (commit
-`a8916a0`, after the Codex data) left arms with fewer than 10 items out of the figure. The 2026-10-22 change
-clarifies figure labels and missingness; no primary statistic changed.
+[`reports/scripts/analyze_correction.py`](../scripts/analyze_correction.py). The script changed twice later:
+commit `a8916a0` (after the Codex data) left arms with fewer than 10 items out of the figure, and commit `141ba36`
+(2026-10-22) clarified figure labels and missingness. Neither changed a primary statistic (recomputed 2026-10-28).
 **Data:**
 - `reports/results/exp07_correction_codex/`
 - `reports/results/exp07_correction_claude/`
@@ -122,6 +122,8 @@ not converge:
 - The two judges disagree sharply on these long, multi-sentence rewrites (κ = 0.11 across 43 texts).
 - The arm's primary judge (Luna, cross-family) misjudged the true original (validity 2/3).
 - Cost: $0.03 billed (judges), $4.67 notional for the agents ($4.70 with the judges), 174 searches.
+- One leak flag (train-278): a [github.com iGEM wiki page](https://github.com/igem-waterloo/uwaterloo-igem-2015/wiki/Cauliflower-Mosaic-Virus)
+  matched the blocked host github.com; it is a student project page, not the SciFact data, so the flag is benign.
 
 ## Post-hoc comparisons on the same 100 claims (decided after Exp07; exploratory)
 
@@ -192,6 +194,6 @@ correct verdicts vs the share of correct output texts). They are shown on the sa
 - The pre-registered `same_question` criterion was necessary: without it, hedged non-answers would have counted as
   correct.
 
-The [original preregistration](https://github.com/BurnyCoder/auto-fact-checker/blob/f681d49/docs/correction_eval.md)
+The [original preregistration](https://github.com/BurnyCoder/auto-but-actually-fact-checker-evaluator/blob/f681d49/docs/correction_eval.md)
 and primary numerical artifacts remain unchanged. Timing and per-pass costs require local, ignored `runs/`
 artifacts; the published result records support correctness recomputation but not full raw-run reproduction.

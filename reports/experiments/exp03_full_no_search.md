@@ -19,7 +19,7 @@ knowledge, a setting where instructions such as "double check yourself" and "be 
 | C | minimal | on | 0.890 | [0.839, 0.926] | 0.85 / 0.93 | 0.956 | 0.087 | 85 / 10 | $2.30 |
 | B | full | on | 0.865 | [0.811, 0.906] | 0.85 / 0.88 | 0.944 | 0.101 | 77 / 11 | $2.97 |
 
-| comparison (paired, n = 200) | Δ balanced accuracy [95% CI] | McNemar b / c, p | Δ AUROC [95% CI] |
+| comparison (paired, n = 200) | Δ balanced accuracy [95% CI] | McNemar b / c, p | Δ AUROC [95% CI] (post hoc for every row) |
 |---|---|---|---|
 | D − A (prompt, no search) | +0.010 [−0.026, +0.047] | 6 / 8, 0.79 | +0.047 [+0.013, +0.082] |
 | B − C (prompt, with search) | −0.025 [−0.061, +0.010] | 9 / 4, 0.27 | −0.012 [−0.032, +0.004] |
