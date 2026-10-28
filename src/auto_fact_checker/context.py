@@ -57,7 +57,7 @@ class RunContext:
                           web_search=sc.web_search, search_context_size=sc.search_context_size,
                           max_searches=sc.max_searches, blocked_domains=sc.blocked_domains,
                           allow_subagents=sc.allow_subagents or bool(agents),  # a subagent strategy implies it
-                          agents=agents, max_turns=sc.max_turns,
+                          max_subagents=sc.max_subagents, agents=agents, max_turns=sc.max_turns,
                           max_budget_usd=round(max(remaining, 0.01), 4) if backend == "claude_code" else None,
                           timeout_s=sc.timeout_s, cancel=self.cancel)
 

@@ -99,9 +99,10 @@ def test_codex_subagent_roles(tmp_path):
     """Claude-style --agents definitions become Codex roles: `-c agents.<name>.*` plus one TOML layer per role."""
     agents = {"claim-checker": {"description": "Checks one claim.", "prompt": 'Say "hi" — Gödel\nthen stop',
                                 "model": "inherit", "disallowedTools": ["WebSearch", "WebFetch"]}}
-    cmd = codex._build(req(backend="codex", web_search=True, effort="low", allow_subagents=True, agents=agents),
-                       "codex.exe", tmp_path)
+    cmd = codex._build(req(backend="codex", web_search=True, effort="low", allow_subagents=True, agents=agents,
+                           max_subagents=6), "codex.exe", tmp_path)
     assert "--ephemeral" not in cmd  # spawn_agent fails with "no rollout found" in ephemeral sessions (live spike)
+    assert "agents.max_concurrent_threads_per_session=6" in cmd  # Codex's own cap must not drop parallel spawns
     assert cmd[cmd.index("multi_agent") - 1] == "--enable"
     role = tmp_path / "agents" / "claim-checker.toml"
     assert f"agents.claim-checker.config_file={json.dumps(role.as_posix())}" in cmd

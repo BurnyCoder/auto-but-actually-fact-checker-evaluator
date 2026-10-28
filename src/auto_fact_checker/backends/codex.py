@@ -61,7 +61,9 @@ def build_cmd(req: LLMRequest, exe: str, workdir: Path) -> list[str]:
            "--skip-git-repo-check",  # the temp dir is no git repo
            "--dangerously-bypass-approvals-and-sandbox",  # agents run free (user requirement)
            "--json", "--color", "never", "-C", str(workdir)]
-    if not req.allow_subagents:  # keep no session files; spawn_agent needs them ("no rollout found", 2026-10-28)
+    if req.allow_subagents:  # with the default cap, 2 of 6 parallel spawns failed: "agent thread limit reached"
+        cmd += ["-c", f"agents.max_concurrent_threads_per_session={req.max_subagents}"]
+    else:  # keep no session files; spawn_agent needs them ("no rollout found for thread id", 2026-10-28)
         cmd.append("--ephemeral")
     for name, agent in (req.agents or {}).items():  # named roles the lead agent spawns by agent_type
         cmd += ["-c", f"agents.{name}.description={json.dumps(agent['description'], ensure_ascii=False)}",
