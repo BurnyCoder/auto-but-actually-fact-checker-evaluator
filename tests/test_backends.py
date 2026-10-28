@@ -144,6 +144,17 @@ def test_openai_parse_response():
     assert res.cost_usd == pytest.approx((1000 * 0.10 + 100 * 0.50) / 1e6 + 0.01)
 
 
+@pytest.mark.parametrize("split, expected", [
+    (NS(ttl_30m_tokens=3000, ttl_12h_tokens=4000), 4000 * .10 + 1000 * .01 + 3000 * .125 + 4000 * .25),
+    (None, 4000 * .10 + 1000 * .01 + 7000 * .125)])  # no split: the default "30m" TTL applies
+def test_openai_cache_writes_are_priced(split, expected):
+    """Example from the prompt-caching guide: 12,000 input = 4,000 ordinary + 1,000 cached + 7,000 written."""
+    details = NS(cached_tokens=1000, cache_write_tokens=7000, cache_write_tokens_details=split)
+    usage = NS(input_tokens=12_000, output_tokens=0, input_tokens_details=details)
+    res = openai_api.parse_response(req(), NS(output=[], output_text="", usage=usage))
+    assert res.cache_creation_input_tokens == 7000 and res.cost_usd == pytest.approx(expected / 1e6)
+
+
 # ---------- Anthropic Messages API ----------
 
 class FakeStream:
