@@ -103,5 +103,7 @@ eleven → twelve tasks). Others are obvious (2800% improvement, 284 BLEU).
   gives 500,000 neurons, while its [PDF](https://papers.nips.cc/paper_files/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf)
   gives 650,000. Treat this as a source-version disagreement; the frozen source is retained.
 
-The independent [verification report](../../reports/verification_2026-10-22.md) distinguishes supported claims,
-corrections, qualifications and unresolved source conflicts. References are scoring anchors, not guaranteed truth.
+The [item-level provenance](../../reports/results/exp08_claim_provenance_2026-10-22.json) distinguishes supported
+claims, qualifications and unresolved source conflicts, and the independent
+[verification record](../../reports/verification_2026-10-28.md) rechecks the reported numbers. References are
+scoring anchors, not guaranteed truth.
