@@ -177,7 +177,8 @@ runs on the keyed texts agreed with the answer key on all 42 claim verdicts; the
   (Exp05).
   The prompt without search raised AUROC without raising accuracy (Exp03). The threshold metric alone hides this.
 - **Delegation can be fabricated.** In 4 smoke tests Codex never spawned a sub-agent, and twice it claimed one had
-  answered (Exp00).
+  answered (Exp00). Cause found 2026-10-28: `--ephemeral` makes `spawn_agent` fail. Without it, Codex subagents
+  work ([verification record](verification_2026-10-28_subagents.md)).
 - **Refusals are a failure mode of their own.** Anthropic's bio-safety filter refused some biomedical claims,
   non-deterministically, and the JSON repair step turned refusals into fabricated verdicts on two claims (fixed,
   Exp05).

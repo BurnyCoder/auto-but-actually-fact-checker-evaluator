@@ -76,6 +76,12 @@ All of these behaved as designed.
 - **Evidence:** `reports/results/codex_multiagent_smoke/out*.jsonl`.
 - **Consequence:** the subagent strategies stay Claude Code-only. A Codex step's `allow_subagents` only switches
   the feature on, and spawning was not observed with Luna.
+- **Update 2026-10-28 (cause found; the result above is kept as recorded):** these spawns failed because the
+  backend ran Codex with `--ephemeral`. On Codex 0.165.0 with Luna, an ephemeral session logs
+  `collab spawn failed: ... no rollout found for thread id`. The same prompt without `--ephemeral` returned a code
+  word that exists only in the subagent's instructions. The same prompt with `--ephemeral` answered "SPAWN
+  FAILED" with that error. Codex now runs subagent strategies with named roles; see the
+  [subagent verification record](../verification_2026-10-28_subagents.md).
 
 ## Observations and learnings
 

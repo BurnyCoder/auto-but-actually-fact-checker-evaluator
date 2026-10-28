@@ -3,7 +3,7 @@
 A local, configurable **LLM fact-checking tool**. A long expert fact-checking prompt is split into "Lego" blocks.
 Each block is a checkbox, slider, dropdown or text box in a Gradio UI. You can run it anywhere from **one
 non-agentic API call** up to **Claude Code / Codex agent runs**, or **separate calls per claim and per scientist**.
-Claude Code strategies can request subagents. The prompt requests **0–100 % scores and subjective confidence**;
+Claude Code and Codex agents can delegate to one subagent per claim or per scientist. The prompt requests **0–100 % scores and subjective confidence**;
 responses may omit fields or contain mistakes. Corrected text can be re-checked **iteratively** until a model-rated
 threshold or another stopping condition is reached. Scores and stopping decisions are not independent verification.
 
@@ -225,7 +225,7 @@ uv run --group docs python docs/scripts/take_screenshots.py --offline --channel 
 | step kind | OpenAI | Anthropic |
 |---|---|---|
 | API call | Responses API + hosted `web_search` | Messages API + `web_search_20260318` |
-| agent | Codex CLI `codex exec` (live search) | Claude Code `claude -p` (WebSearch/WebFetch, subagents via `--agents`) |
+| agent | Codex CLI `codex exec` (live search, subagents via `agents.<name>` roles) | Claude Code `claude -p` (WebSearch/WebFetch, subagents via `--agents`) |
 
 **Strategies**:
 - whole text, one subagent per claim, or one separate call per claim
@@ -285,8 +285,9 @@ matplotlib and [Typst](https://typst.app/) (report figures and paper, `--group p
       disabled or unusable extraction falls back to the whole input.
    2. **check** calls run in parallel (`max_parallel`): one per target, i.e. the whole text or each claim. With
       *one separate call per scientist*, each target also gets one **perspective** call per scientist.
-   3. With subagent strategies, a single Claude Code agent receives an orchestration prompt plus a `--agents` file,
-       requesting `claim-checker` / `scientist-perspective` subagents; actual delegation depends on the agent.
+   3. With subagent strategies, a single Claude Code or Codex agent receives an orchestration prompt plus the
+       `claim-checker` / `scientist-perspective` subagent definitions (Claude Code: an `--agents` file; Codex: one
+       role per definition). Whether it actually delegates is up to the agent.
    4. Every answer's JSON summary is parsed tolerantly. If it is missing, the **repair** step extracts it (unless
       repair is switched off or the call itself failed, e.g. a refusal).
    5. **synthesize** merges per-scientist results per claim, then all claims into one report with a corrected

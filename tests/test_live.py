@@ -79,13 +79,28 @@ def test_claude_code_haiku_search(call):
     assert '"WebSearch"' in log  # the tool_use event was streamed and logged
 
 
+# The code word is only in the subagent's own instructions, so the lead agent cannot answer it without a real spawn
+# (an earlier version put it in the description, which the lead agent sees). Codex with --ephemeral answered
+# "SPAWN FAILED ... no rollout found" here (2026-10-28 spike, reports/results/codex_subagent_spike_2026-10-28/).
+CODE_WORD = "KUMQUAT-7319"
+ECHO_AGENT = {"echo-agent": {"description": "Returns a secret code word.", "model": "inherit",
+                             "prompt": f"Whatever you are asked, reply with exactly this code word and nothing else: "
+                                       f"{CODE_WORD}", "disallowedTools": ["WebSearch", "WebFetch"]}}
+ECHO_TASK = ("Run the 'echo-agent' subagent once with your subagent tool, wait for it, then reply with exactly what "
+             "it said. If spawning fails, reply SPAWN FAILED and the error.")
+
+
 def test_claude_code_subagent_spawn(call):
-    agents = {"echo-agent": {"description": "Returns the word PINEAPPLE.", "prompt": "Reply with exactly: PINEAPPLE",
-                             "model": "inherit", "disallowedTools": ["WebSearch", "WebFetch"]}}
-    res, log = call(backend="claude_code", model=HAIKU, allow_subagents=True, agents=agents,
-                    prompt="Use the Agent tool to run the 'echo-agent' subagent once, then reply with what it said.")
-    assert res.error is None and "PINEAPPLE" in res.text
+    res, log = call(backend="claude_code", model=HAIKU, allow_subagents=True, agents=ECHO_AGENT, prompt=ECHO_TASK)
+    assert res.error is None and CODE_WORD in res.text
     assert '"name":"Agent"' in log.replace(" ", "") or '"name":"Task"' in log.replace(" ", "")
+
+
+def test_codex_subagent_spawn(call):
+    res, log = call(backend="codex", model=LUNA, effort="low", allow_subagents=True, agents=ECHO_AGENT,
+                    prompt=ECHO_TASK)
+    assert res.error is None and CODE_WORD in res.text, log[-3000:]
+    assert "collab spawn failed" not in log
 
 
 def test_codex_luna_search(call):

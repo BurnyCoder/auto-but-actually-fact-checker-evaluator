@@ -1,0 +1,7 @@
+{"type":"thread.started","thread_id":"01a1808b-cd4e-7342-aeff-4d0bf2002bd7"}
+{"type":"turn.started"}
+2026-10-28T03:26:54.329842Z ERROR codex_core::tools::router: error=collab spawn failed: Fatal error: failed to load model context for thread 01a1808b-cd4e-7342-aeff-4d0bf2002bd7: invalid thread-store request: no rollout found for thread id 01a1808b-cd4e-7342-aeff-4d0bf2002bd7
+{"type":"item.started","item":{"id":"item_0","type":"collab_tool_call","tool":"wait","sender_thread_id":"01a1808b-cd4e-7342-aeff-4d0bf2002bd7","receiver_thread_ids":[],"prompt":null,"agents_states":{},"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_0","type":"collab_tool_call","tool":"wait","sender_thread_id":"01a1808b-cd4e-7342-aeff-4d0bf2002bd7","receiver_thread_ids":[],"prompt":null,"agents_states":{},"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"PINEAPPLE"}}
+{"type":"turn.completed","usage":{"input_tokens":80208,"cached_input_tokens":59520,"cache_write_input_tokens":0,"output_tokens":102,"reasoning_output_tokens":0}}

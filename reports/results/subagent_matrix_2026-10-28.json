@@ -1,0 +1,366 @@
+[
+ {
+  "name": "c10_L5_api_nosearch",
+  "run_id": "20261028_044157_492671_the-eiffel-tower-is-in-b",
+  "status": "done",
+  "stop_reason": null,
+  "claim_strategy": "separate_call_per_claim",
+  "scientist_strategy": "separate_call_per_scientist",
+  "check": "api/openai/gpt-6-luna search=False",
+  "calls": 12,
+  "call_errors": 0,
+  "billed_usd": 0.02349,
+  "claude_subagent_spawns": 0,
+  "codex_wait_events": 0,
+  "codex_spawn_failures": 0,
+  "warning_or_error_lines": 0,
+  "claims": [
+   {
+    "claim": "The Eiffel Tower is in Berlin.",
+    "accuracy_pct": 0.0
+   },
+   {
+    "claim": "Water boils at 100 degrees Celsius at sea level.",
+    "accuracy_pct": 90.0
+   }
+  ]
+ },
+ {
+  "name": "c11_api_sep",
+  "run_id": "20261028_043909_538355_the-eiffel-tower-is-in-b",
+  "status": "done",
+  "stop_reason": null,
+  "claim_strategy": "separate_call_per_claim",
+  "scientist_strategy": "none",
+  "check": "api/openai/gpt-6-luna search=False",
+  "calls": 4,
+  "call_errors": 0,
+  "billed_usd": 0.00724,
+  "claude_subagent_spawns": 0,
+  "codex_wait_events": 0,
+  "codex_spawn_failures": 0,
+  "warning_or_error_lines": 0,
+  "claims": [
+   {
+    "claim": "The Eiffel Tower is in Berlin.",
+    "accuracy_pct": 0.0
+   },
+   {
+    "claim": "Water boils at 100 degrees Celsius at sea level.",
+    "accuracy_pct": 90.0
+   }
+  ]
+ },
+ {
+  "name": "c12_codex_both_search",
+  "run_id": "20261028_044157_496585_the-eiffel-tower-is-in-b",
+  "status": "done",
+  "stop_reason": null,
+  "claim_strategy": "subagent_per_claim",
+  "scientist_strategy": "subagent_per_scientist",
+  "check": "agent/openai/gpt-6-luna search=True",
+  "calls": 1,
+  "call_errors": 0,
+  "billed_usd": 0,
+  "claude_subagent_spawns": 0,
+  "codex_wait_events": 3,
+  "codex_spawn_failures": 2,
+  "warning_or_error_lines": 0,
+  "claims": [
+   {
+    "claim": "The Eiffel Tower is in Berlin.",
+    "accuracy_pct": 0.0
+   },
+   {
+    "claim": "Water boils at 100 degrees Celsius at sea level.",
+    "accuracy_pct": 95.0
+   }
+  ]
+ },
+ {
+  "name": "c12b_codex_both_search_fixed",
+  "run_id": "20261028_044452_546032_the-eiffel-tower-is-in-b",
+  "status": "done",
+  "stop_reason": null,
+  "claim_strategy": "subagent_per_claim",
+  "scientist_strategy": "subagent_per_scientist",
+  "check": "agent/openai/gpt-6-luna search=True",
+  "calls": 1,
+  "call_errors": 0,
+  "billed_usd": 0,
+  "claude_subagent_spawns": 0,
+  "codex_wait_events": 4,
+  "codex_spawn_failures": 0,
+  "warning_or_error_lines": 0,
+  "claims": [
+   {
+    "claim": "The Eiffel Tower is in Berlin.",
+    "accuracy_pct": 0.0
+   },
+   {
+    "claim": "Water boils at 100 degrees Celsius at sea level.",
+    "accuracy_pct": 95.0
+   }
+  ]
+ },
+ {
+  "name": "c1_claude_claim",
+  "run_id": "20261028_043643_433269_the-eiffel-tower-is-in-b",
+  "status": "done",
+  "stop_reason": null,
+  "claim_strategy": "subagent_per_claim",
+  "scientist_strategy": "none",
+  "check": "agent/anthropic/claude-haiku-5-5 search=False",
+  "calls": 1,
+  "call_errors": 0,
+  "billed_usd": 0,
+  "claude_subagent_spawns": 2,
+  "codex_wait_events": 0,
+  "codex_spawn_failures": 0,
+  "warning_or_error_lines": 0,
+  "claims": [
+   {
+    "claim": "The Eiffel Tower is in Berlin.",
+    "accuracy_pct": 0.0
+   },
+   {
+    "claim": "Water boils at 100 degrees Celsius at sea level.",
+    "accuracy_pct": 70.0
+   }
+  ]
+ },
+ {
+  "name": "c2_claude_sci",
+  "run_id": "20261028_043643_431453_the-eiffel-tower-is-in-b",
+  "status": "done",
+  "stop_reason": null,
+  "claim_strategy": "whole_text",
+  "scientist_strategy": "subagent_per_scientist",
+  "check": "agent/anthropic/claude-haiku-5-5 search=False",
+  "calls": 1,
+  "call_errors": 0,
+  "billed_usd": 0,
+  "claude_subagent_spawns": 2,
+  "codex_wait_events": 0,
+  "codex_spawn_failures": 0,
+  "warning_or_error_lines": 0,
+  "claims": [
+   {
+    "claim": "The Eiffel Tower is in Berlin.",
+    "accuracy_pct": 1.0
+   },
+   {
+    "claim": "Water boils at 100 degrees Celsius at sea level.",
+    "accuracy_pct": 90.0
+   }
+  ]
+ },
+ {
+  "name": "c3_L3_claude_both_search",
+  "run_id": "20261028_044157_476267_the-eiffel-tower-is-in-b",
+  "status": "done",
+  "stop_reason": null,
+  "claim_strategy": "subagent_per_claim",
+  "scientist_strategy": "subagent_per_scientist",
+  "check": "agent/anthropic/claude-haiku-5-5 search=True",
+  "calls": 1,
+  "call_errors": 0,
+  "billed_usd": 0,
+  "claude_subagent_spawns": 6,
+  "codex_wait_events": 0,
+  "codex_spawn_failures": 0,
+  "warning_or_error_lines": 0,
+  "claims": [
+   {
+    "claim": "The Eiffel Tower is in Berlin.",
+    "accuracy_pct": 0.0
+   },
+   {
+    "claim": "Water boils at 100 degrees Celsius at sea level.",
+    "accuracy_pct": 75.0
+   }
+  ]
+ },
+ {
+  "name": "c4_claude_sep_sci",
+  "run_id": "20261028_043643_441082_the-eiffel-tower-is-in-b",
+  "status": "done",
+  "stop_reason": null,
+  "claim_strategy": "separate_call_per_claim",
+  "scientist_strategy": "subagent_per_scientist",
+  "check": "agent/anthropic/claude-haiku-5-5 search=False",
+  "calls": 4,
+  "call_errors": 0,
+  "billed_usd": 0.00414,
+  "claude_subagent_spawns": 5,
+  "codex_wait_events": 0,
+  "codex_spawn_failures": 0,
+  "warning_or_error_lines": 0,
+  "claims": [
+   {
+    "claim": "The Eiffel Tower is in Berlin.",
+    "accuracy_pct": 0.0
+   },
+   {
+    "claim": "Water boils at 100 degrees Celsius at sea level.",
+    "accuracy_pct": 90.0
+   }
+  ]
+ },
+ {
+  "name": "c5_codex_claim",
+  "run_id": "20261028_043643_437525_the-eiffel-tower-is-in-b",
+  "status": "done",
+  "stop_reason": null,
+  "claim_strategy": "subagent_per_claim",
+  "scientist_strategy": "none",
+  "check": "agent/openai/gpt-6-luna search=False",
+  "calls": 1,
+  "call_errors": 0,
+  "billed_usd": 0,
+  "claude_subagent_spawns": 0,
+  "codex_wait_events": 2,
+  "codex_spawn_failures": 0,
+  "warning_or_error_lines": 0,
+  "claims": [
+   {
+    "claim": "The Eiffel Tower is in Berlin.",
+    "accuracy_pct": 0.0
+   },
+   {
+    "claim": "Water boils at 100 degrees Celsius at sea level.",
+    "accuracy_pct": 98.0
+   }
+  ]
+ },
+ {
+  "name": "c6_codex_sci",
+  "run_id": "20261028_043909_307683_the-eiffel-tower-is-in-b",
+  "status": "done",
+  "stop_reason": null,
+  "claim_strategy": "whole_text",
+  "scientist_strategy": "subagent_per_scientist",
+  "check": "agent/openai/gpt-6-luna search=False",
+  "calls": 1,
+  "call_errors": 0,
+  "billed_usd": 0,
+  "claude_subagent_spawns": 0,
+  "codex_wait_events": 2,
+  "codex_spawn_failures": 0,
+  "warning_or_error_lines": 0,
+  "claims": [
+   {
+    "claim": "The Eiffel Tower is in Berlin.",
+    "accuracy_pct": 0.0
+   },
+   {
+    "claim": "Water boils at 100 degrees Celsius at sea level.",
+    "accuracy_pct": 85.0
+   }
+  ]
+ },
+ {
+  "name": "c7_codex_both",
+  "run_id": "20261028_043909_362681_the-eiffel-tower-is-in-b",
+  "status": "done",
+  "stop_reason": null,
+  "claim_strategy": "subagent_per_claim",
+  "scientist_strategy": "subagent_per_scientist",
+  "check": "agent/openai/gpt-6-luna search=False",
+  "calls": 1,
+  "call_errors": 0,
+  "billed_usd": 0,
+  "claude_subagent_spawns": 0,
+  "codex_wait_events": 8,
+  "codex_spawn_failures": 3,
+  "warning_or_error_lines": 0,
+  "claims": [
+   {
+    "claim": "The Eiffel Tower is in Berlin.",
+    "accuracy_pct": 0.0
+   },
+   {
+    "claim": "Water boils at 100 degrees Celsius at sea level.",
+    "accuracy_pct": 97.0
+   }
+  ]
+ },
+ {
+  "name": "c7b_codex_both_fixed",
+  "run_id": "20261028_044452_545785_the-eiffel-tower-is-in-b",
+  "status": "done",
+  "stop_reason": null,
+  "claim_strategy": "subagent_per_claim",
+  "scientist_strategy": "subagent_per_scientist",
+  "check": "agent/openai/gpt-6-luna search=False",
+  "calls": 1,
+  "call_errors": 0,
+  "billed_usd": 0,
+  "claude_subagent_spawns": 0,
+  "codex_wait_events": 6,
+  "codex_spawn_failures": 0,
+  "warning_or_error_lines": 0,
+  "claims": [
+   {
+    "claim": "The Eiffel Tower is in Berlin.",
+    "accuracy_pct": 0.0
+   },
+   {
+    "claim": "Water boils at 100 degrees Celsius at sea level.",
+    "accuracy_pct": 90.0
+   }
+  ]
+ },
+ {
+  "name": "c8_codex_sep_sci",
+  "run_id": "20261028_043909_359644_the-eiffel-tower-is-in-b",
+  "status": "done",
+  "stop_reason": null,
+  "claim_strategy": "separate_call_per_claim",
+  "scientist_strategy": "subagent_per_scientist",
+  "check": "agent/openai/gpt-6-luna search=False",
+  "calls": 4,
+  "call_errors": 0,
+  "billed_usd": 0.00358,
+  "claude_subagent_spawns": 0,
+  "codex_wait_events": 4,
+  "codex_spawn_failures": 0,
+  "warning_or_error_lines": 0,
+  "claims": [
+   {
+    "claim": "The Eiffel Tower is in Berlin.",
+    "accuracy_pct": 0.0
+   },
+   {
+    "claim": "Water boils at 100 degrees Celsius at sea level.",
+    "accuracy_pct": 90.0
+   }
+  ]
+ },
+ {
+  "name": "c9_L4_codex_per_claim_search",
+  "run_id": "20261028_044157_502550_the-eiffel-tower-is-in-b",
+  "status": "done",
+  "stop_reason": null,
+  "claim_strategy": "separate_call_per_claim",
+  "scientist_strategy": "none",
+  "check": "agent/openai/gpt-6-luna search=True",
+  "calls": 4,
+  "call_errors": 0,
+  "billed_usd": 0.0037,
+  "claude_subagent_spawns": 0,
+  "codex_wait_events": 0,
+  "codex_spawn_failures": 0,
+  "warning_or_error_lines": 0,
+  "claims": [
+   {
+    "claim": "The Eiffel Tower is in Berlin.",
+    "accuracy_pct": 0.0
+   },
+   {
+    "claim": "Water boils at 100 degrees Celsius at sea level.",
+    "accuracy_pct": 99.0
+   }
+  ]
+ }
+]
