@@ -8,6 +8,7 @@ text, tokens, web searches, sources and cost. Fakes stand in for the SDK clients
 import json
 import logging
 import sys
+import tomllib
 from pathlib import Path
 from types import SimpleNamespace as NS
 
@@ -92,6 +93,22 @@ def test_codex_cmd_flags(tmp_path):
     assert "computer_use" in cmd  # isolation: desktop-control features are switched off
     off = codex.build_cmd(req(backend="codex", web_search=False), "codex.exe", tmp_path)
     assert 'web_search="disabled"' in off
+
+
+def test_codex_subagent_roles(tmp_path):
+    """Claude-style --agents definitions become Codex roles: `-c agents.<name>.*` plus one TOML layer per role."""
+    agents = {"claim-checker": {"description": "Checks one claim.", "prompt": 'Say "hi" — Gödel\nthen stop',
+                                "model": "inherit", "disallowedTools": ["WebSearch", "WebFetch"]}}
+    cmd = codex._build(req(backend="codex", web_search=True, effort="low", allow_subagents=True, agents=agents),
+                       "codex.exe", tmp_path)
+    assert "--ephemeral" not in cmd  # spawn_agent fails with "no rollout found" in ephemeral sessions (live spike)
+    assert cmd[cmd.index("multi_agent") - 1] == "--enable"
+    role = tmp_path / "agents" / "claim-checker.toml"
+    assert f"agents.claim-checker.config_file={json.dumps(role.as_posix())}" in cmd
+    assert 'agents.claim-checker.description="Checks one claim."' in cmd
+    assert tomllib.loads(role.read_text(encoding="utf-8")) == {
+        "developer_instructions": 'Say "hi" — Gödel\nthen stop', "model": "gpt-6-luna",
+        "model_reasoning_effort": "low", "web_search": "disabled"}  # "inherit" -> the lead agent's model
 
 
 def test_codex_parse_events():

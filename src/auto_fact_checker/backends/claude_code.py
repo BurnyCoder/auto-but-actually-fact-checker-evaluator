@@ -5,7 +5,7 @@ optional --agents subagent file, web/subagent tool toggles, budget/turn caps) an
 Global context: used for steps with kind="agent", provider="anthropic"; with subagent strategies the check step
 passes prompts.build_agents() definitions so the main agent can spawn claim-checker / scientist subagents.
 Docs: headless mode https://code.claude.com/docs/en/headless ; CLI flags https://code.claude.com/docs/en/cli-reference ;
-subagents https://code.claude.com/docs/en/sub-agents (verified against `claude --help`, v2.1.302).
+subagents https://code.claude.com/docs/en/sub-agents (verified against `claude --help`, v2.1.312).
 """
 
 import json
