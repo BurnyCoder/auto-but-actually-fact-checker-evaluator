@@ -42,7 +42,7 @@ class LLMResult(BaseModel):
     model: str
     input_tokens: int = 0  # total known input, including cache reads and writes
     cached_input_tokens: int = 0
-    cache_creation_input_tokens: int = 0  # Anthropic reports cache writes separately from input_tokens
+    cache_creation_input_tokens: int = 0  # cache writes (Anthropic: outside input_tokens; OpenAI: a subset of it)
     output_tokens: int = 0  # incl. reasoning tokens
     web_searches: int = 0
     cost_usd: float | None = None  # None = unknown price or incomplete usage; a number is an estimate
