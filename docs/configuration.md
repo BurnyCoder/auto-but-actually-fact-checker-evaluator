@@ -22,7 +22,7 @@ slider ranges (`ui.RANGES`).
 | `max_turns` | 0–300 (0 = unlimited; `null` in JSON) | Claude Code `--max-turns` |
 | `timeout_s` | 60–7200 s (900) | agents: wall-clock limit, the process tree is killed; API calls: SDK request timeout |
 | `prompt_template` | file in `prompts/<step>/` | e.g. `check/rigorous_sections.md`, `minimal_baseline.md`, `neurips_review.md`; `extract/claimify.md`, `simple_list.md` |
-| `prompt_override` | Jinja text | replaces the template (and, for subagent strategies, the orchestrator wrapper). Variables include `text`, `context`, `persona`, `sections_text`, `output_contract`, `reports`, `report`, the option lists, and the `web_search` / `confidence` / `classify` / `labels_on` flags |
+| `prompt_override` | Jinja text | replaces the template (and, for subagent strategies, the orchestrator wrapper). Variables include `text`, `context`, `persona`, `sections_text`, `output_contract`, `reports`, `report`, the option lists, and the `web_search` / `confidence` / `classify` / `labels_on` flags. A syntax error or unknown variable is rejected when the settings are validated (before any call), naming `steps.<step>.prompt_override` |
 
 Defaults: every step uses an OpenAI API call to `gpt-6-luna` with effort `low`. Web search is on only for `check`
 and `perspective`.
