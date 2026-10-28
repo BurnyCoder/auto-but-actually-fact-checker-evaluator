@@ -3,7 +3,9 @@
 Local: widgets are generated from the pydantic field types (bool -> Checkbox, Literal -> Radio/Dropdown,
 int/float with a RANGES entry -> Slider, list[str] -> CheckboxGroup (+ "extra items" Textbox), other -> Textbox).
 A new StepConfig field appears in every Steps tab without UI code; a new FactCheckConfig field must be added to one
-of the per-tab field tuples in build_ui (tests/test_ui.py checks that every field has a widget). Run / One more iteration are generator handlers that run the pipeline in a
+of the per-tab field tuples in build_ui (tests/test_ui.py checks that every field has a widget). Editing a COUPLED
+setting runs config.fix_combination, which adjusts the conflicting settings, so the widgets can only reach valid
+configurations. Run / One more iteration are generator handlers that run the pipeline in a
 worker thread and stream progress (report, tables, live log) every second; Stop sets the run's cancel flag
 (backend cancellation is cooperative); polling stays alive to show the terminal status.
 Global context: the UI only builds a FactCheckConfig and calls pipeline.run_fact_check / run_perspective /
@@ -27,8 +29,8 @@ import pandas as pd
 from pydantic import ValidationError
 
 from . import catalog, render, spend
-from .config import (PRESETS_DIR, ROOT, STEPS, FactCheckConfig, StepConfig, get_settings, list_presets,
-                     load_preset, options, save_preset, section_ids)
+from .config import (PRESETS_DIR, ROOT, STEPS, FactCheckConfig, StepConfig, fix_combination, get_settings,
+                     list_presets, load_preset, options, save_preset, section_ids)
 from .context import begin_batch, stop_run
 from .pipeline import run_fact_check, run_perspective, synthesize_perspectives
 from .prompts import build_agents, build_prompt, template_choices
@@ -44,12 +46,15 @@ RANGES = {"max_searches": (0, 50, 1), "max_subagents": (1, 30, 1), "max_turns": 
           "accuracy_threshold": (0, 100, 1), "max_iterations": (1, 20, 1), "max_cost_usd": (0.01, 10.0, 0.01)}
 LABELS = {"kind": "Call type: API conversation turn or an agent (Codex / Claude Code)",
           "provider": "Provider (OpenAI preferred)", "effort": "Depth: reasoning effort",
-          "web_search": "Allow web search", "allow_subagents": "Agent may spawn subagents",
+          "web_search": "Allow web search",
+          "allow_subagents": "Agent may spawn subagents (always on for the check step under a subagent strategy)",
           "prompt_template": "Prompt template (files in prompts/<step>/)",
           "prompt_override": "Prompt override (full Jinja prompt, use {{ text }}; empty = template)",
           "blocked_domains": "Blocked search domains (comma-separated)",
-          "claim_strategy": "Claims: whole text / one subagent per claim / one separate call per claim",
-          "scientist_strategy": "Scientists: in-prompt only / one subagent each / one separate call each",
+          "claim_strategy": "Claims: whole text / one subagent per claim (check step becomes an agent) / "
+                            "one separate call per claim",
+          "scientist_strategy": "Scientists: in-prompt only / one subagent each (check step becomes an agent) / "
+                                "one separate call each",
           "sections": "Prompt parts that go in (01-20: the original prompt, sentence by sentence; 00, 21-23: added)",
           "conditions": "Scored conditions (score %, + confidence % while block 23 is on; only while their section is on)",
           "score_all_labels": "Score EVERY selected verdict label for every claim (else only applicable ones)",
@@ -60,6 +65,10 @@ LABELS = {"kind": "Call type: API conversation turn or an agent (Codex / Claude 
 # Claims table (render.claims_rows: #, claim, accuracy, confidence, types, top labels, corrected claim). Fixed widths
 # with wrap=True keep every column visible; without them the wrapped claim text takes the whole width.
 CLAIM_WIDTHS = ["3%", "22%", "7%", "8%", "17%", "21%", "22%"]
+# Settings whose edits can conflict with another setting; config.fix_combination resolves them.
+COUPLED = [("claim_strategy",), ("scientist_strategy",), ("perspective_scientists",), ("steps", "check", "kind"),
+           ("steps", "check", "enabled"), ("steps", "perspective", "enabled"),
+           *[("steps", s, f) for s in STEPS for f in ("provider", "model")]]
 LIST_CHOICES = {"degrees": "degrees", "verdict_labels": "verdict_labels", "styles": "styles",
                 "claim_types": "claim_types", "scientists": "scientists", "perspective_scientists": "scientists"}
 
@@ -126,6 +135,25 @@ def _ids(choices) -> list:
 
 def cfg_from(knobs: list[Knob], values) -> FactCheckConfig:
     """Rebuild a FactCheckConfig from widget values (raises gr.Error with the validation message)."""
+    return _validated(_data_from(knobs, values))
+
+
+def fix_values(knobs: list[Knob], changed: tuple, values) -> tuple[list, list[str]]:
+    """Widget values after config.fix_combination adjusted the settings coupled to the edited one, plus notes."""
+    data = _data_from(knobs, values)
+    notes = fix_combination(data, changed)
+    return values_from(knobs, _validated(data)), notes
+
+
+def _validated(data: dict) -> FactCheckConfig:
+    try:
+        return FactCheckConfig.model_validate(data)
+    except ValidationError as e:
+        raise gr.Error(f"Invalid configuration: {e.errors()[0]['msg']}")
+
+
+def _data_from(knobs: list[Knob], values) -> dict:
+    """Config dump with the widget values written in (list extras, domains, max_turns 0 -> None, int sliders)."""
     data = FactCheckConfig().model_dump()
     for knob, v in zip(knobs, values):
         *parents, leaf = knob.path
@@ -142,10 +170,7 @@ def cfg_from(knobs: list[Knob], values) -> FactCheckConfig:
             node[leaf] = int(v)
         else:
             node[leaf] = v
-    try:
-        return FactCheckConfig.model_validate(data)
-    except ValidationError as e:
-        raise gr.Error(f"Invalid configuration: {e.errors()[0]['msg']}")
+    return data
 
 
 def values_from(knobs: list[Knob], cfg: FactCheckConfig) -> list:
@@ -325,11 +350,18 @@ def build_ui() -> gr.Blocks:
         outputs = [run_id, status, report, claims_df, labels_df, cond_df, corrected, issues, iter_df, calls_df,
                    log_box, raw, target]
 
-        # Provider changes offer that provider's models (.input fires only on user edits, not preset loads).
-        for step in STEPS:
-            prov = next(k.comp for k in knobs if k.path == ("steps", step, "provider"))
-            model = next(k.comp for k in knobs if k.path == ("steps", step, "model"))
-            prov.input(lambda p: gr.Dropdown(value=catalog.DEFAULT_MODEL[p]), prov, model)
+        # Editing a coupled setting adjusts the others so every reachable widget state is a valid configuration.
+        # .input/.select fire only on user edits, not on these programmatic updates or preset loads, so they cannot
+        # loop; dropdowns use .select because their .input fired twice per pick (two notes) in Gradio 6.
+        def on_coupled(changed, *vals):
+            new, notes = fix_values(knobs, changed, vals)
+            for note in notes:
+                gr.Info(note)
+            return new
+
+        for path in COUPLED:
+            comp = next(k.comp for k in knobs if k.path == path and not k.extra)
+            (comp.select if isinstance(comp, gr.Dropdown) else comp.input)(partial(on_coupled, path), comps, comps)
 
         example.input(lambda name: (ROOT / "examples" / f"{name}.md").read_text(encoding="utf-8"), example, text)
 

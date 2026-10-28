@@ -96,7 +96,8 @@ class StepConfig(BaseModel):
     search_context_size: Literal["low", "medium", "high"] = "medium"  # OpenAI web_search context size
     max_searches: int = 5  # Anthropic max_uses / OpenAI max_tool_calls / instruction for agents
     blocked_domains: list[str] = Field(default_factory=lambda: list(DEFAULT_BLOCKED))
-    allow_subagents: bool = False  # agents only: may the agent spawn subagents (Claude Code Agent tool)
+    allow_subagents: bool = False  # agents only: may the agent spawn subagents (Claude Code Agent tool / Codex
+    # spawn_agent); always on for the check step under a subagent strategy
     max_subagents: int = 8  # upper bound stated to the orchestrating agent
     max_turns: int | None = None  # Claude Code --max-turns (None = unlimited)
     timeout_s: int = 900  # agents: wall-clock limit (process tree killed); API calls: SDK request timeout
@@ -132,6 +133,14 @@ def _opt(key: str):
     return lambda: list(options()[key])
 
 
+def _runs_nothing(check_on: bool, scientist_strategy: str, scientists: list, perspective_on: bool) -> bool:
+    """True when no call would run: check off and no separate perspective calls (validator and UI fixer)."""
+    return not check_on and not (scientist_strategy == "separate_call_per_scientist" and scientists and perspective_on)
+
+
+SEPARATE = {"subagent_per_claim": "separate_call_per_claim", "subagent_per_scientist": "separate_call_per_scientist"}
+
+
 class FactCheckConfig(BaseModel):
     """Everything that defines a fact-checking run; rendered 1:1 as UI widgets."""
 
@@ -160,15 +169,16 @@ class FactCheckConfig(BaseModel):
 
     @model_validator(mode="after")
     def _check_combinations(self):
-        """Reject only impossible combinations: subagent strategies need an agent check step allowed to spawn."""
+        """Reject only impossible combinations (fix_combination resolves the same ones for the UI)."""
         if set(self.steps) != set(STEPS):
             raise ValueError(f"steps must be exactly {STEPS}")
         check = self.steps["check"]
-        if self.uses_subagents and not (backend_for(check) == "claude_code" and check.allow_subagents):
-            raise ValueError("subagent strategies need a Claude Code check agent (kind='agent', provider='anthropic') "
-                             "with allow_subagents=true; Codex cannot load named subagent definitions")
-        if not check.enabled and not (self.scientist_strategy == "separate_call_per_scientist"
-                                      and self.perspective_scientists and self.steps["perspective"].enabled):
+        if self.uses_subagents and check.kind != "agent":
+            raise ValueError("subagent strategies need an agent check step (kind='agent': Claude Code or Codex); "
+                             "API calls cannot spawn subagents, use separate_call_per_claim / "
+                             "separate_call_per_scientist instead")
+        if _runs_nothing(check.enabled, self.scientist_strategy, self.perspective_scientists,
+                         self.steps["perspective"].enabled):
             raise ValueError("with the check step disabled, enable the perspective step and use "
                              "separate_call_per_scientist with at least one perspective scientist "
                              "(otherwise nothing would run)")
@@ -189,6 +199,47 @@ class FactCheckConfig(BaseModel):
                         "score": f"how well the claim holds up by {s}'s methods and standards of evidence"}
                        for s in self.scientists]
         return active
+
+
+def fix_combination(data: dict, changed: tuple) -> list[str]:
+    """Make a FactCheckConfig dump valid in place by adjusting a setting OTHER than `changed` (the path the user
+    just edited); returns one note per adjustment.
+
+    The UI runs this after every edit of a coupled widget, so it only offers working combinations; the CLI and
+    presets still get the validators' errors. Rules (each mirrors one validator):
+    - catalogued model of another provider: a model edit selects its provider, any other edit the provider's default
+    - check step off with nothing to run: unticking it selects separate perspective calls, other edits re-enable it
+    - subagent strategy with an API check step: a kind edit maps strategies to SEPARATE, other edits select an agent
+    """
+    notes, steps = [], data["steps"]
+    for name, sc in steps.items():
+        info = catalog.MODELS.get(sc["model"])
+        if info and info.provider != sc["provider"]:
+            if changed == ("steps", name, "model"):
+                sc["provider"] = info.provider
+                notes.append(f"{name} step: provider set to {info.provider} for {sc['model']}")
+            else:
+                sc["model"] = catalog.DEFAULT_MODEL[sc["provider"]]
+                notes.append(f"{name} step: model set to {sc['model']}, the {sc['provider']} default")
+    check, persp = steps["check"], steps["perspective"]
+    if _runs_nothing(check["enabled"], data["scientist_strategy"], data["perspective_scientists"], persp["enabled"]):
+        if changed == ("steps", "check", "enabled"):
+            data["scientist_strategy"], persp["enabled"] = "separate_call_per_scientist", True
+            data["perspective_scientists"] = data["perspective_scientists"] or _opt("default_perspective_scientists")()
+            notes.append("Check step off: the run now makes one separate perspective call per scientist")
+        else:
+            check["enabled"] = True
+            notes.append("Check step switched back on (otherwise nothing would run)")
+    if {data["claim_strategy"], data["scientist_strategy"]} & set(SEPARATE) and check["kind"] != "agent":
+        if changed == ("steps", "check", "kind"):
+            data["claim_strategy"] = SEPARATE.get(data["claim_strategy"], data["claim_strategy"])
+            data["scientist_strategy"] = SEPARATE.get(data["scientist_strategy"], data["scientist_strategy"])
+            notes.append("API calls cannot spawn subagents: strategies switched to one separate call each")
+        else:
+            check["kind"] = "agent"
+            notes.append(f"Subagents need an agent: the check step is now a "
+                         f"{'Codex' if check['provider'] == 'openai' else 'Claude Code'} agent")
+    return notes
 
 
 def deep_merge(base: dict, patch: dict) -> dict:

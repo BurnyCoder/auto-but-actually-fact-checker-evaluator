@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"01a1808c-ccb2-7963-b9e2-9c8887ccf8e2"}
+{"type":"turn.started"}
+2026-10-28T03:27:56.075466Z ERROR codex_core::tools::router: error=collab spawn failed: Fatal error: failed to load model context for thread 01a1808c-ccb2-7963-b9e2-9c8887ccf8e2: invalid thread-store request: no rollout found for thread id 01a1808c-ccb2-7963-b9e2-9c8887ccf8e2
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"SPAWN FAILED — Fatal error: failed to load model context for thread 01a1808c-ccb2-7963-b9e2-9c8887ccf8e2: invalid thread-store request: no rollout found for thread id 01a1808c-ccb2-7963-b9e2-9c8887ccf8e2."}}
+{"type":"turn.completed","usage":{"input_tokens":30859,"cached_input_tokens":15232,"cache_write_input_tokens":0,"output_tokens":124,"reasoning_output_tokens":0}}

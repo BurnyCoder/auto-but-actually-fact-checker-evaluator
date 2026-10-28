@@ -1,0 +1,6 @@
+{"type":"thread.started","thread_id":"01a1808c-7c89-7710-b8aa-77d82db1ba09"}
+{"type":"turn.started"}
+{"type":"item.started","item":{"id":"item_0","type":"collab_tool_call","tool":"wait","sender_thread_id":"01a1808c-7c89-7710-b8aa-77d82db1ba09","receiver_thread_ids":[],"prompt":null,"agents_states":{},"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_0","type":"collab_tool_call","tool":"wait","sender_thread_id":"01a1808c-7c89-7710-b8aa-77d82db1ba09","receiver_thread_ids":[],"prompt":null,"agents_states":{},"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"KUMQUAT-7319"}}
+{"type":"turn.completed","usage":{"input_tokens":46299,"cached_input_tokens":30464,"cache_write_input_tokens":0,"output_tokens":71,"reasoning_output_tokens":0}}

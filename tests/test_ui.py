@@ -31,6 +31,19 @@ def test_presets_round_trip_through_widgets(demo, preset):
     assert ui.cfg_from(demo.afc_knobs, ui.values_from(demo.afc_knobs, cfg)) == cfg
 
 
+def test_coupled_edit_adjusts_the_other_widgets(demo):
+    """Choosing a subagent strategy with the default API check step switches the check step to an agent."""
+    knobs = demo.afc_knobs
+    vals = ui.values_from(knobs, C.FactCheckConfig())
+    vals[next(i for i, k in enumerate(knobs) if k.path == ("claim_strategy",))] = "subagent_per_claim"
+    with pytest.raises(Exception, match="Invalid configuration"):
+        ui.cfg_from(knobs, vals)  # the pop-up users saw before the fix
+    new, notes = ui.fix_values(knobs, ("claim_strategy",), vals)
+    cfg = ui.cfg_from(knobs, new)
+    assert notes and cfg.claim_strategy == "subagent_per_claim" and cfg.steps["check"].kind == "agent"
+    assert all(any(k.path == p for k in knobs) for p in ui.COUPLED)  # every coupled setting has a widget
+
+
 def test_preview_shows_each_call_type():
     l3 = ui.preview(C.load_preset("L3_agent_subagents_claude"), "TEXT")
     assert "SUBAGENTS (--agents JSON)" in l3 and "claim-checker" in l3
