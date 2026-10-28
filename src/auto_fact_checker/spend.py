@@ -2,7 +2,8 @@
 
 Local: append one JSON line per LLM call; sum the billed costs; refuse new calls once the cap is reached.
 Global context: RunContext.call() (context.py) calls check_budget() before every LLM call and record() after it,
-so the cap covers the UI, the CLI, live tests and the benchmark alike. Subscription-auth agent runs are recorded
+so the cap covers the UI, the CLI and the benchmark; live tests call both functions themselves (tests/test_live.py).
+The check is soft (recorded costs only, see README "Costs and safety"). Subscription-auth agent runs are recorded
 with billed=False (their cost is notional) and do not count toward the cap.
 """
 

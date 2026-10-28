@@ -1,11 +1,14 @@
 """Benchmark datasets: SciFact claims as binary SUPPORT / CONTRADICT items, plus seeded balanced sampling.
 
 Local: loads the Hugging Face parquet export of allenai/scifact (the original repo uses a loading script that
-`datasets` >= 4 no longer runs), keeps claims whose evidence labels are all SUPPORT or all CONTRADICT (NEI and
+`datasets` >= 4 no longer runs: https://github.com/huggingface/datasets/releases/tag/4.0.0 "Remove scripts
+altogether"), keeps claims whose evidence labels are all SUPPORT or all CONTRADICT (NEI and
 conflicting claims are dropped: NEI only means "the given abstract does not address the claim", not "false").
 Global context: bench/run.py turns each item's claim into a fact-checking run; label True = SUPPORT.
 Dataset: Wadden et al. 2020, "Fact or Fiction: Verifying Scientific Claims", https://arxiv.org/abs/2004.14974 ;
-https://huggingface.co/datasets/allenai/scifact (CC BY-NC 2.0). Expected binary counts (verified 2026-10-17):
+https://huggingface.co/datasets/allenai/scifact . Licence: the HF card lists CC BY-NC 2.0, while the upstream
+https://github.com/allenai/scifact/blob/master/LICENSE.md releases claims/annotations under CC BY 4.0 and the
+S2ORC-derived corpus abstracts under ODC-By 1.0. Expected binary counts (verified 2026-10-17):
 validation 124 SUPPORT / 64 CONTRADICT, train 332 / 173.
 """
 

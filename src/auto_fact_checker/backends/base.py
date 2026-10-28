@@ -25,7 +25,7 @@ class LLMRequest(BaseModel):
     max_searches: int = 5
     blocked_domains: list[str] = Field(default_factory=list)
     allow_subagents: bool = False
-    max_subagents: int = 8  # Codex: concurrent subagent thread cap (its default let only 4 of 6 spawns start)
+    max_subagents: int = 8  # Codex: concurrent subagent thread cap (at its default, some parallel spawns failed)
     agents: dict | None = None  # subagent definitions (Claude Code --agents / Codex roles) for subagent strategies
     max_turns: int | None = None
     max_budget_usd: float | None = None  # per-call cap passed to Claude Code --max-budget-usd

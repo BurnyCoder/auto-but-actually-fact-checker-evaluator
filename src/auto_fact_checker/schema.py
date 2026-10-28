@@ -18,7 +18,8 @@ from pydantic import BaseModel, BeforeValidator, ConfigDict, ValidationError
 
 
 def _pct(v):
-    """Accept 85, "85", "85%", 0.85-style strings; clamp to 0-100; anything unparseable becomes None."""
+    """Read 85, "85" or "85%" as 85; decimals stay percentages (0.85 -> 0.85 %, not rescaled); the first number in
+    a string is used; clamp to 0-100; anything unparseable becomes None."""
     if v is None or isinstance(v, bool):
         return None
     if isinstance(v, str):

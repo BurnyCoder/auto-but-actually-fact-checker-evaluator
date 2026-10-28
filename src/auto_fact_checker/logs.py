@@ -2,7 +2,8 @@
 
 Local: configures the "afc" logger hierarchy once (file + stdout handlers, UTF-8, millisecond timestamps) and
 provides log_block() for full, never-truncated prompt/output dumps.
-Global context: every module logs through logging.getLogger("afc.<module>"); RunContext (context.py) attaches a
+Global context: modules log through the run's "afc.pipeline" adapter (RunContext.log) or an "afc.<module>" logger
+(afc.bench, afc.bench.*); RunContext (context.py) attaches a
 per-run file (runs/<id>/run.log) that the Gradio UI tails to show a live log. Python logging docs:
 https://docs.python.org/3/library/logging.html and the cookbook on filters/contextual info:
 https://docs.python.org/3/howto/logging-cookbook.html#using-filters-to-impart-contextual-information
@@ -13,7 +14,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-ROOT_LOGGER = "afc"  # every project logger is a child: afc.pipeline, afc.backends.openai_api, ...
+ROOT_LOGGER = "afc"  # every project logger is a child: afc.pipeline, afc.bench, afc.bench.ai_errors, ...
 FORMAT = "%(asctime)s.%(msecs)03d | %(levelname)-7s | %(name)s | %(message)s"  # e.g. 2026-10-17 13:05:01.123 | INFO
 DATEFMT = "%Y-%m-%d %H:%M:%S"
 _state: dict[str, Path] = {}  # remembers the current process log file so setup is idempotent
