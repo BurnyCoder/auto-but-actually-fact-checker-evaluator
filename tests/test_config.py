@@ -68,6 +68,15 @@ def test_fix_combination_makes_every_combination_valid_and_keeps_the_edit(edited
         assert _get(data, edited) == before  # the fix changes another setting, never the one just edited
 
 
+def test_broken_prompt_override_is_rejected_before_any_call():
+    """A Jinja mistake in an override used to surface only when that step ran, after earlier (paid) calls."""
+    for override, message in [("{{ nope }}", "'nope' is undefined"), ("{% if %}", "Expected an expression")]:
+        with pytest.raises(ValidationError, match=f"steps.synthesize.prompt_override: {message}"):
+            C.apply_overrides(C.FactCheckConfig(), [f"steps.synthesize.prompt_override={override}"])
+    C.apply_overrides(C.FactCheckConfig(), ["steps.perspective.prompt_override=As {{ persona }}: {{ text }}",
+                                            "steps.synthesize.prompt_override={{ reports }} {{ output_contract }}"])
+
+
 def test_fix_combination_directions():
     data = C.FactCheckConfig().model_dump() | {"claim_strategy": "subagent_per_claim"}
     assert C.fix_combination(data, ("claim_strategy",)) and data["steps"]["check"]["kind"] == "agent"
