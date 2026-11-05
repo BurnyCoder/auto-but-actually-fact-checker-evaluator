@@ -82,7 +82,7 @@ costs are recorded after calls, sequential or parallel calls can overshoot, and 
 = Evaluation design (pre-registered)
 
 The design (#link("https://github.com/BurnyCoder/auto-but-actually-fact-checker-evaluator/blob/main/docs/benchmark.md")[docs/benchmark.md])
-was committed before any paid call.
+was committed (commit `378c59b`, 2026-10-17 14:09) before any benchmark call; the first pilot run started at 14:22.
 
 *Data.* SciFact @scifact claims whose evidence labels are all SUPPORT or all CONTRADICT; NEI and conflicting
 claims are dropped. The pool is the validation and train splits; nothing was tuned on it. The sample is balanced,
@@ -149,7 +149,7 @@ reason for the errors.
 *Search improves the observed verdict scores.* C − A (+0.135) exceeds the observed B − A gain, while no
 positive B − C difference was detected.
 The 95% interval for B − C has an upper endpoint of about +1 pp. B produced 3,562 output
-tokens per claim on average, vs 420 for C. Post hoc, D had no detectable verdict advantage over A (Δ +0.010 [−0.026, +0.047]); its higher AUROC (+0.047 [+0.013, +0.082]) is a hypothesis for future work. Codex agent E reached 0.876 on 40 claims, with no detected balanced-accuracy difference from the API systems and no equivalence test. Claude Code agent F (Haiku) ranked claims well (AUROC 0.962, versus B's 0.978 and C's 0.992 on the same 40 claims) but had SUPPORT recall 0.65. Its lower balanced accuracy versus C (p = 0.031) is one of 18 post-hoc tests and confounded by the model.
+tokens per claim on average, vs 420 for C (from local run logs, which are not published). Post hoc, D had no detectable verdict advantage over A (Δ +0.010 [−0.026, +0.047]); its higher AUROC (+0.047 [+0.013, +0.082]) is a hypothesis for future work. Codex agent E reached 0.876 on 40 claims, with no detected balanced-accuracy difference from the API systems and no equivalence test. Claude Code agent F (Haiku) ranked claims well (AUROC 0.962, versus B's 0.978 and C's 0.992 on the same 40 claims) but had SUPPORT recall 0.65. Its lower balanced accuracy versus C (p = 0.031) is one of 18 post-hoc tests and confounded by the model.
 
 *Retest.* A re-run of A agreed on 96.5% of predictions, with ΔBA +0.005 [−0.020,+0.031]. This is an
 item-bootstrap interval for one pair of runs, not an estimate of variance across independently repeated runs.
@@ -290,7 +290,8 @@ validation of both the original reference and the proposed errors.
   errors, and the reference-based judge sometimes penalises supported additions. The QC of the injected errors and the audit of
   judge-flagged statements were done by an AI coding agent, not by a human expert.
 - *Delegation and refusals.* In four smoke tests, Codex (`gpt-6-luna`) never actually spawned a sub-agent and
-  twice reported a fabricated sub-agent answer. Claude Haiku refused some biomedical claims non-deterministically
+  twice reported a fabricated sub-agent answer. A 2026-10-28 check attributed the failed spawns to the backend's
+  `--ephemeral` flag; without it, a spawn test returned a code word given only to the subagent. Claude Haiku refused some biomedical claims non-deterministically
   (bio-safety filter); one refusal is scored wrong in F.
 - *Statistical interpretation.* Nonsignificance does not establish equality, and the power calculation is not
   an effect-size bound @asa. Exp08's Wilcoxon test concerns the paired-difference distribution; its bootstrap
