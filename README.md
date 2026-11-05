@@ -115,7 +115,8 @@ On a 40-claim subset (post hoc), agents running the full prompt had these point 
 **Does "iterate until accurate" produce correct text?** Only partly (Exp07, pre-registered). A Codex agent with
 web search, looping on 100 claims and judged against the gold evidence:
 - raised correctness from 49% to 62%
-- self-rated all final answers above its stopping threshold, while the reference judge rated 62% correct
+- self-rated all final answers at or above its 90% stopping threshold (9 of 100 exactly at 90%), while the reference
+  judge rated 62% correct
 - showed no detectable correctness gain from later passes (+1 percentage point; 95% interval −6 to +8 points)
 
 Treat the loop's "accurate" label as a claim to verify, not a verification.
