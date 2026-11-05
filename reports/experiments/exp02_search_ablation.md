@@ -34,9 +34,9 @@ labelled exploratory.
   balanced accuracy, with the CI well away from 0.
 - **There is no detectable benefit of the long rigorous prompt on this task.** The point estimate is negative
   (−2.5 pp) and the CI [−6.1, +1.0] includes 0, so we cannot claim it hurts either.
-- What the CI does rule out: a gain of more than about 1 pp from the rigorous prompt for single-claim binary
-  verification with `gpt-6-luna`.
-- **Cost.** B costs 29% more than C ($2.97 vs $2.30) and produces far longer outputs: 3,562 output tokens per claim on average, vs 420 for C (8.5×),
+- The 95% CI's upper limit is about +1 pp: larger gains from the rigorous prompt for single-claim binary
+  verification with `gpt-6-luna` lie outside this interval, but no noninferiority or equivalence test was specified.
+- **Cost.** B costs 29% more than C ($2.97 vs $2.30) and produces far longer outputs: 3,562 output tokens per claim on average, vs 420 for C (8.5×; from local run logs, which are not published),
   because it scores 45 labels and 12 conditions with confidences.
 - **Scope of the conclusion.** SciFact measures only the binary truth of single, atomic, mostly empirical claims.
   The rigorous prompt exists to produce things this benchmark does not score:

@@ -1,7 +1,7 @@
 # Exp01 — Rigorous configurable prompt + web search vs. a simple LLM call on SciFact (pre-registered primary)
 
-**Pre-registration:** [`docs/benchmark.md`](../../docs/benchmark.md). It was committed (PR #7, commit `378c59b`)
-before any paid LLM call. **Data:** `reports/results/exp01_pilot/`, `exp01/`, `exp01_retest/`.
+**Pre-registration:** [`docs/benchmark.md`](../../docs/benchmark.md). It was committed (PR #7, commit `378c59b`, 14:09)
+before any benchmark call (the first pilot run ID is `20261017_142214`). **Data:** `reports/results/exp01_pilot/`, `exp01/`, `exp01_retest/`.
 **Analysis:** [`reports/scripts/analyze_scifact.py`](../scripts/analyze_scifact.py), output in
 `reports/results/scifact_analysis.json`. **Date:** 2026-10-17.
 
