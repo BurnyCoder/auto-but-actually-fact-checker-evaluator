@@ -70,7 +70,9 @@ Criteria:
 - the claim is coherent, i.e. it asserts something checkable
 
 **42 edits passed unchanged.** Six were edited: four repairs (two incoherent, one multi-fact, one still true) and
-two type relabels:
+two type relabels. The two incoherent-edit repairs also changed the error-type label (`dataset_raw.jsonl` vs
+`dataset.jsonl`: Transformer 2 "wrong number" and Transformer 5 "absurd overclaim" both became "negation or
+reversed direction"); other raw labels differ only by the longer canonical type names:
 
 | passage, error | injector's edit | problem | QC edit |
 |---|---|---|---|
