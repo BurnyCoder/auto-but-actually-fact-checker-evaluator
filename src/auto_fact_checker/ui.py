@@ -9,7 +9,9 @@ configurations. Run / One more iteration are generator handlers that run the pip
 worker thread and stream progress (report, tables, live log) every second; Stop sets the run's cancel flag
 (backend cancellation is cooperative); polling stays alive to show the terminal status.
 Global context: the UI only builds a FactCheckConfig and calls pipeline.run_fact_check / run_perspective /
-synthesize_perspectives; everything shown comes from render.py.
+synthesize_perspectives; everything shown comes from render.py (Markdown, tables) and render_html.py (status bar,
+Overview cards, word diff). Look and feel: theme.THEME and ui.css, passed to launch(); elem_classes here only name
+the CSS rules (afc-prose, afc-table, afc-long-list).
 Gradio docs: Blocks https://www.gradio.app/docs/gradio/blocks ; streaming generators
 https://www.gradio.app/guides/streaming-outputs ; State https://www.gradio.app/guides/state-in-blocks ;
 dynamic render https://www.gradio.app/guides/dynamic-apps-with-render-decorator ; event-listener options
@@ -31,7 +33,7 @@ import gradio as gr
 import pandas as pd
 from pydantic import ValidationError
 
-from . import catalog, render, spend
+from . import catalog, render, render_html, spend, theme
 from .config import (PRESETS_DIR, ROOT, STEPS, FactCheckConfig, StepConfig, fix_combination, get_settings,
                      list_presets, load_preset, options, save_preset, section_ids)
 from .context import begin_batch, stop_run
@@ -68,6 +70,7 @@ LABELS = {"kind": "Call type: API conversation turn or an agent (Codex / Claude 
 # Claims table (render.claims_rows: #, claim, accuracy, confidence, types, top labels, corrected claim). Fixed widths
 # with wrap=True keep every column visible; without them the wrapped claim text takes the whole width.
 CLAIM_WIDTHS = ["3%", "22%", "7%", "8%", "17%", "21%", "22%"]
+LONG_LIST = 12  # CheckboxGroups with more choices get the capped, scrolling afc-long-list style (ui.css)
 # Settings whose edits can conflict with another setting; config.fix_combination resolves them.
 COUPLED = [("claim_strategy",), ("scientist_strategy",), ("perspective_scientists",), ("steps", "check", "kind"),
            ("steps", "check", "enabled"), ("steps", "perspective", "enabled"),
@@ -122,7 +125,8 @@ def _widgets(name: str, annotation, value, step: str | None, knobs: list[Knob], 
     elif typing.get_origin(annotation) is list:
         choices = _list_choices(name)
         knobs.append(Knob(path, gr.CheckboxGroup(choices=choices, value=[v for v in value if v in _ids(choices)],
-                                                 label=label, show_select_all=True)))
+                                                 label=label, show_select_all=True,
+                                                 elem_classes=["afc-long-list"] if len(choices) > LONG_LIST else None)))
         if name not in ("sections", "conditions"):
             knobs.append(Knob(path, gr.Textbox(value="; ".join(v for v in value if v not in _ids(choices)),
                                                label=f"Extra {name.replace('_', ' ')} (separate with ;)"),
@@ -224,21 +228,17 @@ def preview(cfg: FactCheckConfig, text: str) -> str:
 def outputs_for(run: FactCheckRun | None):
     """Values for every output component, in OUTPUT order."""
     if run is None:
-        return [None, "", "", None, None, None, "", "", None, None, "", {}, gr.Dropdown(choices=[WHOLE_TEXT])]
+        return [None, "", render_html.overview_html(None), "", None, None, None, render_html.changes_html(None), "",
+                "", None, None, "", {}, gr.Dropdown(choices=[WHOLE_TEXT])]
     final = run.iterations[-1].final if run.iterations else None
     s = final.summary if final else None
     log_path = get_settings().runs_dir / run.run_id / "run.log"
     log = log_path.read_text(encoding="utf-8", errors="replace")[-80_000:] if log_path.exists() else ""
-    ledger = spend.summary(get_settings().ledger)
-    status = (f"**{run.status}** — run `{run.run_id}` — iteration {len(run.iterations)} — "
-              f"{len(run.calls)} calls — run known estimate ${run.total_cost_usd:.4f} "
-              f"({run.unknown_cost_calls} unknown-cost calls) — known billed estimate "
-              f"${ledger['known_billed_usd']:.4f} of ${get_settings().spend_limit_usd:.2f} "
-              f"({ledger['unknown_billed_calls']} unknown billed calls)"
-              + (f" — {run.stop_reason}" if run.stop_reason else ""))
+    status = render_html.status_html(run, spend.summary(get_settings().ledger), get_settings().spend_limit_usd)
     claims = [c.claim for c in s.claims] if s else []
-    return [run.run_id, status, render.run_markdown(run), pd.DataFrame(render.claims_rows(s)),
-            pd.DataFrame(render.labels_rows(s)), pd.DataFrame(render.conditions_rows(s)),
+    return [run.run_id, status, render_html.overview_html(run), render.run_markdown(run, collapse_json=True),
+            pd.DataFrame(render.claims_rows(s)), pd.DataFrame(render.labels_rows(s)),
+            pd.DataFrame(render.conditions_rows(s)), render_html.changes_html(run),
             (s.corrected_text or "") if s else "", "\n".join(f"- {i}" for i in (s.issues if s else [])),
             pd.DataFrame(render.iterations_rows(run)), pd.DataFrame(render.calls_rows(run)), log,
             s.model_dump() if s else {}, gr.Dropdown(choices=[WHOLE_TEXT] + claims)]
@@ -259,36 +259,43 @@ def build_ui() -> gr.Blocks:
     """Construct the Blocks app (separate from launch() so tests can build it)."""
     knobs: list[Knob] = []
     with gr.Blocks(title="Auto Fact-Checker") as demo:
-        gr.Markdown("# Auto Fact-Checker\nRigorous, configurable LLM fact-checking: choose per step whether to "
-                    "use an API call or an agent, the model, depth, web search, subagents and every prompt block. "
-                    "Scores and confidence are model-reported assessments; they do not certify factual correctness.")
+        gr.Markdown("# Auto Fact-Checker\n\nConfigurable LLM fact-checking: per step, choose an API call or an "
+                    "agent, the model, depth, web search, subagents and every prompt block.\n\n"
+                    "Scores and confidence are model-reported assessments; they do not certify factual correctness.",
+                    elem_id="afc-header")
         run_id = gr.State(None)
         with gr.Row():
             with gr.Column(scale=5, elem_id="afc-io"):  # text + results; the id lets scripts screenshot it
-                example =gr.Dropdown(choices=[p.stem for p in EXAMPLES], value=None, label="Load an example text")
+                example = gr.Dropdown(choices=[p.stem for p in EXAMPLES], value=None, label="Load an example text")
                 text = gr.Textbox(lines=10, label="Text to fact-check")
                 with gr.Row():
-                    run_btn = gr.Button("Run fact-check", variant="primary")
+                    run_btn = gr.Button("Run fact-check", variant="primary")  # the one accented action
                     more_btn = gr.Button("One more iteration")
                     stop_btn = gr.Button("Stop", variant="stop")
                     preview_btn = gr.Button("Preview prompts")
-                status = gr.Markdown()
+                status = gr.HTML()
                 with gr.Tabs():
+                    with gr.Tab("Overview"):
+                        overview = gr.HTML(render_html.overview_html(None))
                     with gr.Tab("Report"):
-                        report = gr.Markdown()
+                        report = gr.Markdown(elem_classes="afc-prose")
                     with gr.Tab("Claims"):
                         claims_df = gr.Dataframe(label="Claims (model-reported accuracy, confidence, types, labels)",
-                                                 wrap=True, max_height=2000, column_widths=CLAIM_WIDTHS)
+                                                 wrap=True, max_height=2000, column_widths=CLAIM_WIDTHS,
+                                                 show_search="search", elem_classes="afc-table")
                     with gr.Tab("Labels"):
-                        labels_df = gr.Dataframe(label="Every scored verdict label per claim")
+                        labels_df = gr.Dataframe(label="Every scored verdict label per claim", show_search="search",
+                                                 elem_classes="afc-table")
                     with gr.Tab("Conditions"):
-                        cond_df = gr.Dataframe(label="Every scored condition per claim", wrap=True)
+                        cond_df = gr.Dataframe(label="Every scored condition per claim", wrap=True,
+                                               show_search="search", elem_classes="afc-table")
                     with gr.Tab("Corrected text"):
+                        changes = gr.HTML(render_html.changes_html(None))
                         corrected = gr.Textbox(lines=10, label="Corrected whole text (input of the next iteration)")
                     with gr.Tab("Issues"):
-                        issues = gr.Markdown()
+                        issues = gr.Markdown(elem_classes="afc-prose")
                     with gr.Tab("Iterations"):
-                        iter_df = gr.Dataframe()
+                        iter_df = gr.Dataframe(elem_classes="afc-table")
                     with gr.Tab("Perspectives"):
                         gr.Markdown("Each scientist button (Strategy tab, under *Scientists for separate calls / "
                                     "subagents / perspective buttons*) makes one independent call with the "
@@ -299,7 +306,7 @@ def build_ui() -> gr.Blocks:
                             all_btn = gr.Button("Run all selected scientists")
                             synth_btn = gr.Button("Synthesize perspectives")
                     with gr.Tab("Calls & cost"):
-                        calls_df = gr.Dataframe()
+                        calls_df = gr.Dataframe(elem_classes="afc-table")
                     with gr.Tab("Live log"):
                         log_box = gr.Textbox(lines=25, max_lines=25, autoscroll=True, label="runs/<id>/run.log")
                     with gr.Tab("Prompt preview"):
@@ -307,13 +314,14 @@ def build_ui() -> gr.Blocks:
                     with gr.Tab("Raw JSON"):
                         raw = gr.JSON()
             with gr.Column(scale=4):
-                with gr.Row():
-                    preset = gr.Dropdown(choices=list_presets(), value=None, label="Preset (fills every setting below)")
-                    load_btn = gr.Button("Load preset")
-                with gr.Row():
-                    preset_name = gr.Textbox(label="Save current settings as preset", placeholder="my_preset")
-                    save_btn = gr.Button("Save preset")
-                    reset_btn = gr.Button("Reset to defaults")
+                with gr.Row(elem_classes="afc-toolbar"):  # afc-toolbar aligns the buttons with the inputs
+                    preset = gr.Dropdown(choices=list_presets(), value=None, scale=3,
+                                         label="Preset (fills every setting below)")
+                    load_btn = gr.Button("Load preset", scale=1)
+                with gr.Row(elem_classes="afc-toolbar"):
+                    preset_name = gr.Textbox(label="Save current settings as preset", placeholder="my_preset", scale=2)
+                    save_btn = gr.Button("Save preset", scale=1)
+                    reset_btn = gr.Button("Reset to defaults", scale=1)
                 defaults = FactCheckConfig()
                 fields = FactCheckConfig.model_fields
                 with gr.Tabs():
@@ -351,8 +359,8 @@ def build_ui() -> gr.Blocks:
                                   "stop_on_fixed_point", "max_cost_usd"):
                             _widgets(f, fields[f].annotation, getattr(defaults, f), None, knobs, (f,))
         comps = [k.comp for k in knobs]
-        outputs = [run_id, status, report, claims_df, labels_df, cond_df, corrected, issues, iter_df, calls_df,
-                   log_box, raw, target]
+        outputs = [run_id, status, overview, report, claims_df, labels_df, cond_df, changes, corrected, issues,
+                   iter_df, calls_df, log_box, raw, target]  # same order as outputs_for()
 
         # Editing a coupled setting adjusts the others so every reachable widget state is a valid configuration.
         # .input/.select fire only on user edits, not on these programmatic updates or preset loads, so they cannot
@@ -449,5 +457,6 @@ def launch(port: int = 7860, inbrowser: bool = True, block: bool = True) -> gr.B
     block=False returns at once (Gradio `prevent_thread_lock`) so a script can drive the app and then `close()` it,
     see docs/scripts/take_screenshots.py and https://www.gradio.app/docs/gradio/blocks#blocks-launch"""
     demo = build_ui().queue(default_concurrency_limit=4)
-    demo.launch(server_name="127.0.0.1", server_port=port, inbrowser=inbrowser, prevent_thread_lock=not block)
+    demo.launch(server_name="127.0.0.1", server_port=port, inbrowser=inbrowser, prevent_thread_lock=not block,
+                theme=theme.THEME, css_paths=[theme.CSS_PATH])  # Gradio 6: theme and CSS are launch() parameters
     return demo
