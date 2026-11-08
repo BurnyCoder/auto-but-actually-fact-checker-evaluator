@@ -18,7 +18,9 @@ This page describes how the modules fit together. The overview graph is in the [
 | `pipeline.py` | `run_fact_check` → `run_iteration`; `run_perspective`; `synthesize_perspectives`; `parallel_map` |
 | `backends/` | `openai_api`, `anthropic_api`, `claude_code`, `codex`, shared `subprocess_jsonl` |
 | `render.py` | Markdown report and table rows shared by the UI and the CLI |
+| `render_html.py` | UI-only HTML: status bar, Overview (score tiles, colour-banded claim cards), word diffs; escapes all model text (`esc`) |
 | `ui.py` | Gradio Blocks: StepConfig widgets generated from the fields, FactCheckConfig fields listed per tab |
+| `theme.py`, `ui.css` | the UI's Soft theme (system font, indigo accent) and stylesheet, passed to `launch()` |
 | `bench/` | `datasets` (SciFact), `metrics`, `run` (`afc bench`), `correction` + `judge` (`afc correct-eval`, Exp07), `ai_errors` + `sources` + `judge` (`afc ai-errors`, Exp08) |
 
 ## Call graph of one iteration

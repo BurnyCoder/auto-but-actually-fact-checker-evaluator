@@ -137,7 +137,17 @@ def test_stream_yields_final_outputs(fake):
     run = new_run("Text", cfg)
     frames = list(ui._stream(run, ui.EXECUTOR.submit(run_fact_check, "Text", cfg, run)))
     final = frames[-1]
-    assert len(final) == 13 and "**done**" in final[1] and final[6] == "Text [corrected]"
+    assert len(final) == 15 and "afc-status-done" in final[1] and final[8] == "Text [corrected]"
+
+
+def test_long_checkbox_lists_scroll_instead_of_filling_the_page(demo):
+    """Lists with many choices (63 scientists, 45 verdict labels, 24 sections) get the capped, scrolling style."""
+    from auto_fact_checker import theme
+
+    groups = [k.comp for k in demo.afc_knobs if isinstance(k.comp, gr.CheckboxGroup)]
+    long = [g for g in groups if len(g.choices) > ui.LONG_LIST]
+    assert long and all("afc-long-list" in (g.elem_classes or []) for g in long)
+    assert theme.CSS_PATH.is_file() and ".afc-long-list" in theme.CSS_PATH.read_text(encoding="utf-8")
 
 
 def test_status_discloses_unknown_costs(settings):

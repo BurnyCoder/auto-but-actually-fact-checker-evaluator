@@ -50,6 +50,9 @@ labels it clicks are part of its contract.
   Templates are Jinja2 with `StrictUndefined`. `tests/test_prompts.py::test_every_template_renders` catches
   missing variables in the five step folders; the subagent, judge and bench templates are rendered by other tests.
 - Output parsing goes through `schema.parse_block`, which is tolerant. Keep new JSON fields optional.
+- Look and feel lives in `theme.py` and `ui.css`; `ui.py` only names CSS classes (`elem_classes`). HTML for the UI is
+  built in `render_html.py`, and every model-derived string in it goes through `render_html.esc` (`gr.HTML` does not
+  sanitize).
 
 ## Conventions
 

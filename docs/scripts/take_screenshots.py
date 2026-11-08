@@ -2,7 +2,7 @@
 
 Local: starts the real app in this process (`ui.launch(block=False)`), drives it with headless Playwright like a
 user would (pick an example text, pick a preset, Load preset, Run fact-check) in a fullscreen 1920x1080 window and
-waits for the run to finish. It then saves PNGs to docs/images/: app.png is the whole page with the Claims tab open
+waits for the run to finish. It then saves PNGs to docs/images/: app.png is the whole page with the Overview tab open
 and its empty border trimmed; the example_*.png files show only the text-and-results column with another tab open.
 Global context: the run goes through pipeline.run_fact_check and RunContext.call like any UI run, so its prompt and
 output are logged in full. --offline substitutes marked synthetic responses in an isolated .cache directory;
@@ -31,7 +31,7 @@ from auto_fact_checker.logs import setup_logging
 from auto_fact_checker.ui import launch
 
 log = logging.getLogger("afc.screenshots")
-FINISHED = re.compile(r"^(done|stopped|error) — run ")  # ui.outputs_for status line: "**done** — run `<id>` — …"
+FINISHED = re.compile(r"^(done|stopped|error) run ")  # render_html.status_html text: "done run <id> iteration 1 …"
 
 
 def pick(page, combobox: str, option: str) -> None:
@@ -54,6 +54,7 @@ def save(page, path, tab: str, whole_page: bool = False, max_height: int | None 
     """Open `tab`, then save the whole page with its empty border trimmed, or only the text-and-results column
     `#afc-io` cut to max_height px."""
     page.get_by_role("tab", name=tab, exact=True).click()
+    page.wait_for_timeout(1000)  # a tab's content renders on first open; measuring earlier gives an empty column
     page.evaluate("window.scrollTo(0, 0)")  # bounding_box() is viewport-relative; at scroll 0 it is page-relative
     if whole_page:
         page.screenshot(path=path, full_page=True)
@@ -66,15 +67,24 @@ def save(page, path, tab: str, whole_page: bool = False, max_height: int | None 
 
 
 def verify_offline_controls(page) -> None:
-    """Exercise continuation and cooperative Stop through real browser clicks with the offline backend."""
+    """Exercise continuation, cooperative Stop and HTML escaping through real browser clicks with the offline
+    backend."""
     page.get_by_role("button", name="One more iteration", exact=True).click()
-    page.get_by_text(re.compile(r"^done — run .*iteration 2 —")).wait_for(timeout=30_000)
+    page.get_by_text(re.compile(r"^done run .*iteration 2 ")).wait_for(timeout=30_000)
     page.get_by_label("Text to fact-check").fill("OFFLINE_STOP_TEST: wait for the Stop button.")
     page.get_by_role("button", name="Run fact-check", exact=True).click()
-    page.get_by_text(re.compile(r"^running — run ")).wait_for(timeout=30_000)
+    page.get_by_text(re.compile(r"^running run ")).wait_for(timeout=30_000)
     page.get_by_role("button", name="Stop", exact=True).click()
-    page.get_by_text(re.compile(r"^stopped — run ")).wait_for(timeout=30_000)
-    log.info("Offline browser verification passed: One more iteration and final stopped status")
+    page.get_by_text(re.compile(r"^stopped run ")).wait_for(timeout=30_000)
+    # Model text with markup and template syntax must appear literally in the Overview (render_html.esc).
+    page.get_by_label("Text to fact-check").fill("OFFLINE_HOSTILE_TEST: model markup must render as text.")
+    page.get_by_role("button", name="Run fact-check", exact=True).click()
+    page.get_by_text(FINISHED).first.wait_for(timeout=30_000)
+    page.get_by_role("tab", name="Overview", exact=True).click()
+    expect(page.locator(".afc-claim").first).to_contain_text("{{ text }} ${1+1} <b>not bold</b>")
+    if page.locator(".afc-overview img, .afc-overview b").count() or page.title() == "injected":
+        raise RuntimeError("Model-provided markup was rendered as HTML")
+    log.info("Offline browser verification passed: One more iteration, final stopped status, escaped markup")
 
 
 def main() -> None:
@@ -99,7 +109,8 @@ def main() -> None:
             page = browser.new_page(viewport={"width": 1920, "height": 1080}, color_scheme="light")  # fullscreen 1080p
             page.goto(f"http://127.0.0.1:{args.port}/")
             pick(page, "Load an example text", args.example)
-            expect(page.get_by_label("Text to fact-check")).not_to_have_value("")  # example.input filled the box
+            # example.input filled the box; the first event after a cold start can take longer than the 5 s default
+            expect(page.get_by_label("Text to fact-check")).not_to_have_value("", timeout=30_000)
             pick(page, "Preset (fills every setting below)", args.preset)
             page.get_by_role("button", name="Load preset").click()
             page.wait_for_timeout(2000)  # Gradio keeps a stream open (no "networkidle"); the preset event takes <1 s
@@ -109,7 +120,7 @@ def main() -> None:
             log.info("Run finished: %s", status.inner_text())
             if not status.inner_text().startswith("done"):
                 raise RuntimeError(f"Run did not finish cleanly: {status.inner_text()}")
-            save(page, out / "app.png", tab="Claims", whole_page=True)  # README's first image: output + settings
+            save(page, out / "app.png", tab="Overview", whole_page=True)  # README's first image: output + settings
             save(page, out / "example_corrected.png", tab="Corrected text")
             save(page, out / "example_report.png", tab="Report", max_height=1600)
             if args.offline:
