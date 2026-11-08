@@ -6,6 +6,12 @@
       "runtimeExecutable": "uv",
       "runtimeArgs": ["run", "afc", "ui", "--port", "7860", "--no-browser"],
       "port": 7860
+    },
+    {
+      "name": "afc-ui-offline",
+      "runtimeExecutable": "uv",
+      "runtimeArgs": ["run", "python", "docs/scripts/offline_ui.py"],
+      "port": 7862
     }
   ]
 }
