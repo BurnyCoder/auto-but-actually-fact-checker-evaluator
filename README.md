@@ -7,7 +7,7 @@ Claude Code and Codex agents can delegate to one subagent per claim or per scien
 responses may omit fields or contain mistakes. Corrected text can be re-checked **iteratively** until a model-rated
 threshold or another stopping condition is reached. Scores and stopping decisions are not independent verification.
 
-![Auto Fact-Checker UI populated with synthetic offline fixture output; input and Claims table on the left, settings on the right](docs/images/app.png)
+![Auto Fact-Checker UI populated with synthetic offline fixture output; input and Overview tab (score tiles and colour-banded claim cards) on the left, settings on the right](docs/images/app.png)
 
 *Screenshots use the real UI with synthetic offline fixture responses to demonstrate layout and controls. Their
 scores, text, sources and costs are test data, not evidence of model performance. The historical paid run described
@@ -192,14 +192,15 @@ The screenshots are synthetic UI fixtures, not this run's outputs. Against the a
 This is one historical example, not an estimate of general performance. See [Exp00](reports/experiments/exp00_ai_texts.md)
 for the example runs and [Results so far](#results-so-far) for the benchmarks.
 
-The **Corrected text** tab holds the rewritten text, which **One more iteration** checks again:
+The **Corrected text** tab shows a word diff of what changed and holds the rewritten text, which
+**One more iteration** checks again:
 
 ![Corrected text tab populated with a synthetic offline fixture response](docs/images/example_corrected.png)
 
 <details>
 <summary>The <b>Report</b> tab: synthetic fixture output (top part)</summary>
 
-![Report tab populated with synthetic findings, sources and scores for an offline UI test](docs/images/example_report.png)
+![Report tab populated with a synthetic offline fixture report; its JSON summary is collapsed](docs/images/example_report.png)
 
 </details>
 
@@ -222,7 +223,11 @@ uv run --group docs python docs/scripts/take_screenshots.py --offline --channel 
 **Requested scores and subjective confidence per claim, label and condition**:
 - Labels can be scored for every label, or only for the labels that apply.
 - An optional per-scientist "standards" condition can be added.
-- The UI shows Claims, Labels and Conditions tables.
+- The UI's **Overview** tab shows score tiles and one card per claim. Each card has a colour band with an icon
+  (✓ at or above the accuracy threshold, ! from 50 % up to the threshold, ✕ below 50 %) and the suggested correction
+  as a word diff. The bands restate model-reported scores; they are not verification.
+- Claims, Labels and Conditions tables (searchable) hold the full matrices; the Corrected text tab shows a word diff
+  against the checked text.
 
 **Per-step backends**:
 
@@ -300,7 +305,7 @@ matplotlib (dev and `--group paper`) and [Typst](https://typst.app/) (report fig
 4. **Stopping.** `iterate.should_stop` decides whether to run another pass (threshold, fixed point, missing
    summary, no corrected text); `RunContext` checks recorded costs and cancellation before calls. The UI shows the result in
    tabs:
-   - Report, Claims, Labels, Conditions, Corrected text, Issues
+   - Overview, Report, Claims, Labels, Conditions, Corrected text, Issues
    - Iterations, Perspectives, Calls & cost, Live log
    - Prompt preview, Raw JSON
 
